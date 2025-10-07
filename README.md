@@ -64,22 +64,20 @@ docker run -p 3838:3838 pavlopouloslab/arena3dweb
 
 1. Clone the repo:
 
-   ```bash
-   ```
-
-git clone [https://github.com/PavlopoulosLab/Arena3Dweb.git](https://github.com/PavlopoulosLab/Arena3Dweb.git)
+  ```bash
+git clone https://github.com/PavlopoulosLab/Arena3Dweb.git
 cd Arena3Dweb
+  ```
 
-````
 2. Install R (>=4.0) and RStudio.
 3. Install required R packages:
-   ```r
+  ```r
 install.packages(c(
   "shiny", "shinyjs", "shinythemes",
   "igraph", "RColorBrewer",
   "jsonlite", "tidyr"
 ))
-````
+  ```
 
 4. Open **Arena3Dweb.Rproj** in RStudio.
 5. Open **server.R**, select **Run External**, then click **Run App**.
