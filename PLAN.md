@@ -19,11 +19,11 @@ See `MIGRATION.md` for the old-file → new-file deletion checklist.
 - [x] Set up `frontend/package.json` — Vite + TypeScript + ESLint + Prettier + Vitest
 - [x] Set up `frontend/vite.config.ts` — proxy `/api` to `localhost:8000` in dev
 - [x] Set up `frontend/tsconfig.json`
-- [ ] Set up `docker-compose.yml` — hot-reload frontend + backend
-- [ ] Set up `Dockerfile` — production single image (nginx + uvicorn)
-- [ ] Set up `nginx/nginx.conf` — serve static build, proxy `/api`
-- [ ] Set up `.github/workflows/ci.yml` — lint → typecheck → unit tests → E2E
-- [ ] Set up `.pre-commit-config.yaml` — Ruff + ESLint/Prettier hooks
+- [x] Set up `docker-compose.yml` — hot-reload frontend + backend
+- [x] Set up `Dockerfile` — production single image (nginx + uvicorn)
+- [x] Set up `nginx/nginx.conf` — serve static build, proxy `/api`
+- [x] Set up `.github/workflows/ci.yml` — lint → typecheck → unit tests → E2E
+- [x] Set up `.pre-commit-config.yaml` — Ruff + ESLint/Prettier hooks
 - [x] Create `MIGRATION.md` with full old-file → new-file checklist
 
 ---
