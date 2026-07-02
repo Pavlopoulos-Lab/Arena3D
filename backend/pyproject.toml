@@ -34,5 +34,9 @@ select = ["E", "F", "I", "UP", "B"]
 python_version = "3.12"  # numpy/pandas stubs require 3.12+ type syntax
 strict = true
 
+[[tool.mypy.overrides]]
+module = "igraph.*"
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

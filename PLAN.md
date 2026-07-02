@@ -52,13 +52,13 @@ See `MIGRATION.md` for the old-file → new-file deletion checklist.
 ## Phase 4 — Backend: Layout Algorithms
 
 - [x] Swap `networkx` + `scipy` + `python-louvain` for `python-igraph`; backend now managed by `uv` (`pyproject.toml` + `uv.lock`, `requirements.txt` deleted)
-- [ ] Implement `services/graph.py` — `ig.Graph` construction (port `functions/igraph/general.R`: channel filter, perLayer/allLayers/nodesPerLayers subgraph scopes, `simplify()` multi-edge/loop rules)
-- [ ] Implement `services/layouts.py` — registry dict mapping all 11 UI layout names to `Graph.layout_*` calls (port `getLayoutFunction()`)
-- [ ] Port pseudo-network for no-edge layouts (`NO_EDGE_LAYOUTS` = Circle, Grid, Random) — `filterPseudoNetwork()` chains isolated nodes with tiny weights so whole layer participates
-- [ ] Seed RNG per request (v2 uses `set.seed(123)`) — layouts must be reproducible
-- [ ] Implement `POST /api/layout` router — scope + selected layers/nodes/channels params, returns 2D in-layer `[y, z]` coords (SPEC §5 flow)
-- [ ] Write pytest tests for each layout with fixture graphs
-- [ ] Delete `functions/igraph/layout.R`, `functions/igraph/general.R`
+- [x] Implement `services/graph.py` — `ig.Graph` construction (port `functions/igraph/general.R`: channel filter, perLayer/allLayers/nodesPerLayers subgraph scopes, `simplify()` multi-edge/loop rules)
+- [x] Implement `services/layouts.py` — registry dict mapping all 11 UI layout names to `Graph.layout_*` calls (port `getLayoutFunction()`)
+- [x] Port pseudo-network for no-edge layouts (`NO_EDGE_LAYOUTS` = Circle, Grid, Random) — simplified: add all layer nodes as isolated vertices so `layout_circle/grid/random` place them (v2 chained them with tiny weights; same visible result)
+- [x] Seed RNG per request (v2 uses `set.seed(123)`) — layouts must be reproducible
+- [x] Implement `POST /api/layout` router — scope + selected layers/nodes/channels params, returns 2D in-layer `[y, z]` coords (SPEC §5 flow)
+- [x] Write pytest tests for each layout with fixture graphs (24 tests: all 11 algos run, 3 scopes, channel filter, seed determinism)
+- [x] Delete `functions/igraph/layout.R` (`general.R` ported into `graph.py` but kept as living spec until `cluster.R`/`topology.R` land in Phases 5–6)
 
 ---
 
