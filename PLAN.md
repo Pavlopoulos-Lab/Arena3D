@@ -66,21 +66,21 @@ See `MIGRATION.md` for the old-file → new-file deletion checklist.
 
 Clustering in v2 is not a standalone action — it is an option of the layout run (`calculateClusteredLayout()`): cluster, lay out cluster super-nodes globally, lay out members locally, translate into place. No separate `/api/cluster` endpoint.
 
-- [ ] Implement clustering registry (`services/clustering.py`) — Louvain, Walktrap, Fast Greedy, Label Propagation (`Graph.community_*`, all exact with python-igraph)
-- [ ] Port supernode strategy (`execute_strategy3_superNodes_strictPartitioning`): global layout on cluster graph with repelling force, per-cluster local layout, coordinate translation
-- [ ] Extend `POST /api/layout` with optional `clustering: { algorithm, local_layout }`; response gains `clusters` map (feeds Clustering Data table + node-color priority)
-- [ ] Write pytest tests for each clustering algorithm and the clustered layout
-- [ ] Delete `functions/igraph/cluster.R`
+- [x] Implement clustering registry (`services/clustering.py`) — Louvain, Walktrap, Fast Greedy, Label Propagation (`Graph.community_*`, all exact with python-igraph)
+- [x] Port supernode strategy (`execute_strategy3_superNodes_strictPartitioning`): global layout on cluster graph with repelling force, per-cluster local layout, coordinate translation
+- [x] Extend `POST /api/layout` with optional `clustering: { algorithm, local_layout }`; response gains `clusters` map (feeds Clustering Data table + node-color priority)
+- [x] Write pytest tests for each clustering algorithm and the clustered layout (8 tests, two-community fixture)
+- [x] Delete `functions/igraph/cluster.R`
 
 ---
 
 ## Phase 6 — Backend: Topology Metrics
 
-- [ ] Implement `services/topology.py` — Degree (raw `Graph.degree()`, **not** normalized centrality), Clustering Coefficient (weighted local transitivity, isolates = 0), Betweenness (honours edge-direction toggle + weights)
-- [ ] Port `mapper()` — map values into `[TARGET_NODE_SCALE_MIN, TARGET_NODE_SCALE_MAX]` server-side as v2 does; return raw values too for the View Data table
-- [ ] Implement `POST /api/topology` router (same scope/filter params as layout)
-- [ ] Write pytest tests for each metric with known fixture graphs
-- [ ] Delete `functions/igraph/topology.R`
+- [x] Implement `services/topology.py` — Degree (raw `Graph.degree(loops=True)`, **not** normalized centrality), Clustering Coefficient (weighted local transitivity, isolates = 0), Betweenness (honours edge-direction toggle + weights)
+- [x] Port `mapper()` — map values into `[TARGET_NODE_SCALE_MIN, TARGET_NODE_SCALE_MAX]` per subgraph as v2 does; return raw values too for the View Data table
+- [x] Implement `POST /api/topology` router (same scope/filter params as layout)
+- [x] Write pytest tests for each metric with known fixture graphs (7 tests, star + triangle fixtures)
+- [x] Delete `functions/igraph/topology.R` (+ `general.R` — all igraph ports done, `functions/igraph/` now empty)
 
 ---
 
