@@ -51,7 +51,7 @@ See `MIGRATION.md` for the old-file → new-file deletion checklist.
 
 ## Phase 4 — Backend: Layout Algorithms
 
-- [ ] Swap `networkx` + `scipy` + `python-louvain` for `python-igraph` in `requirements.txt` (SPEC §2 — same C core as R igraph, all 11 UI layouts port exactly)
+- [x] Swap `networkx` + `scipy` + `python-louvain` for `python-igraph`; backend now managed by `uv` (`pyproject.toml` + `uv.lock`, `requirements.txt` deleted)
 - [ ] Implement `services/graph.py` — `ig.Graph` construction (port `functions/igraph/general.R`: channel filter, perLayer/allLayers/nodesPerLayers subgraph scopes, `simplify()` multi-edge/loop rules)
 - [ ] Implement `services/layouts.py` — registry dict mapping all 11 UI layout names to `Graph.layout_*` calls (port `getLayoutFunction()`)
 - [ ] Port pseudo-network for no-edge layouts (`NO_EDGE_LAYOUTS` = Circle, Grid, Random) — `filterPseudoNetwork()` chains isolated nodes with tiny weights so whole layer participates

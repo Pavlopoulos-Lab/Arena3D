@@ -16,13 +16,11 @@ If you are on the `v3` branch, the presence of old R/Shiny files (`server.R`, `f
 
 ### v3 (FastAPI + Vite — active development, `v3` branch)
 
-**Backend:**
+**Backend** (package management via `uv` — no manual venv/pip):
 ```bash
 cd backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload   # http://localhost:8000
+uv sync                                  # installs deps + dev group into .venv
+uv run uvicorn app.main:app --reload     # http://localhost:8000
 ```
 
 **Frontend:**
@@ -39,7 +37,7 @@ docker-compose up
 
 **Backend tests:**
 ```bash
-cd backend && pytest
+cd backend && uv run pytest
 ```
 
 **Frontend tests:**
@@ -50,7 +48,8 @@ cd frontend && npm run test:e2e  # Playwright E2E
 
 **Lint / format:**
 ```bash
-cd backend && ruff check . && ruff format .
+cd backend && uv run ruff check . && uv run ruff format .
+cd backend && uv run mypy app
 cd frontend && npm run lint && npm run format
 ```
 

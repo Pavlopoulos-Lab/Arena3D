@@ -336,8 +336,8 @@ Arena3Dweb/                         ← same GitHub repo, v3 branch
       test_topology.py
       test_session.py
       test_external.py
-    pyproject.toml                  # Ruff + mypy config
-    requirements.txt
+    pyproject.toml                  # deps (uv) + Ruff + mypy config
+    uv.lock
   docs/
     superpowers/specs/
   nginx/
