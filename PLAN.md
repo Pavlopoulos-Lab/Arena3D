@@ -30,11 +30,11 @@ See `MIGRATION.md` for the old-file → new-file deletion checklist.
 
 ## Phase 2 — Backend: Config Endpoint
 
-- [ ] Implement `backend/app/config.py` — port constants from `config/server_variables.R`; backend keeps what it validates against (`MAX_EDGES`, `MAX_LAYERS`, `MAX_CHANNELS`, mandatory/optional column lists, scale targets), purely visual constants (node palette, channel colors, floor defaults) also served via `/api/config` for the frontend
-- [ ] Implement `GET /api/config` router
-- [ ] Write pytest tests for `/api/config`
-- [ ] Verify frontend can fetch and parse config response
-- [ ] Delete `config/server_variables.R` (`global_variables.R`, `static_variables.R`, `ui_variables.R` are 1–2 lines each — fold their constants in here too and delete them)
+- [x] Implement `backend/app/config.py` — port constants from `config/server_variables.R`; backend keeps what it validates against (`MAX_EDGES`, `MAX_LAYERS`, `MAX_CHANNELS`, mandatory/optional column lists, scale targets), purely visual constants (node palette, channel colors, floor defaults) also served via `/api/config` for the frontend
+- [x] Implement `GET /api/config` router
+- [x] Write pytest tests for `/api/config`
+- [x] Verify frontend can fetch and parse config response (`src/api/config.ts` typed client + live smoke test)
+- [x] Delete `config/server_variables.R` (`global_variables.R`, `static_variables.R`, `ui_variables.R` folded in / obsolete — deleted too)
 
 ---
 

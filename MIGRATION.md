@@ -11,10 +11,10 @@ See `PLAN.md` for the ordered implementation steps.
 
 | Old file | New file | Done |
 |---|---|---|
-| `config/server_variables.R` | `backend/app/config.py` | [ ] |
-| `config/global_variables.R` | `backend/app/config.py` | [ ] |
-| `config/static_variables.R` | `backend/app/config.py` | [ ] |
-| `config/ui_variables.R` | *(absorbed into frontend config — see Removed)* | [ ] |
+| `config/server_variables.R` | `backend/app/config.py` | [x] |
+| `config/global_variables.R` | `backend/app/config.py` | [x] |
+| `config/static_variables.R` | *(mutable Shiny state — no equivalent in stateless server)* | [x] |
+| `config/ui_variables.R` | *(absorbed into frontend config — see Removed)* | [x] |
 | `functions/input.R` | `backend/app/services/parser.py` + `backend/app/routers/network.py` | [ ] |
 | `functions/init.R` | `backend/app/routers/config.py` + `backend/app/main.py` | [ ] |
 | `functions/general.R` | `backend/app/services/parser.py` (file read) + `backend/app/services/topology.py` (`mapper()`) — JS-bridge helpers die with Shiny | [ ] |
