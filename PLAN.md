@@ -40,12 +40,12 @@ See `MIGRATION.md` for the old-file → new-file deletion checklist.
 
 ## Phase 3 — Backend: Network Parsing
 
-- [ ] Implement Pydantic models — `NodeModel`, `EdgeModel`, `NetworkModel` (`models/network.py`)
-- [ ] Implement `services/parser.py` — port TSV parsing and validation from `functions/input.R`
-- [ ] Implement `POST /api/network` router
-- [ ] Write pytest tests using `www/data/` TSV files as fixtures
-- [ ] Verify validation errors match current behaviour (missing columns, non-numeric weights, empty channels)
-- [ ] Delete `functions/input.R`
+- [x] Implement Pydantic models — `NodeModel`, `EdgeModel`, `NetworkModel` (`models/network.py`)
+- [x] Implement `services/parser.py` — port TSV parsing and validation from `functions/input.R` (`parseUploadedNetwork` chain + `mapper`)
+- [x] Implement `POST /api/network` router
+- [x] Write pytest tests using `www/data/` TSV files as fixtures (12 tests, real `aspirin_3channels.tsv`)
+- [x] Verify validation errors match current behaviour (missing columns, non-numeric weights, empty channels)
+- [ ] Delete `functions/input.R` — **deferred to Phase 7**: file also holds JSON import, session export, node/edge attribute uploads, example load. Only the TSV-upload portion is ported now.
 
 ---
 

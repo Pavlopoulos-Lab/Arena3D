@@ -1,0 +1,83 @@
+from pathlib import Path
+
+import pytest
+from fastapi.testclient import TestClient
+
+from app.main import app
+from app.services.parser import NetworkValidationError, parse_network_tsv
+
+client = TestClient(app)
+DATA = Path(__file__).resolve().parents[2] / "www" / "data"
+HDR = "SourceNode\tSourceLayer\tTargetNode\tTargetLayer"
+
+
+def _post(text: str):
+    return client.post(
+        "/api/network", files={"file": ("net.tsv", text, "text/tab-separated-values")}
+    )
+
+
+def test_parses_real_multichannel_fixture() -> None:
+    fixture = DATA / "aspirin_3channels.tsv"
+    if not fixture.exists():
+        pytest.skip("fixture missing")
+    body = _post(fixture.read_text()).json()
+    assert len(body["nodes"]) > 0
+    assert len(body["edges"]) > 0
+    assert "Drug" in body["layers"]
+    assert body["channels"]  # multichannel file → non-empty
+
+
+def test_scaled_weight_in_range() -> None:
+    tsv = f"{HDR}\tWeight\nA\tL1\tB\tL2\t5\nC\tL1\tD\tL2\t10\n"
+    edges = _post(tsv).json()["edges"]
+    scaled = [e["scaled_weight"] for e in edges]
+    assert min(scaled) == pytest.approx(0.1)
+    assert max(scaled) == pytest.approx(1.0)
+
+
+def test_constant_weight_uses_default_map_value() -> None:
+    tsv = f"{HDR}\tWeight\nA\tL1\tB\tL2\t3\nC\tL1\tD\tL2\t3\n"
+    edges = _post(tsv).json()["edges"]
+    assert all(e["scaled_weight"] == pytest.approx(0.3) for e in edges)
+
+
+def test_missing_weight_column_defaults_to_one() -> None:
+    tsv = f"{HDR}\nA\tL1\tB\tL2\n"
+    edges = _post(tsv).json()["edges"]
+    assert edges[0]["weight"] == 1.0
+
+
+def test_missing_mandatory_column_400() -> None:
+    tsv = "SourceNode\tSourceLayer\tTargetNode\nA\tL1\tB\n"
+    resp = _post(tsv)
+    assert resp.status_code == 400
+    assert "four columns" in resp.json()["detail"]
+
+
+def test_non_numeric_weight_400() -> None:
+    tsv = f"{HDR}\tWeight\nA\tL1\tB\tL2\theavy\n"
+    assert _post(tsv).status_code == 400
+
+
+def test_empty_channel_400() -> None:
+    tsv = f"{HDR}\tChannel\nA\tL1\tB\tL2\t\n"
+    assert _post(tsv).status_code == 400
+
+
+def test_duplicate_rows_collapsed() -> None:
+    tsv = f"{HDR}\nA\tL1\tB\tL2\nA\tL1\tB\tL2\n"
+    assert len(_post(tsv).json()["edges"]) == 1
+
+
+def test_whitespace_trimmed() -> None:
+    tsv = f"{HDR}\n A \tL1\tB\tL2\n"
+    node_ids = [n["id"] for n in _post(tsv).json()["nodes"]]
+    assert "A_L1" in node_ids
+
+
+def test_too_many_layers_rejected() -> None:
+    rows = "\n".join(f"A\tL{i}\tB\tL{i + 1}" for i in range(0, 40, 2))
+    tsv = f"{HDR}\n" + rows + "\n"
+    with pytest.raises(NetworkValidationError):
+        parse_network_tsv(tsv)

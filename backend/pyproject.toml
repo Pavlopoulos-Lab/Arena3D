@@ -18,17 +18,20 @@ dev = [
     "pytest-asyncio>=0.24.0",
     "mypy>=1.11.0",
     "ruff>=0.6.0",
+    "pandas-stubs>=3.0.3.260530",
 ]
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# ruff config lives in backend/; legacy R-side scripts live above it (../www) — never lint those
+extend-exclude = ["../www", "../functions", "../views", "../config"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"  # numpy/pandas stubs require 3.12+ type syntax
 strict = true
 
 [tool.pytest.ini_options]
