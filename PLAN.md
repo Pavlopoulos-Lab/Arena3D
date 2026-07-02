@@ -30,11 +30,11 @@ See `MIGRATION.md` for the old-file → new-file deletion checklist.
 
 ## Phase 2 — Backend: Config Endpoint
 
-- [ ] Implement `backend/app/config.py` — port constants from `config/server_variables.R`
+- [ ] Implement `backend/app/config.py` — port constants from `config/server_variables.R`; backend keeps what it validates against (`MAX_EDGES`, `MAX_LAYERS`, `MAX_CHANNELS`, mandatory/optional column lists, scale targets), purely visual constants (node palette, channel colors, floor defaults) also served via `/api/config` for the frontend
 - [ ] Implement `GET /api/config` router
 - [ ] Write pytest tests for `/api/config`
 - [ ] Verify frontend can fetch and parse config response
-- [ ] Delete `config/server_variables.R`
+- [ ] Delete `config/server_variables.R` (`global_variables.R`, `static_variables.R`, `ui_variables.R` are 1–2 lines each — fold their constants in here too and delete them)
 
 ---
 
@@ -51,35 +51,34 @@ See `MIGRATION.md` for the old-file → new-file deletion checklist.
 
 ## Phase 4 — Backend: Layout Algorithms
 
-- [ ] Implement abstract `LayoutStrategy` base class (`services/algorithms/base.py`)
-- [ ] Implement `ForceDirectedLayout` — port `igraph::layout_with_fr()`
-- [ ] Implement `CircularLayout` — port `igraph::layout_in_circle()`
-- [ ] Implement `GridLayout`
-- [ ] Implement `RandomLayout`
-- [ ] Implement algorithm registry (`services/algorithms/registry.py`)
-- [ ] Implement `services/graph.py` — `nx.Graph` construction helpers (port `functions/igraph/general.R`)
-- [ ] Implement `POST /api/layout` router
-- [ ] Write pytest tests for each layout strategy with fixture graphs
+- [ ] Swap `networkx` + `scipy` + `python-louvain` for `python-igraph` in `requirements.txt` (SPEC §2 — same C core as R igraph, all 11 UI layouts port exactly)
+- [ ] Implement `services/graph.py` — `ig.Graph` construction (port `functions/igraph/general.R`: channel filter, perLayer/allLayers/nodesPerLayers subgraph scopes, `simplify()` multi-edge/loop rules)
+- [ ] Implement `services/layouts.py` — registry dict mapping all 11 UI layout names to `Graph.layout_*` calls (port `getLayoutFunction()`)
+- [ ] Port pseudo-network for no-edge layouts (`NO_EDGE_LAYOUTS` = Circle, Grid, Random) — `filterPseudoNetwork()` chains isolated nodes with tiny weights so whole layer participates
+- [ ] Seed RNG per request (v2 uses `set.seed(123)`) — layouts must be reproducible
+- [ ] Implement `POST /api/layout` router — scope + selected layers/nodes/channels params, returns 2D in-layer `[y, z]` coords (SPEC §5 flow)
+- [ ] Write pytest tests for each layout with fixture graphs
 - [ ] Delete `functions/igraph/layout.R`, `functions/igraph/general.R`
 
 ---
 
-## Phase 5 — Backend: Clustering Algorithms
+## Phase 5 — Backend: Clustering (optional layout step)
 
-- [ ] Implement `LouvainClustering` strategy — port `igraph::cluster_louvain()`
-- [ ] Implement `WalktrapClustering` strategy — LPA approximation; note in MIGRATION.md if behaviour differs
-- [ ] Implement `POST /api/cluster` router
-- [ ] Write pytest tests for each clustering strategy
+Clustering in v2 is not a standalone action — it is an option of the layout run (`calculateClusteredLayout()`): cluster, lay out cluster super-nodes globally, lay out members locally, translate into place. No separate `/api/cluster` endpoint.
+
+- [ ] Implement clustering registry (`services/clustering.py`) — Louvain, Walktrap, Fast Greedy, Label Propagation (`Graph.community_*`, all exact with python-igraph)
+- [ ] Port supernode strategy (`execute_strategy3_superNodes_strictPartitioning`): global layout on cluster graph with repelling force, per-cluster local layout, coordinate translation
+- [ ] Extend `POST /api/layout` with optional `clustering: { algorithm, local_layout }`; response gains `clusters` map (feeds Clustering Data table + node-color priority)
+- [ ] Write pytest tests for each clustering algorithm and the clustered layout
 - [ ] Delete `functions/igraph/cluster.R`
 
 ---
 
 ## Phase 6 — Backend: Topology Metrics
 
-- [ ] Implement `DegreeStrategy` — port `igraph::degree()`
-- [ ] Implement `BetweennessStrategy` — port `igraph::betweenness()`
-- [ ] Implement `ClusteringCoefficientStrategy` — port `igraph::transitivity()`
-- [ ] Implement `POST /api/topology` router
+- [ ] Implement `services/topology.py` — Degree (raw `Graph.degree()`, **not** normalized centrality), Clustering Coefficient (weighted local transitivity, isolates = 0), Betweenness (honours edge-direction toggle + weights)
+- [ ] Port `mapper()` — map values into `[TARGET_NODE_SCALE_MIN, TARGET_NODE_SCALE_MAX]` server-side as v2 does; return raw values too for the View Data table
+- [ ] Implement `POST /api/topology` router (same scope/filter params as layout)
 - [ ] Write pytest tests for each metric with known fixture graphs
 - [ ] Delete `functions/igraph/topology.R`
 
@@ -90,9 +89,10 @@ See `MIGRATION.md` for the old-file → new-file deletion checklist.
 - [ ] Implement Pydantic models for session (`models/session.py`)
 - [ ] Implement `POST /api/session/import` router — port `importNetwork()`
 - [ ] Implement `POST /api/session/export` router — port `convertSessionToJSON()`
-- [ ] Implement `POST /api/external` + `GET /api/external/<token>` — port `resolveAPI()`; token = base64-encoded compressed session JSON
+- [ ] Implement `POST /api/external` + `GET /api/external/<token>` — port `resolveAPI()`; token = short random ID, session JSON stored in `tmp/` with TTL cleanup (base64-in-URL rejected — 10k-edge sessions exceed URL limits, see SPEC §5)
+- [ ] Decide VR feature: port `functions/vr.R` → `routers/vr.py` (PLY + A-Frame HTML written to `tmp/`, served by `GET /api/vr/<id>`) or drop with changelog note — v2 depends on external hosting at `bib.fleming.gr`
 - [ ] Write pytest tests for all session and external endpoints using `www/data/*.json` as fixtures
-- [ ] Delete `functions/init.R`, `functions/general.R`, `functions/reset.R`, `functions/vr.R`, `functions/edges.R`, `functions/render.R`, `functions/js_handling.R`
+- [ ] Delete `functions/init.R`, `functions/general.R`, `functions/reset.R`, `functions/vr.R`, `functions/render.R`, `functions/js_handling.R` (`functions/edges.R` is UI logic — dies with `views/` in Phase 13)
 
 ---
 
@@ -122,8 +122,7 @@ See `MIGRATION.md` for the old-file → new-file deletion checklist.
 ## Phase 10 — Frontend: Commands
 
 - [ ] Implement `LoadNetworkCommand`
-- [ ] Implement `ApplyLayoutCommand` — captures node positions before/after
-- [ ] Implement `ApplyClusteringCommand` — captures node colors/cluster IDs before/after
+- [ ] Implement `ApplyLayoutCommand` — captures node positions before/after, plus cluster IDs/colors when the layout ran with clustering (single command: one API response, one undo step)
 - [ ] Implement `ApplyTopologyCommand` — captures node scale values before/after
 - [ ] Implement `MoveLayerCommand` — captures layer transform before/after
 - [ ] Implement `ChangeNodeColorCommand`
@@ -173,9 +172,12 @@ See `MIGRATION.md` for the old-file → new-file deletion checklist.
 - [ ] Migrate Node Actions panel (`views/node.R` → `src/ui/node.ts`)
 - [ ] Migrate Edge Actions panel (`views/edge.R` → `src/ui/edge.ts`)
 - [ ] Migrate View Data panel (`views/data.R` → `src/ui/data.ts`)
-- [ ] Migrate Help panel (`views/help.R` → `src/ui/help.ts`)
+- [ ] Migrate FPS panel (`views/fps.R` → `src/ui/fps.ts`)
+- [ ] Migrate Help panel (`views/help.R` → `src/ui/help.ts`) — 920 lines of mostly static HTML; port as an HTML fragment, not TS
+- [ ] Migrate footer (`views/footer.R` → static footer in `index.html`)
+- [ ] Port edge-panel toggles from `functions/edges.R` into `src/ui/edge.ts`, then delete it
 - [ ] Add Undo/Redo buttons wired to `CommandHistory`
-- [ ] Delete `views/`, `ui.R`, `server.R`, `global.R`, `www/arena3dweb.css`
+- [ ] Delete `views/`, `ui.R`, `server.R`, `www/arena3dweb.css`
 
 ---
 

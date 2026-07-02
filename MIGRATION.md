@@ -14,19 +14,19 @@ See `PLAN.md` for the ordered implementation steps.
 | `config/server_variables.R` | `backend/app/config.py` | [ ] |
 | `config/global_variables.R` | `backend/app/config.py` | [ ] |
 | `config/static_variables.R` | `backend/app/config.py` | [ ] |
-| `config/ui_variables.R` | *(absorbed into frontend config)* | [ ] |
+| `config/ui_variables.R` | *(absorbed into frontend config — see Removed)* | [ ] |
 | `functions/input.R` | `backend/app/services/parser.py` + `backend/app/routers/network.py` | [ ] |
 | `functions/init.R` | `backend/app/routers/config.py` + `backend/app/main.py` | [ ] |
-| `functions/general.R` | `backend/app/services/graph.py` | [ ] |
+| `functions/general.R` | `backend/app/services/parser.py` (file read) + `backend/app/services/topology.py` (`mapper()`) — JS-bridge helpers die with Shiny | [ ] |
 | `functions/reset.R` | *(stateless server — no equivalent needed)* | [ ] |
 | `functions/render.R` | *(absorbed into FastAPI error responses)* | [ ] |
 | `functions/js_handling.R` | *(absorbed into frontend EventBus)* | [ ] |
-| `functions/edges.R` | `backend/app/routers/network.py` | [ ] |
-| `functions/vr.R` | `backend/app/routers/session.py` | [ ] |
+| `functions/edges.R` | `frontend/src/ui/edge.ts` — UI visibility toggles + JS handler calls, no server logic | [ ] |
+| `functions/vr.R` | `backend/app/routers/vr.py` — PLY + A-Frame HTML generation *(keep/drop decision, PLAN Phase 7)* | [ ] |
 | `functions/igraph/general.R` | `backend/app/services/graph.py` | [ ] |
-| `functions/igraph/layout.R` | `backend/app/services/algorithms/layouts/` | [ ] |
-| `functions/igraph/cluster.R` | `backend/app/services/algorithms/clusters/` | [ ] |
-| `functions/igraph/topology.R` | `backend/app/services/algorithms/topology/` | [ ] |
+| `functions/igraph/layout.R` | `backend/app/services/layouts.py` | [ ] |
+| `functions/igraph/cluster.R` | `backend/app/services/clustering.py` — folded into `POST /api/layout` as optional step | [ ] |
+| `functions/igraph/topology.R` | `backend/app/services/topology.py` | [ ] |
 
 ---
 
@@ -98,13 +98,15 @@ See `PLAN.md` for the ordered implementation steps.
 
 ## Algorithm Notes
 
-| Algorithm | Old (igraph) | New (NetworkX) | Exact match? |
-|---|---|---|---|
-| Force-directed layout | `layout_with_fr()` | `nx.spring_layout()` | Approximate |
-| Circular layout | `layout_in_circle()` | `nx.circular_layout()` | Yes |
-| Kamada-Kawai layout | `layout_with_kk()` | `nx.kamada_kawai_layout()` | Yes |
-| Louvain clustering | `cluster_louvain()` | `community.best_partition()` | Yes |
-| Walktrap clustering | `cluster_walktrap()` | `nx.community.asyn_lpa_communities()` | No — LPA approximation; verify output matches or use `igraph` Python bindings |
-| Degree | `degree()` | `nx.degree_centrality()` | Yes |
-| Betweenness centrality | `betweenness()` | `nx.betweenness_centrality()` | Yes |
-| Clustering coefficient | `transitivity()` | `nx.clustering()` | Yes |
+Backend uses **python-igraph** — same C core as R's igraph, so all 11 layouts, 4 clustering algorithms, and 3 topology metrics port 1:1 with identical output (full mapping table in SPEC §5). Non-obvious renames and v2 parameters to preserve:
+
+| v2 behaviour | Port note |
+|---|---|
+| `cluster_louvain()` | `Graph.community_multilevel()` (igraph's name for Louvain) |
+| `layout_as_tree()` ("Reingold-Tilford") | `Graph.layout_reingold_tilford()` |
+| `degree(mode = "all", loops = T, normalized = F)` | Raw `Graph.degree()` — **not** degree centrality |
+| `transitivity(type = "weighted", isolates = "zero")` | `Graph.transitivity_local_undirected(weights=…)`, isolates → 0 |
+| `betweenness(directed = input$edgeDirectionToggle, weights)` | Direction toggle + weights are request params |
+| `set.seed(123)` before every layout | Seed igraph RNG per request — layouts must be reproducible |
+| `NO_EDGE_LAYOUTS` (Circle, Grid, Random) | Run on pseudo-network linking isolated nodes with tiny weights (`filterPseudoNetwork()`) |
+| Clustered layout | Supernode strategy in `cluster.R` (global layout on cluster graph + repelling force + local layout per cluster) — part of `/api/layout`, not a separate endpoint |
