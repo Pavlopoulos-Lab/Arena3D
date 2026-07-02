@@ -23,8 +23,8 @@ See `PLAN.md` for the ordered implementation steps.
 | `functions/js_handling.R` | *(absorbed into frontend EventBus)* | [ ] |
 | `functions/edges.R` | `frontend/src/ui/edge.ts` — UI visibility toggles + JS handler calls, no server logic | [ ] |
 | `functions/vr.R` | `backend/app/routers/vr.py` — PLY + A-Frame HTML generation *(keep/drop decision, PLAN Phase 7)* | [ ] |
-| `functions/igraph/general.R` | `backend/app/services/graph.py` | [ ] |
-| `functions/igraph/layout.R` | `backend/app/services/layouts.py` | [ ] |
+| `functions/igraph/general.R` | `backend/app/services/graph.py` | [~] ported, file kept as spec until Phase 6 |
+| `functions/igraph/layout.R` | `backend/app/services/layouts.py` | [x] |
 | `functions/igraph/cluster.R` | `backend/app/services/clustering.py` — folded into `POST /api/layout` as optional step | [ ] |
 | `functions/igraph/topology.R` | `backend/app/services/topology.py` | [ ] |
 

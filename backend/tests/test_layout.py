@@ -57,7 +57,7 @@ def _req(**kw):
 
 def test_all_registered_algorithms_run() -> None:
     for algo in LAYOUTS:
-        pos = compute_layout(_req(algorithm=algo))
+        pos, _ = compute_layout(_req(algorithm=algo))
         assert pos, f"{algo} produced no positions"
         for coord in pos.values():
             assert len(coord) == 2
@@ -65,12 +65,12 @@ def test_all_registered_algorithms_run() -> None:
 
 def test_per_layer_excludes_inter_layer_edges() -> None:
     # perLayer L1 should place only L1 nodes reachable via intra-layer edges
-    pos = compute_layout(_req(selected_layers=["L1"]))
+    pos, _ = compute_layout(_req(selected_layers=["L1"]))
     assert set(pos) == {"A_L1", "B_L1", "C_L1"}
 
 
 def test_all_layers_scope_places_both_layers() -> None:
-    pos = compute_layout(_req(scope="allLayers"))
+    pos, _ = compute_layout(_req(scope="allLayers"))
     assert {"A_L1", "D_L2"} <= set(pos)
 
 
@@ -85,13 +85,13 @@ def test_no_edge_layout_places_isolated_nodes() -> None:
         scope="perLayer",
         selected_layers=["L1"],
     )
-    pos = compute_layout(req)
+    pos, _ = compute_layout(req)
     assert "Z_L1" in pos
 
 
 def test_seed_is_deterministic() -> None:
-    a = compute_layout(_req(algorithm="Fruchterman-Reingold", seed=7))
-    b = compute_layout(_req(algorithm="Fruchterman-Reingold", seed=7))
+    a, _ = compute_layout(_req(algorithm="Fruchterman-Reingold", seed=7))
+    b, _ = compute_layout(_req(algorithm="Fruchterman-Reingold", seed=7))
     assert a == b
 
 
@@ -108,7 +108,7 @@ def test_channel_filter_drops_unselected() -> None:
         selected_layers=["L1"],
         selected_channels=["keep"],
     )
-    pos = compute_layout(req)
+    pos, _ = compute_layout(req)
     # A-B edge dropped but A,B still reachable via C's edges → all three present
     assert set(pos) == {"A_L1", "B_L1", "C_L1"}
 
@@ -144,7 +144,7 @@ def test_endpoint_returns_positions() -> None:
 
 
 def test_nodes_per_layer_scope() -> None:
-    pos = compute_layout(
+    pos, _ = compute_layout(
         _req(
             scope="nodesPerLayers",
             selected_layers=["L1"],
