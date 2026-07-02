@@ -99,12 +99,12 @@ Clustering in v2 is not a standalone action — it is an option of the layout ru
 
 ## Phase 8 — Frontend: Foundation
 
-- [ ] Install Three.js via npm, configure `@types/three`
-- [ ] Implement `EventBus` singleton (`src/bus/index.ts`)
-- [ ] Implement `AppState` store singleton (`src/store/index.ts`)
-- [ ] Implement `Command` interface + `CommandHistory` singleton (`src/commands/base.ts`)
-- [ ] Generate typed API client from FastAPI OpenAPI spec (`src/api/client.ts`)
-- [ ] Verify API client can call all Phase 2–7 endpoints
+- [x] Install Three.js via npm, configure `@types/three` (already in `package.json`)
+- [x] Implement `EventBus` singleton (`src/bus/index.ts`) — typed events, returns unsubscribe fn
+- [x] Implement `AppState` store singleton (`src/store/index.ts`)
+- [x] Implement `Command` interface + `CommandHistory` singleton (`src/commands/base.ts`) — emits `history:changed`
+- [x] Hand-write typed API client mirroring the Pydantic models (`src/api/client.ts`) — no codegen dep; covers network/layout/topology/session/external
+- [x] Verify API client can call all Phase 2–7 endpoints (live smoke test: config/network/layout 200; OpenAPI lists all 9 paths). 5 Vitest tests for bus/store/history.
 
 ---
 
