@@ -15,14 +15,16 @@ See `PLAN.md` for the ordered implementation steps.
 | `config/global_variables.R` | `backend/app/config.py` | [x] |
 | `config/static_variables.R` | *(mutable Shiny state — no equivalent in stateless server)* | [x] |
 | `config/ui_variables.R` | *(absorbed into frontend config — see Removed)* | [x] |
-| `functions/input.R` | `backend/app/services/parser.py` + `backend/app/routers/network.py` | [ ] |
-| `functions/init.R` | `backend/app/routers/config.py` + `backend/app/main.py` | [ ] |
-| `functions/general.R` | `backend/app/services/parser.py` (file read) + `backend/app/services/topology.py` (`mapper()`) — JS-bridge helpers die with Shiny | [ ] |
-| `functions/reset.R` | *(stateless server — no equivalent needed)* | [ ] |
-| `functions/render.R` | *(absorbed into FastAPI error responses)* | [ ] |
-| `functions/js_handling.R` | *(absorbed into frontend EventBus)* | [ ] |
+| `functions/input.R` (TSV upload) | `backend/app/services/parser.py` + `routers/network.py` | [x] |
+| `functions/input.R` (JSON import + export) | `backend/app/services/session.py` + `routers/session.py` | [x] |
+| `functions/input.R` (attribute uploads) | *(not yet ported → future `POST /api/attributes`)* | [ ] |
+| `functions/init.R` | `backend/app/routers/config.py` + `backend/app/main.py` | [x] |
+| `functions/general.R` | `backend/app/services/parser.py` (file read) + `topology.py`/`parser.py` (`mapper()`) — JS-bridge helpers die with Shiny | [x] |
+| `functions/reset.R` | *(stateless server — no equivalent needed)* | [x] |
+| `functions/render.R` | *(absorbed into FastAPI error responses)* | [x] |
+| `functions/js_handling.R` | *(absorbed into frontend EventBus)* | [x] |
 | `functions/edges.R` | `frontend/src/ui/edge.ts` — UI visibility toggles + JS handler calls, no server logic | [ ] |
-| `functions/vr.R` | `backend/app/routers/vr.py` — PLY + A-Frame HTML generation *(keep/drop decision, PLAN Phase 7)* | [ ] |
+| `functions/vr.R` | **DROPPED** — VR mode not ported (depended on external `bib.fleming.gr` hosting + A-Frame; niche, out of scope) | [x] |
 | `functions/igraph/general.R` | `backend/app/services/graph.py` | [x] |
 | `functions/igraph/layout.R` | `backend/app/services/layouts.py` | [x] |
 | `functions/igraph/cluster.R` | `backend/app/services/clustering.py` — folded into `POST /api/layout` as optional step | [x] |

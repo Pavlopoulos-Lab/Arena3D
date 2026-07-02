@@ -86,13 +86,14 @@ Clustering in v2 is not a standalone action — it is an option of the layout ru
 
 ## Phase 7 — Backend: Session & External API
 
-- [ ] Implement Pydantic models for session (`models/session.py`)
-- [ ] Implement `POST /api/session/import` router — port `importNetwork()`
-- [ ] Implement `POST /api/session/export` router — port `convertSessionToJSON()`
-- [ ] Implement `POST /api/external` + `GET /api/external/<token>` — port `resolveAPI()`; token = short random ID, session JSON stored in `tmp/` with TTL cleanup (base64-in-URL rejected — 10k-edge sessions exceed URL limits, see SPEC §5)
-- [ ] Decide VR feature: port `functions/vr.R` → `routers/vr.py` (PLY + A-Frame HTML written to `tmp/`, served by `GET /api/vr/<id>`) or drop with changelog note — v2 depends on external hosting at `bib.fleming.gr`
-- [ ] Write pytest tests for all session and external endpoints using `www/data/*.json` as fixtures
-- [ ] Delete `functions/init.R`, `functions/general.R`, `functions/reset.R`, `functions/vr.R`, `functions/render.R`, `functions/js_handling.R` (`functions/edges.R` is UI logic — dies with `views/` in Phase 13)
+- [x] Implement Pydantic models for session (`models/session.py`)
+- [x] Implement `POST /api/session/import` router — ports `parseUploadedJSON()` + `isJSONValid()` (defaults for scene/layers/nodes/edges, channel handling, edge dedup, scramble flag)
+- [x] Implement `POST /api/session/export` router — thin packaging (stateless: frontend holds state, server returns JSON download)
+- [x] Implement `POST /api/external` + `GET /api/external/<token>` — token = `secrets.token_urlsafe`, session JSON stored in `tmp/` with 24h TTL sweep, path-traversal guard on resolve
+- [x] **VR: dropped.** `functions/vr.R` deleted, not ported. v2's VR mode wrote PLY + A-Frame HTML served from external `bib.fleming.gr` infra; niche feature, out of scope for the restack. Recorded in MIGRATION.md.
+- [x] Write pytest tests for all session and external endpoints using `www/data/*.json` as fixtures (11 tests, real `Arena3DwebApp_aspirin.json` + `figure1_export.json`)
+- [x] Delete `functions/init.R`, `functions/general.R`, `functions/reset.R`, `functions/vr.R`, `functions/render.R`, `functions/js_handling.R` (`functions/edges.R` is UI logic — dies with `views/` in Phase 13)
+- [ ] **Remaining in `functions/input.R`**: node/edge attribute-file uploads (`handleInputNodeAttributeFileUpload`, `handleInputEdgeAttributeFileUpload`) — not yet ported; map to a future `POST /api/attributes` endpoint. `input.R` deletion deferred until then.
 
 ---
 
