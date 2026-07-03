@@ -7,6 +7,14 @@
 
 import { ctx } from '../three'
 
+// v2 assignChannelColorsFromPalette — reassigns every known channel's color
+// in insertion order (channel order from the network build).
+export function assignChannelColorsFromPalette(palette: string[]): void {
+  Object.keys(ctx.channelColors).forEach((channel, i) => {
+    ctx.channelColors[channel] = palette[i % palette.length]
+  })
+}
+
 export function redrawIntraLayerEdges(): void {
   for (const e of ctx.edgeObjects) if (!e.interLayer) e.redrawEdge()
 }

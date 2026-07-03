@@ -81,6 +81,9 @@ export interface RuntimeContext {
   lastHoveredLayerIndex: number | null
   hoveredLayerPaintedFlag: boolean
   renderLayerLabelsFlag: boolean
+
+  // Universal label color (v2 globalLabelColor; read by labels.ts)
+  labelColor: string
 }
 
 const winW = typeof window !== 'undefined' ? window.innerWidth : 800
@@ -139,6 +142,8 @@ export const ctx: RuntimeContext = {
   lastHoveredLayerIndex: null,
   hoveredLayerPaintedFlag: false,
   renderLayerLabelsFlag: false,
+
+  labelColor: '#ffffff',
 }
 
 // Reset registries + tunables to defaults (used by tests and network reload).
@@ -178,6 +183,7 @@ export function resetContext(): void {
   ctx.lastHoveredLayerIndex = null
   ctx.hoveredLayerPaintedFlag = false
   ctx.renderLayerLabelsFlag = false
+  ctx.labelColor = '#ffffff'
 }
 
 // Registry snapshot — the mutable scene-graph state a network load replaces.

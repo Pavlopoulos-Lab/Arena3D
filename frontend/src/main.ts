@@ -7,6 +7,7 @@ import { store } from './store'
 import { ctx, Scene } from './three'
 import { history } from './commands/base'
 import { setRenderer, resetScreen, animate } from './actions/screen'
+import { registerThemeListener } from './actions/themes'
 import { registerGlobalListeners } from './event_listeners'
 
 async function main(): Promise<void> {
@@ -34,6 +35,7 @@ async function main(): Promise<void> {
   }
 
   registerGlobalListeners()
+  registerThemeListener()
   animate()
 
   // Test hook: lets Playwright read scene state via page.evaluate (WebGL is

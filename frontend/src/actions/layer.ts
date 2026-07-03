@@ -37,18 +37,19 @@ export function getSelectedLayers(): number[] {
   return ctx.layers.filter((l) => l.isSelected).map((l) => l.id)
 }
 
-export function repaintLayers(): void {
+// `pickerColor` overrides the DOM color input (themes.ts passes the theme's
+// floor color; the input itself only exists once Phase 13 builds the UI).
+export function repaintLayers(pickerColor?: string): void {
   for (const layer of ctx.layers) {
     if (layer.isSelected) layer.setColor(SELECTED_LAYER_DEFAULT_COLOR)
     else if (ctx.layerColorPrioritySource === 'default')
       layer.setColor(layer.importedColor)
     else if (ctx.layerColorPrioritySource === 'picker')
-      // ponytail: DOM picker read, as in Layer.getColor; the input only
-      // exists in the browser UI (Phase 13). Falls back to the stored color.
       layer.setColor(
-        (typeof document !== 'undefined' &&
-          (document.getElementById('floor_color') as HTMLInputElement | null)
-            ?.value) ||
+        pickerColor ||
+          (typeof document !== 'undefined' &&
+            (document.getElementById('floor_color') as HTMLInputElement | null)
+              ?.value) ||
           layer.color
       )
   }
