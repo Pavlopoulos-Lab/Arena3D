@@ -11,6 +11,7 @@ import { initHomePanel } from './ui/home'
 import { initFilePanel } from './ui/file'
 import { initLayoutsPanel } from './ui/layouts'
 import { initScenePanel } from './ui/scene'
+import { initLayerPanel } from './ui/layer'
 import { store } from './store'
 import { ctx, Scene } from './three'
 import { history } from './commands/base'
@@ -49,6 +50,7 @@ async function main(): Promise<void> {
   initFilePanel()
   initLayoutsPanel()
   initScenePanel()
+  initLayerPanel()
   registerGlobalListeners()
   registerThemeListener()
   registerLabelRendering()
