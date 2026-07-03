@@ -57,7 +57,7 @@ See `PLAN.md` for the ordered implementation steps.
 | `www/js/config/global_variables.js` | `frontend/src/config/global_variables.ts` + `GET /api/config` | [ ] |
 | `www/js/config/static_variables.js` | `frontend/src/config/static_variables.ts` | [ ] |
 | `www/js/object_actions/canvas_controls.js` | `frontend/src/actions/canvas_controls.ts` | [ ] |
-| `www/js/object_actions/network.js` | `frontend/src/actions/network.ts` | [ ] |
+| `www/js/object_actions/network.js` | `frontend/src/actions/network.ts` (upload build + session import) | [x] |
 | `www/js/object_actions/layout.js` | `frontend/src/actions/layout.ts` | [ ] |
 | `www/js/object_actions/layer.js` | `frontend/src/actions/layer.ts` | [ ] |
 | `www/js/object_actions/node.js` | `frontend/src/actions/node.ts` | [ ] |

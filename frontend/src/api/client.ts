@@ -27,6 +27,63 @@ export interface NetworkData {
   warnings: string[]
 }
 
+// Normalized session (SessionImportResponse; backend fills defaults, values
+// stay stringly-typed as in the v2 export format).
+export interface SessionScene {
+  position_x: string | number
+  position_y: string | number
+  scale: string | number
+  color: string
+  rotation_x: string | number
+  rotation_y: string | number
+  rotation_z: string | number
+}
+
+export interface SessionLayer {
+  name: string
+  position_x: string | number
+  position_y: string | number
+  position_z: string | number
+  rotation_x: string | number
+  rotation_y: string | number
+  rotation_z: string | number
+  last_layer_scale: string | number
+  floor_current_color: string
+  geometry_parameters_width: string | number
+  generate_coordinates: boolean
+}
+
+export interface SessionNode {
+  name: string
+  layer: string
+  position_x: string | number
+  position_y: string | number
+  position_z: string | number
+  scale: string | number
+  color: string
+  url: string
+  descr: string
+}
+
+export interface SessionEdge {
+  src: string
+  trg: string
+  opacity: string | number
+  color: string
+  channel?: string
+}
+
+export interface SessionData {
+  scene: SessionScene
+  layers: SessionLayer[]
+  nodes: SessionNode[]
+  edges: SessionEdge[]
+  universalLabelColor: string
+  direction: boolean
+  edgeOpacityByWeight: boolean
+  scramble_nodes: boolean
+}
+
 export type Scope = 'perLayer' | 'allLayers' | 'nodesPerLayers'
 
 export interface ClusteringOptions {
@@ -98,7 +155,7 @@ export const api = {
   topology: (req: TopologyRequest) =>
     post<TopologyResponse>('/api/topology', req),
   importSession: (file: File | Blob) =>
-    postFile<Record<string, unknown>>('/api/session/import', file),
+    postFile<SessionData>('/api/session/import', file),
   createExternal: (session: unknown) =>
     post<{ token: string; url: string }>('/api/external', session),
   resolveExternal: async (token: string): Promise<Record<string, unknown>> => {
