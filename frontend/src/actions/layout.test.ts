@@ -49,12 +49,10 @@ describe('normalizeLayoutPositions', () => {
 
 describe('applyLayout', () => {
   it('fetches, normalizes, and pushes one ApplyLayoutCommand', async () => {
-    const spy = vi
-      .spyOn(api, 'layout')
-      .mockResolvedValue({
-        positions: { 'A::L1': [0, 0], 'B::L1': [10, 10] },
-        clusters: null,
-      })
+    const spy = vi.spyOn(api, 'layout').mockResolvedValue({
+      positions: { 'A::L1': [0, 0], 'B::L1': [10, 10] },
+      clusters: null,
+    })
     await applyLayout({
       nodes: [],
       edges: [],

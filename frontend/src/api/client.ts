@@ -73,28 +73,38 @@ async function post<T>(path: string, body: unknown): Promise<T> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
-  if (!res.ok) throw new Error(`POST ${path} failed: ${res.status} ${await res.text()}`)
+  if (!res.ok)
+    throw new Error(`POST ${path} failed: ${res.status} ${await res.text()}`)
   return res.json() as Promise<T>
 }
 
-async function postFile<T>(path: string, file: File | Blob, name = 'file'): Promise<T> {
+async function postFile<T>(
+  path: string,
+  file: File | Blob,
+  name = 'file'
+): Promise<T> {
   const form = new FormData()
   form.append('file', file, name)
   const res = await fetch(path, { method: 'POST', body: form })
-  if (!res.ok) throw new Error(`POST ${path} failed: ${res.status} ${await res.text()}`)
+  if (!res.ok)
+    throw new Error(`POST ${path} failed: ${res.status} ${await res.text()}`)
   return res.json() as Promise<T>
 }
 
 export const api = {
-  uploadNetwork: (file: File | Blob) => postFile<NetworkData>('/api/network', file),
+  uploadNetwork: (file: File | Blob) =>
+    postFile<NetworkData>('/api/network', file),
   layout: (req: LayoutRequest) => post<LayoutResponse>('/api/layout', req),
-  topology: (req: TopologyRequest) => post<TopologyResponse>('/api/topology', req),
-  importSession: (file: File | Blob) => postFile<Record<string, unknown>>('/api/session/import', file),
+  topology: (req: TopologyRequest) =>
+    post<TopologyResponse>('/api/topology', req),
+  importSession: (file: File | Blob) =>
+    postFile<Record<string, unknown>>('/api/session/import', file),
   createExternal: (session: unknown) =>
     post<{ token: string; url: string }>('/api/external', session),
   resolveExternal: async (token: string): Promise<Record<string, unknown>> => {
     const res = await fetch(`/api/external/${token}`)
-    if (!res.ok) throw new Error(`GET /api/external/${token} failed: ${res.status}`)
+    if (!res.ok)
+      throw new Error(`GET /api/external/${token} failed: ${res.status}`)
     return res.json() as Promise<Record<string, unknown>>
   },
 }
