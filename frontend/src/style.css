@@ -36,6 +36,71 @@
   pointer-events: none; /* passive hint text — must not block panel clicks */
 }
 
+/* Loading spinner (port of v2 arena3dweb.css #loader). */
+#loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+  margin-top: 20%;
+  margin-left: 45%;
+  position: fixed;
+  z-index: 1;
+  display: none;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Node description panel (port of v2 #descrDiv rules; fixed right instead of
+   v2's float + negative-margin hack). */
+#descrDiv {
+  position: fixed;
+  display: none;
+  top: 160px;
+  right: 10px;
+  z-index: 3;
+  background-color: black;
+  height: 35vh;
+  width: 15%;
+  min-width: 200px;
+  border: 4px solid #faf5e3;
+  overflow-y: scroll;
+}
+
+.descrDiv_paragraph {
+  color: white;
+  padding: 15px;
+  text-align: justify;
+  text-indent: 15px;
+  margin-top: 10px;
+}
+
+#closeButton {
+  position: absolute;
+  right: 0;
+  background-color: red;
+  border: 1px solid gray;
+  border-radius: 5px;
+}
+
+#closeButton:hover {
+  background-color: #ff756b;
+  border: 1px solid white;
+}
+
+#closeButton:active {
+  background-color: #ab150a;
+}
+
 /* Footer (port of v2 arena3dweb.css footer rules). */
 footer {
   font-family: Arial;

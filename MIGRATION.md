@@ -54,8 +54,8 @@ See `PLAN.md` for the ordered implementation steps.
 > `src/three/constants.ts`. All four classes now live under `src/three/`
 > (not the SPEC's split `classes/` + `three/`), since with no patches one folder
 > suffices. `matrix4.js` / `drag_controls.js` deleted with `src/actions/drag_controls.ts`.
-| `www/js/config/global_variables.js` | `frontend/src/config/global_variables.ts` + `GET /api/config` | [ ] |
-| `www/js/config/static_variables.js` | `frontend/src/config/static_variables.ts` | [ ] |
+| `www/js/config/global_variables.js` | `frontend/src/three/runtime.ts` + `GET /api/config` | [x] |
+| `www/js/config/static_variables.js` | `frontend/src/three/constants.ts` | [x] |
 | `www/js/object_actions/canvas_controls.js` | `frontend/src/actions/canvas_controls.ts` | [ ] |
 | `www/js/object_actions/network.js` | `frontend/src/actions/network.ts` (upload build + session import) | [x] |
 | `www/js/object_actions/layout.js` | `frontend/src/actions/layout.ts` | [ ] |
@@ -66,8 +66,8 @@ See `PLAN.md` for the ordered implementation steps.
 | `www/js/object_actions/themes.js` | `frontend/src/actions/themes.ts` | [x] |
 | `www/js/object_actions/labels.js` | `frontend/src/actions/labels.ts` | [x] |
 | `www/js/object_actions/right_click_menu.js` | `frontend/src/actions/right_click_menu.ts` | [x] |
-| `www/js/rshiny_handlers.js` | `frontend/src/bus/index.ts` + `frontend/src/api/client.ts` | [ ] |
-| `www/js/rshiny_update.js` | `frontend/src/api/client.ts` | [ ] |
+| `www/js/rshiny_handlers.js` | `frontend/src/bus/index.ts` + `frontend/src/api/client.ts` | [x] |
+| `www/js/rshiny_update.js` | `frontend/src/api/client.ts` (store/bus replace Shiny input sync) | [x] |
 | `www/js/general.js` | `frontend/src/utils.ts` | [x] |
 | `www/js/event_listeners.js` | `frontend/src/event_listeners.ts` + `src/actions/canvas_controls.ts` + `src/actions/right_click_menu.ts` | [x] |
 | `www/js/on_page_load.js` | `frontend/src/main.ts` + `src/actions/canvas_controls.ts` (color-picker inputs re-created in Phase 13 scene panel) | [x] |

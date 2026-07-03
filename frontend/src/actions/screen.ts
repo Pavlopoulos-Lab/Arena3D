@@ -51,6 +51,22 @@ export function setRendererColor(hexColor: string): void {
   if (ctx.scene?.exists()) ctx.renderer?.setClearColor(hexColor)
 }
 
+// Loading spinner (v2 handler_startLoader/finishLoader): show #loader and dim
+// the canvas while a backend call is in flight.
+export function startLoader(): void {
+  const app = document.getElementById('app')
+  const loader = document.getElementById('loader')
+  if (app) app.style.opacity = '0.5'
+  if (loader) loader.style.display = 'inline-block'
+}
+
+export function finishLoader(): void {
+  const app = document.getElementById('app')
+  const loader = document.getElementById('loader')
+  if (app) app.style.opacity = '1'
+  if (loader) loader.style.display = 'none'
+}
+
 // Build the raycaster from a mouse event (used by node/layer hover — Phase 12+).
 export function setRaycaster(event: {
   clientX: number

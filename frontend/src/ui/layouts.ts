@@ -6,6 +6,7 @@ import { store } from '../store'
 import { bus } from '../bus'
 import { ctx } from '../three'
 import { applyLayout, applyTopology } from '../actions/layout'
+import { startLoader, finishLoader } from '../actions/screen'
 import {
   selectLayer,
   selectAllLayers,
@@ -113,7 +114,9 @@ function buildLayerCheckboxes(): void {
     const [sel, hide, labels] = row.querySelectorAll('input')
     sel.addEventListener('change', () => selectLayer(i, sel.checked))
     hide.addEventListener('change', () => setLayerVisibility(i, !hide.checked))
-    labels.addEventListener('change', () => setLayerNodeLabels(i, labels.checked))
+    labels.addEventListener('change', () =>
+      setLayerNodeLabels(i, labels.checked)
+    )
     container.appendChild(row)
   })
 }
@@ -146,7 +149,9 @@ function selectedChannels(): string[] | null {
     '#channelColorLayoutDiv .channel_checkbox'
   )
   if (boxes.length === 0) return null
-  return [...boxes].filter((b) => b.checked).map((b) => b.id.replace('checkbox_layout', ''))
+  return [...boxes]
+    .filter((b) => b.checked)
+    .map((b) => b.id.replace('checkbox_layout', ''))
 }
 
 function currentScope(): Scope {
@@ -165,13 +170,19 @@ async function onRunLayout(): Promise<void> {
   const scope = currentScope()
   const algorithm =
     scope === 'nodesPerLayers'
-      ? (document.getElementById('localLayoutAlgorithmChoice') as HTMLSelectElement).value
-      : (document.getElementById('layoutAlgorithmChoice') as HTMLSelectElement).value
+      ? (
+          document.getElementById(
+            'localLayoutAlgorithmChoice'
+          ) as HTMLSelectElement
+        ).value
+      : (document.getElementById('layoutAlgorithmChoice') as HTMLSelectElement)
+          .value
   if (algorithm === '-') return status('Select a layout algorithm.', true)
 
   const clusteringAlg = (
     document.getElementById('clusteringAlgorithmChoice') as HTMLSelectElement
   ).value
+  startLoader()
   try {
     await applyLayout({
       nodes: st.network.nodes,
@@ -189,6 +200,8 @@ async function onRunLayout(): Promise<void> {
     status('Layout applied.')
   } catch (err) {
     status(err instanceof Error ? err.message : 'Layout failed.', true)
+  } finally {
+    finishLoader()
   }
 }
 
@@ -201,6 +214,7 @@ async function onRunTopology(): Promise<void> {
     document.getElementById('topologyScaleMetricChoice') as HTMLSelectElement
   ).value
   if (metric === '-') return status('Select a topology metric.', true)
+  startLoader()
   try {
     await applyTopology({
       nodes: st.network.nodes,
@@ -212,7 +226,12 @@ async function onRunTopology(): Promise<void> {
     })
     status('Node scaling applied.')
   } catch (err) {
-    status(err instanceof Error ? err.message : 'Topology scaling failed.', true)
+    status(
+      err instanceof Error ? err.message : 'Topology scaling failed.',
+      true
+    )
+  } finally {
+    finishLoader()
   }
 }
 
@@ -224,7 +243,10 @@ export function initLayoutsPanel(): void {
   const metricSel = document.getElementById(
     'topologyScaleMetricChoice'
   ) as HTMLSelectElement
-  metricSel.innerHTML = options(['-', ...(store.get().config?.topology_metrics ?? [])])
+  metricSel.innerHTML = options([
+    '-',
+    ...(store.get().config?.topology_metrics ?? []),
+  ])
 
   document
     .getElementById('selectAllLayersCheckbox')

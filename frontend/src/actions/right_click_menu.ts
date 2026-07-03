@@ -204,6 +204,27 @@ function buildMenu(nodeIndex: number, x: number, y: number): HTMLSelectElement {
   return select
 }
 
+// v2 setupDescrDiv + 'Description' command: close button + paragraph created
+// once, paragraph text swapped per node. textContent (not v2's innerHTML) —
+// descriptions come from uploaded/external session files.
+function showDescription(descr: string): void {
+  const descrDiv = document.getElementById('descrDiv')
+  if (!descrDiv) return
+  let p = descrDiv.querySelector('p')
+  if (!p) {
+    const btn = document.createElement('button')
+    btn.id = 'closeButton'
+    btn.textContent = 'X'
+    btn.onclick = () => (descrDiv.style.display = 'none')
+    p = document.createElement('p')
+    p.className = 'descrDiv_paragraph'
+    descrDiv.appendChild(btn)
+    descrDiv.appendChild(p)
+  }
+  p.textContent = descr
+  descrDiv.style.display = 'inline-block'
+}
+
 export function executeCommand(nodeIndex: number, option: string): void {
   const node = ctx.nodeObjects[nodeIndex]
   if (option === '-') return
@@ -212,7 +233,7 @@ export function executeCommand(nodeIndex: number, option: string): void {
   else if (option === 'Select MultiLayer Path') selectMultiLayerPath(nodeIndex)
   else if (option === 'Select Downstream Path') selectDownstreamPath(nodeIndex)
   else if (option === 'Link') window.open(node.url)
-  // v2 'Description' filled #descrDiv — Phase 13 UI panel
+  else if (option === 'Description') showDescription(node.descr)
 
   finishCommand()
 }

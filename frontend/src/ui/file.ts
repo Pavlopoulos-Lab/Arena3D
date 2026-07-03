@@ -4,6 +4,7 @@
 
 import { api } from '../api/client'
 import { loadNetwork, loadSession } from '../actions/network'
+import { startLoader, finishLoader } from '../actions/screen'
 import { exportSession } from '../actions/session'
 
 const FILE_HTML = `
@@ -40,22 +41,30 @@ function status(msg: string, isError = false): void {
 }
 
 async function onUploadNetwork(file: File): Promise<void> {
+  startLoader()
   try {
     const data = await api.uploadNetwork(file)
     loadNetwork(data)
-    status(`Loaded network: ${data.layers.length} layers, ${data.nodes.length} nodes.`)
+    status(
+      `Loaded network: ${data.layers.length} layers, ${data.nodes.length} nodes.`
+    )
   } catch (err) {
     status(err instanceof Error ? err.message : 'Network upload failed.', true)
+  } finally {
+    finishLoader()
   }
 }
 
 async function onLoadSession(file: File): Promise<void> {
+  startLoader()
   try {
     const session = await api.importSession(file)
     loadSession(session)
     status('Session loaded.')
   } catch (err) {
     status(err instanceof Error ? err.message : 'Session load failed.', true)
+  } finally {
+    finishLoader()
   }
 }
 
@@ -76,21 +85,27 @@ export function initFilePanel(): void {
   if (!pane) return
   pane.innerHTML = FILE_HTML
 
-  const netInput = document.getElementById('input_network_file') as HTMLInputElement
+  const netInput = document.getElementById(
+    'input_network_file'
+  ) as HTMLInputElement
   netInput.addEventListener('change', () => {
     if (netInput.files?.[0]) void onUploadNetwork(netInput.files[0])
   })
 
-  const sessInput = document.getElementById('load_network_file') as HTMLInputElement
+  const sessInput = document.getElementById(
+    'load_network_file'
+  ) as HTMLInputElement
   sessInput.addEventListener('change', () => {
     if (sessInput.files?.[0]) void onLoadSession(sessInput.files[0])
   })
 
-  document.getElementById('save_network_object')?.addEventListener('click', () => {
-    void exportSession().catch((err: unknown) =>
-      status(err instanceof Error ? err.message : 'Save failed.', true)
-    )
-  })
+  document
+    .getElementById('save_network_object')
+    ?.addEventListener('click', () => {
+      void exportSession().catch((err: unknown) =>
+        status(err instanceof Error ? err.message : 'Save failed.', true)
+      )
+    })
 
   document.getElementById('exampleButton')?.addEventListener('click', () => {
     void onLoadExample()

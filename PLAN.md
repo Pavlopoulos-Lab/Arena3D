@@ -171,10 +171,10 @@ Render spine done and **verified live** (playwright-cli: config loads from `/api
 - [x] Migrate `event_listeners.js` (window-level) → `src/event_listeners.ts` — `resize` + `Ctrl+Z` / `Ctrl+Shift+Z` (and `Ctrl+Y`) undo/redo wired to `CommandHistory`
 - [x] Migrate `on_page_load.js` → `src/main.ts` — config fetch → renderer/camera/scene setup → mount canvas → animate; exposes `window.__arena = { ctx, history }` test hook (Phase 13 Playwright reads scene state through it)
 - [x] **Canvas mouse/keyboard scene controls** (`clickDown/Drag/Up`, `sceneZoom`, `keyPressed`, right-click menu) — landed in `canvas_controls.ts` + `right_click_menu.ts` (see Phase 11 list).
-- [ ] Replace `rshiny_handlers.js` + `rshiny_update.js` fully with EventBus + API (foundation done: bus/store/api client + commands already dispatch events; remaining handlers map to the Phase 11-deferred actions + Phase 13 panels)
+- [x] Replace `rshiny_handlers.js` + `rshiny_update.js` fully with EventBus + API — last two gaps ported: loader spinner (`startLoader`/`finishLoader` in `screen.ts`, wrapping network/session upload + layout/topology runs) and right-click Description → `#descrDiv` (close button + paragraph; `textContent` instead of v2 `innerHTML` — descriptions come from uploaded/external files). `executeCommand` added to the `window.__arena` test hook. Verified live (loader hidden + opacity restored after load, Description shows/fills/closes). Attribute handlers (`setNode/EdgeAttributes`) die with the deferred `/api/attributes` feature — JS spec lives on in `www/js/object_actions/node.js`/`edge.js`.
 - [x] Delete `www/js/event_listeners.js`, `www/js/on_page_load.js`, `www/js/general.js` — all fully ported (`event_listeners.ts` + `canvas_controls.ts` + `right_click_menu.ts`; `main.ts`; `utils.ts`). The v2 color-picker inputs from `on_page_load.js` re-appear with the Phase 13 scene panel (`repaintLayers` already reads `#floor_color`).
-- [ ] Delete `www/js/rshiny_handlers.js`, `www/js/rshiny_update.js`
-- [ ] Delete `www/js/config/`
+- [x] Delete `www/js/rshiny_handlers.js`, `www/js/rshiny_update.js`
+- [x] Delete `www/js/config/` (globals → `three/runtime.ts` + `/api/config`; statics → `three/constants.ts`)
 
 ---
 

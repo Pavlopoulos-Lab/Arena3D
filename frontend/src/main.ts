@@ -21,6 +21,7 @@ import { store } from './store'
 import { ctx, Scene } from './three'
 import { history } from './commands/base'
 import { registerCanvasControls } from './actions/canvas_controls'
+import { executeCommand } from './actions/right_click_menu'
 import { registerLayerDragControls } from './actions/drag_controls'
 import { registerLabelRendering } from './actions/labels'
 import { setRenderer, resetScreen, animate } from './actions/screen'
@@ -72,7 +73,11 @@ async function main(): Promise<void> {
 
   // Test hook: lets Playwright read scene state via page.evaluate (WebGL is
   // opaque to the a11y tree). See PLAN Phase 13.
-  ;(window as unknown as { __arena: unknown }).__arena = { ctx, history }
+  ;(window as unknown as { __arena: unknown }).__arena = {
+    ctx,
+    history,
+    executeCommand,
+  }
 }
 
 void main()
