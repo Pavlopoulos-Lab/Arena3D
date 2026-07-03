@@ -147,7 +147,7 @@ Done now (portable core):
 
 Deferred into Phase 12 (with renderer/camera/animate/raycaster/DragControls/CSS2D) and Phase 13 (UI/DOM), then delete `www/js/object_actions/`:
 - [ ] `screen.js` → `src/actions/screen.ts` (renderer, camera, window bounds, raycaster, `animate()`)
-- [ ] `network.js` → `src/actions/network.ts` (buildNetwork orchestrator; feeds `LoadNetworkCommand`)
+- [x] `network.js` → `src/actions/network.ts` — `buildNetwork` consumes backend `NetworkData` (layer/edge limits enforced server-side; channel limit checked client-side); `loadNetwork` wraps it in `LoadNetworkCommand`. Builds a fresh `Scene` + registries (never mutates in place) so undo snapshots stay valid. Includes interim `initialSpreadLayers`/`scrambleNodes` — move to `layer.ts`/`node.ts` when those port. 4 Vitest tests. *(DragControls/labels/channel-UI/importNetwork stay with their own actions.)*
 - [ ] `node.js` → `src/actions/node.ts` (build + raycaster hover/selection; color/size actions)
 - [ ] `edge.js` → `src/actions/edge.ts` (build + inter/intra render toggles)
 - [ ] `layer.js` → `src/actions/layer.ts` (spread/move + DragControls + layer checkboxes)
