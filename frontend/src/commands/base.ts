@@ -45,7 +45,10 @@ class CommandHistory {
   }
 
   private notify(): void {
-    bus.emit('history:changed', { canUndo: this.canUndo, canRedo: this.canRedo })
+    bus.emit('history:changed', {
+      canUndo: this.canUndo,
+      canRedo: this.canRedo,
+    })
   }
 }
 

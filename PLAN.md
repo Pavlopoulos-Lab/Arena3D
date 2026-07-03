@@ -122,15 +122,17 @@ Clustering in v2 is not a standalone action — it is an option of the layout ru
 
 ## Phase 10 — Frontend: Commands
 
-- [ ] Implement `LoadNetworkCommand`
-- [ ] Implement `ApplyLayoutCommand` — captures node positions before/after, plus cluster IDs/colors when the layout ran with clustering (single command: one API response, one undo step)
-- [ ] Implement `ApplyTopologyCommand` — captures node scale values before/after
-- [ ] Implement `MoveLayerCommand` — captures layer transform before/after
-- [ ] Implement `ChangeNodeColorCommand`
-- [ ] Implement `ChangeNodeSizeCommand`
-- [ ] Implement `ChangeEdgeColorCommand`
-- [ ] Implement `ChangeThemeCommand`
-- [ ] Write Vitest tests for execute/undo/redo on each command
+All 8 in `src/commands/scene.ts`. Commands are **thin**: they apply/reverse already-decided values on the Phase 9 object model (via `ctx`); API fetch + position/scale math is the Phase 11 actions' job, which construct these with the results. Added `ctx.edgeObjects` registry + `snapshotRegistries`/`restoreRegistries` helpers to `runtime.ts`, and a `layer:moved` bus event.
+
+- [x] Implement `LoadNetworkCommand` — takes a `build: () => void` closure; snapshots ctx registries before/after so a load is one undo step (concrete builder lands in Phase 11 network action)
+- [x] Implement `ApplyLayoutCommand` — captures node positions before/after, plus cluster IDs/colors + `nodeColorPrioritySource` when clustering ran (single command, one undo step)
+- [x] Implement `ApplyTopologyCommand` — captures node scale values before/after
+- [x] Implement `MoveLayerCommand` — captures layer position/rotation/scale before/after; redraws inter-layer edges
+- [x] Implement `ChangeNodeColorCommand`
+- [x] Implement `ChangeNodeSizeCommand`
+- [x] Implement `ChangeEdgeColorCommand` — captures colors/importedColors + `edgeFileColorPriority`, redraws
+- [x] Implement `ChangeThemeCommand` — store-only (getter/setter injected); concrete recolour is the Phase 11 themes action listening to `theme:changed`
+- [x] Write Vitest tests for execute/undo/redo on each command (9 tests in `src/commands/scene.test.ts`)
 
 ---
 

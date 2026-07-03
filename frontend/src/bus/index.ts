@@ -9,6 +9,7 @@ export interface BusEvents {
   'layout:applied': { positions: Record<string, [number, number]> }
   'clustering:applied': { clusters: Record<string, number> }
   'topology:applied': { scales: Record<string, number> }
+  'layer:moved': { layerIndex: number }
   'theme:changed': { theme: string }
   'history:changed': { canUndo: boolean; canRedo: boolean }
 }
@@ -19,7 +20,10 @@ class EventBus {
   // one Set of handlers per event name; typed via the public method signatures
   private handlers = new Map<keyof BusEvents, Set<Handler<unknown>>>()
 
-  on<K extends keyof BusEvents>(event: K, handler: Handler<BusEvents[K]>): () => void {
+  on<K extends keyof BusEvents>(
+    event: K,
+    handler: Handler<BusEvents[K]>
+  ): () => void {
     let set = this.handlers.get(event)
     if (!set) {
       set = new Set()
@@ -29,7 +33,10 @@ class EventBus {
     return () => this.off(event, handler)
   }
 
-  off<K extends keyof BusEvents>(event: K, handler: Handler<BusEvents[K]>): void {
+  off<K extends keyof BusEvents>(
+    event: K,
+    handler: Handler<BusEvents[K]>
+  ): void {
     this.handlers.get(event)?.delete(handler as Handler<unknown>)
   }
 

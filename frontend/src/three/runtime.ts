@@ -13,6 +13,7 @@
 import type { Scene } from './Scene'
 import type { Layer } from './Layer'
 import type { Node } from './Node'
+import type { Edge } from './Edge'
 
 export type ColorPrioritySource = 'default' | 'picker' | 'cluster'
 
@@ -26,6 +27,7 @@ export interface RuntimeContext {
   scene: Scene | null
   layers: Layer[]
   nodeObjects: Node[]
+  edgeObjects: Edge[]
   nodeLayerNames: string[]
   nodeGroups: Record<string, string> // nodeLayerName -> layerName
   layerGroups: Record<string, number> // layerName -> layer index
@@ -60,6 +62,7 @@ export const ctx: RuntimeContext = {
   scene: null,
   layers: [],
   nodeObjects: [],
+  edgeObjects: [],
   nodeLayerNames: [],
   nodeGroups: {},
   layerGroups: {},
@@ -90,6 +93,7 @@ export function resetContext(): void {
   ctx.scene = null
   ctx.layers = []
   ctx.nodeObjects = []
+  ctx.edgeObjects = []
   ctx.nodeLayerNames = []
   ctx.nodeGroups = {}
   ctx.layerGroups = {}
@@ -108,4 +112,44 @@ export function resetContext(): void {
   ctx.intraChannelCurvature = 15
   ctx.layerColorPrioritySource = 'default'
   ctx.nodeColorPrioritySource = 'default'
+}
+
+// Registry snapshot — the mutable scene-graph state a network load replaces.
+// LoadNetworkCommand snapshots before/after so a load is one undo step.
+export interface RegistrySnapshot {
+  scene: Scene | null
+  layers: Layer[]
+  nodeObjects: Node[]
+  edgeObjects: Edge[]
+  nodeLayerNames: string[]
+  nodeGroups: Record<string, string>
+  layerGroups: Record<string, number>
+  channelColors: Record<string, string>
+  channelVisibility: Record<string, boolean>
+}
+
+export function snapshotRegistries(): RegistrySnapshot {
+  return {
+    scene: ctx.scene,
+    layers: ctx.layers,
+    nodeObjects: ctx.nodeObjects,
+    edgeObjects: ctx.edgeObjects,
+    nodeLayerNames: ctx.nodeLayerNames,
+    nodeGroups: ctx.nodeGroups,
+    layerGroups: ctx.layerGroups,
+    channelColors: ctx.channelColors,
+    channelVisibility: ctx.channelVisibility,
+  }
+}
+
+export function restoreRegistries(s: RegistrySnapshot): void {
+  ctx.scene = s.scene
+  ctx.layers = s.layers
+  ctx.nodeObjects = s.nodeObjects
+  ctx.edgeObjects = s.edgeObjects
+  ctx.nodeLayerNames = s.nodeLayerNames
+  ctx.nodeGroups = s.nodeGroups
+  ctx.layerGroups = s.layerGroups
+  ctx.channelColors = s.channelColors
+  ctx.channelVisibility = s.channelVisibility
 }
