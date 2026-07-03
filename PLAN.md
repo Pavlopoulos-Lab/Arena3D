@@ -210,6 +210,6 @@ Render spine done and **verified live** (playwright-cli: config loads from `/api
 - [ ] Full Docker production build test — `docker build` + `docker run`
 - [ ] Full Playwright E2E test suite pass — upload fixture network, apply layout, clustering, export session
 - [x] Update `CLAUDE.md` for new stack — rewritten for FastAPI + Vite/TS/Three.js; dropped the R/Shiny run instructions + living-spec framing (all R deleted).
-- [ ] Update `README.md` for new stack and Docker instructions
+- [x] Update `README.md` for new stack and Docker instructions — Overview/Features/Getting Started rewritten for FastAPI + Vite/TS/Three.js; dropped R/RStudio + VR; docker-compose + single-image build; example-data paths updated; Shiny badge → Live Demo.
 - [ ] Swap `v3` → `main`
 - [ ] Update Docker Hub build to point to new `main`
