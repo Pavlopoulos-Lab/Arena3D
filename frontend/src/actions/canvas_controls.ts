@@ -1,8 +1,8 @@
 // Canvas mouse/keyboard scene controls — port of the canvas half of v2
 // www/js/event_listeners.js plus the held-key/lasso helpers it pulled from
 // node.js/layer.js. Shiny syncs and the 100ms update debounces dropped.
-// Deferred: right-click node menu (right_click_menu.ts), DragControls layer
-// dragging, nav-button/slider control table (Phase 13 UI).
+// Deferred: DragControls layer dragging, nav-button/slider control table
+// (Phase 13 UI).
 
 import * as THREE from 'three'
 import { ctx } from '../three'
@@ -21,6 +21,10 @@ import {
   unselectAllNodes,
   updateSelectedNodesStore,
 } from './node'
+import {
+  removeContextMenu,
+  replaceContextMenuOverNode,
+} from './right_click_menu'
 
 // v2 globals: lasso anchor (shift+click) and the lasso rectangle line.
 let shiftX: number | null = null
@@ -125,6 +129,7 @@ export function clickUp(event: MouseEvent): void {
   ctx.scene.dragging = false
   if (event.button === 0) {
     ctx.scene.leftClickPressed = false
+    removeContextMenu() // v2 removed the right-click options list here
     if (lasso) {
       // nodes dimmed to 0.5 are inside the lasso -> select them
       ctx.nodeObjects.forEach((node, i) => {
@@ -238,4 +243,8 @@ export function registerCanvasControls(): void {
   canvas.addEventListener('mouseup', clickUp)
   canvas.addEventListener('dblclick', dblClick as EventListener)
   canvas.addEventListener('mouseleave', clickUp) // release buttons on exit (v2)
+  canvas.addEventListener(
+    'contextmenu',
+    replaceContextMenuOverNode as unknown as EventListener
+  )
 }
