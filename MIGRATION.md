@@ -23,7 +23,7 @@ See `PLAN.md` for the ordered implementation steps.
 | `functions/reset.R` | *(stateless server — no equivalent needed)* | [x] |
 | `functions/render.R` | *(absorbed into FastAPI error responses)* | [x] |
 | `functions/js_handling.R` | *(absorbed into frontend EventBus)* | [x] |
-| `functions/edges.R` | `frontend/src/ui/edge.ts` — UI visibility toggles + JS handler calls, no server logic | [ ] |
+| `functions/edges.R` | `frontend/src/ui/edge.ts` (toggles) + `frontend/src/ui/data.ts` (`updateSelectedEdgesView`) | [x] |
 | `functions/vr.R` | **DROPPED** — VR mode not ported (depended on external `bib.fleming.gr` hosting + A-Frame; niche, out of scope) | [x] |
 | `functions/igraph/general.R` | `backend/app/services/graph.py` | [x] |
 | `functions/igraph/layout.R` | `backend/app/services/layouts.py` | [x] |
@@ -89,7 +89,7 @@ See `PLAN.md` for the ordered implementation steps.
 | `views/layer.R` | `frontend/src/ui/layer.ts` | [ ] |
 | `views/node.R` | `frontend/src/ui/node.ts` | [ ] |
 | `views/edge.R` | `frontend/src/ui/edge.ts` | [ ] |
-| `views/data.R` | `frontend/src/ui/data.ts` | [ ] |
+| `views/data.R` | `frontend/src/ui/data.ts` | [x] |
 | `views/fps.R` | `frontend/src/ui/fps.ts` | [ ] |
 | `views/help.R` | `frontend/src/ui/help.ts` | [ ] |
 | `views/footer.R` | `frontend/index.html` (static footer) | [ ] |
