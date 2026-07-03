@@ -81,7 +81,7 @@ See `PLAN.md` for the ordered implementation steps.
 |---|---|---|
 | `ui.R` | `frontend/index.html` | [x] |
 | `server.R` | `backend/app/main.py` + routers | [x] |
-| `global.R` | `backend/app/main.py` (lifespan) | [ ] |
+| `global.R` | `backend/app/main.py` (lifespan) | [x] |
 | `views/home.R` | `frontend/src/ui/home.ts` | [x] |
 | `views/file.R` | `frontend/src/ui/file.ts` | [x] |
 | `views/layouts.R` | `frontend/src/ui/layouts.ts` | [x] |

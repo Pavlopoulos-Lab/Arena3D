@@ -8,7 +8,7 @@ from app.main import app
 from app.services.session import SessionValidationError, normalize_session
 
 client = TestClient(app)
-DATA = Path(__file__).resolve().parents[2] / "www" / "data"
+DATA = Path(__file__).resolve().parent / "fixtures"
 
 
 def _minimal():

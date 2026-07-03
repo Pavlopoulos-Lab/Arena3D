@@ -7,7 +7,7 @@ from app.main import app
 from app.services.parser import NetworkValidationError, parse_network_tsv
 
 client = TestClient(app)
-DATA = Path(__file__).resolve().parents[2] / "www" / "data"
+DATA = Path(__file__).resolve().parent / "fixtures"
 HDR = "SourceNode\tSourceLayer\tTargetNode\tTargetLayer"
 
 
