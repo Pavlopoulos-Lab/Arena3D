@@ -64,6 +64,12 @@ export interface RuntimeContext {
   // Color-priority sources
   layerColorPrioritySource: ColorPrioritySource
   nodeColorPrioritySource: ColorPrioritySource
+
+  // Node hover/selection/label state (v2 node.js globals)
+  lastHoveredNodeIndex: number | null
+  selectedNodeColorFlag: boolean
+  showAllNodeLabelsFlag: boolean
+  showSelectedNodeLabelsFlag: boolean
 }
 
 const winW = typeof window !== 'undefined' ? window.innerWidth : 800
@@ -108,6 +114,11 @@ export const ctx: RuntimeContext = {
 
   layerColorPrioritySource: 'default',
   nodeColorPrioritySource: 'default',
+
+  lastHoveredNodeIndex: null,
+  selectedNodeColorFlag: true,
+  showAllNodeLabelsFlag: false,
+  showSelectedNodeLabelsFlag: true,
 }
 
 // Reset registries + tunables to defaults (used by tests and network reload).
@@ -136,6 +147,10 @@ export function resetContext(): void {
   ctx.intraChannelCurvature = 15
   ctx.layerColorPrioritySource = 'default'
   ctx.nodeColorPrioritySource = 'default'
+  ctx.lastHoveredNodeIndex = null
+  ctx.selectedNodeColorFlag = true
+  ctx.showAllNodeLabelsFlag = false
+  ctx.showSelectedNodeLabelsFlag = true
 }
 
 // Registry snapshot — the mutable scene-graph state a network load replaces.

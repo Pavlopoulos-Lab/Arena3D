@@ -17,7 +17,7 @@ import {
   resetContext,
   Scene,
 } from '../three'
-import { getRandomArbitrary } from '../utils'
+import { scrambleNodes } from './node'
 
 // v2 uploadNetwork(): one undoable step wrapping the full build.
 export function loadNetwork(data: NetworkData): void {
@@ -97,19 +97,6 @@ function initializeNodes(nodes: NodeModel[]): void {
     ctx.layers[layerIndex].addNode(node.sphere)
   })
   scrambleNodes()
-}
-
-// v2 node.js scrambleNodes — lives here until actions/node.ts is ported.
-export function scrambleNodes(
-  yMin = ctx.yBoundMin,
-  yMax = ctx.yBoundMax,
-  zMin = ctx.zBoundMin,
-  zMax = ctx.zBoundMax
-): void {
-  for (const node of ctx.nodeObjects) {
-    node.translateY(getRandomArbitrary(yMin, yMax))
-    node.translateZ(getRandomArbitrary(zMin, zMax))
-  }
 }
 
 // v2 edge.js createEdgeObjects: one Edge per src---trg pair; multi-channel
