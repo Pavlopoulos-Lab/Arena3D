@@ -209,7 +209,7 @@ Render spine done and **verified live** (playwright-cli: config loads from `/api
 - [x] Delete `Arena3Dweb.Rproj`, `Rprofile.site`, `global.R` (dead R/Shiny startup config; `global.R` lib-loading maps to `backend/app/main.py`)
 - [ ] Full Docker production build test — `docker build` + `docker run`
 - [ ] Full Playwright E2E test suite pass — upload fixture network, apply layout, clustering, export session
-- [ ] Update `CLAUDE.md` for new stack
+- [x] Update `CLAUDE.md` for new stack — rewritten for FastAPI + Vite/TS/Three.js; dropped the R/Shiny run instructions + living-spec framing (all R deleted).
 - [ ] Update `README.md` for new stack and Docker instructions
 - [ ] Swap `v3` → `main`
 - [ ] Update Docker Hub build to point to new `main`
