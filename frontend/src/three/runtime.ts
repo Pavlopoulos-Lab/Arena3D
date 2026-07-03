@@ -70,6 +70,12 @@ export interface RuntimeContext {
   selectedNodeColorFlag: boolean
   showAllNodeLabelsFlag: boolean
   showSelectedNodeLabelsFlag: boolean
+
+  // Inter-layer edge render machinery (v2 edge.js globals)
+  renderInterLayerEdgesFlag: boolean
+  waitEdgeRenderFlag: boolean
+  interEdgesRemoved: boolean
+  interLayerEdgesRenderPauseFlag: boolean
 }
 
 const winW = typeof window !== 'undefined' ? window.innerWidth : 800
@@ -119,6 +125,11 @@ export const ctx: RuntimeContext = {
   selectedNodeColorFlag: true,
   showAllNodeLabelsFlag: false,
   showSelectedNodeLabelsFlag: true,
+
+  renderInterLayerEdgesFlag: false,
+  waitEdgeRenderFlag: true,
+  interEdgesRemoved: false,
+  interLayerEdgesRenderPauseFlag: false,
 }
 
 // Reset registries + tunables to defaults (used by tests and network reload).
@@ -151,6 +162,10 @@ export function resetContext(): void {
   ctx.selectedNodeColorFlag = true
   ctx.showAllNodeLabelsFlag = false
   ctx.showSelectedNodeLabelsFlag = true
+  ctx.renderInterLayerEdgesFlag = false
+  ctx.waitEdgeRenderFlag = true
+  ctx.interEdgesRemoved = false
+  ctx.interLayerEdgesRenderPauseFlag = false
 }
 
 // Registry snapshot — the mutable scene-graph state a network load replaces.

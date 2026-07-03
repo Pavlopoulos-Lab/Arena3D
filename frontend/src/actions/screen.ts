@@ -3,6 +3,7 @@
 
 import * as THREE from 'three'
 import { ctx } from '../three'
+import { renderInterLayerEdges } from './edge'
 
 // v2 global raycaster (config/global_variables.js). Reused each frame.
 const RAYCASTER = new THREE.Raycaster()
@@ -74,9 +75,9 @@ export function raycaster(): THREE.Raycaster {
 export function animate(): void {
   setTimeout(() => requestAnimationFrame(animate), 1000 / ctx.fps)
 
-  // ponytail: inter-layer-edge + CSS2D label rendering hook in here once those
-  // actions land (v2 called renderInterLayerEdges / renderLayerLabels /
-  // renderNodeLabels before render). Empty scene renders fine without them.
+  // ponytail: CSS2D label rendering hooks in here once labels.ts lands (v2
+  // called renderLayerLabels / renderNodeLabels before render).
+  renderInterLayerEdges()
   if (ctx.scene && ctx.camera)
     ctx.renderer?.render(ctx.scene.THREE_Object, ctx.camera)
 }

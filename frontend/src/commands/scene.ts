@@ -7,6 +7,7 @@
 
 import { bus } from '../bus'
 import type { Command } from './base'
+import { redrawIntraLayerEdges, redrawInterLayerEdges } from '../actions/edge'
 import {
   ctx,
   COLOR_VECTOR_280,
@@ -19,14 +20,6 @@ type Vec3 = { x: number; y: number; z: number }
 
 function clusterColor(id: number): string {
   return COLOR_VECTOR_280[id % COLOR_VECTOR_280.length]
-}
-
-function redrawIntraLayerEdges(): void {
-  for (const e of ctx.edgeObjects) if (!e.interLayer) e.redrawEdge()
-}
-
-function redrawInterLayerEdges(): void {
-  for (const e of ctx.edgeObjects) if (e.interLayer) e.redrawEdge()
 }
 
 export class ChangeNodeColorCommand implements Command {
