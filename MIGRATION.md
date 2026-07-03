@@ -37,8 +37,8 @@ See `PLAN.md` for the ordered implementation steps.
 | Old file | New file | Done |
 |---|---|---|
 | `www/js/three/three.js` *(NOT patched — see below)* | `three` npm package (r170) | [x] |
-| `www/js/three/matrix4.js` | `three` npm package (bundled) — kept as Phase 11 spec | [ ] |
-| `www/js/three/drag_controls.js` | `three/examples/jsm/controls/DragControls` (npm) — kept as Phase 11 spec | [ ] |
+| `www/js/three/matrix4.js` | `three` npm package (bundled) | [x] |
+| `www/js/three/drag_controls.js` | `src/actions/drag_controls.ts` (hand-ported; npm three math) | [x] |
 | `www/js/classes/Scene.js` | `frontend/src/three/Scene.ts` | [x] |
 | `www/js/classes/Layer.js` | `frontend/src/three/Layer.ts` | [x] |
 | `www/js/classes/Node.js` | `frontend/src/three/Node.ts` | [x] |
@@ -53,7 +53,7 @@ See `PLAN.md` for the ordered implementation steps.
 > `src/three/runtime.ts` context; static geometry/palette constants by
 > `src/three/constants.ts`. All four classes now live under `src/three/`
 > (not the SPEC's split `classes/` + `three/`), since with no patches one folder
-> suffices. `matrix4.js` / `drag_controls.js` stay until Phase 11 (canvas_controls).
+> suffices. `matrix4.js` / `drag_controls.js` deleted with `src/actions/drag_controls.ts`.
 | `www/js/config/global_variables.js` | `frontend/src/config/global_variables.ts` + `GET /api/config` | [ ] |
 | `www/js/config/static_variables.js` | `frontend/src/config/static_variables.ts` | [ ] |
 | `www/js/object_actions/canvas_controls.js` | `frontend/src/actions/canvas_controls.ts` | [ ] |

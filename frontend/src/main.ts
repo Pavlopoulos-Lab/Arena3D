@@ -7,6 +7,7 @@ import { store } from './store'
 import { ctx, Scene } from './three'
 import { history } from './commands/base'
 import { registerCanvasControls } from './actions/canvas_controls'
+import { registerLayerDragControls } from './actions/drag_controls'
 import { registerLabelRendering } from './actions/labels'
 import { setRenderer, resetScreen, animate } from './actions/screen'
 import { registerThemeListener } from './actions/themes'
@@ -40,6 +41,7 @@ async function main(): Promise<void> {
   registerThemeListener()
   registerLabelRendering()
   registerCanvasControls()
+  registerLayerDragControls()
   animate()
 
   // Test hook: lets Playwright read scene state via page.evaluate (WebGL is
