@@ -63,14 +63,14 @@ See `PLAN.md` for the ordered implementation steps.
 | `www/js/object_actions/node.js` | `frontend/src/actions/node.ts` | [ ] |
 | `www/js/object_actions/edge.js` | `frontend/src/actions/edge.ts` | [ ] |
 | `www/js/object_actions/screen.js` | `frontend/src/actions/screen.ts` | [x] |
-| `www/js/object_actions/themes.js` | `frontend/src/actions/themes.ts` | [ ] |
-| `www/js/object_actions/labels.js` | `frontend/src/actions/labels.ts` | [ ] |
-| `www/js/object_actions/right_click_menu.js` | `frontend/src/actions/right_click_menu.ts` | [ ] |
+| `www/js/object_actions/themes.js` | `frontend/src/actions/themes.ts` | [x] |
+| `www/js/object_actions/labels.js` | `frontend/src/actions/labels.ts` | [x] |
+| `www/js/object_actions/right_click_menu.js` | `frontend/src/actions/right_click_menu.ts` | [x] |
 | `www/js/rshiny_handlers.js` | `frontend/src/bus/index.ts` + `frontend/src/api/client.ts` | [ ] |
 | `www/js/rshiny_update.js` | `frontend/src/api/client.ts` | [ ] |
 | `www/js/general.js` | `frontend/src/utils.ts` | [x] |
-| `www/js/event_listeners.js` | `frontend/src/event_listeners.ts` | [ ] |
-| `www/js/on_page_load.js` | `frontend/src/main.ts` | [ ] |
+| `www/js/event_listeners.js` | `frontend/src/event_listeners.ts` + `src/actions/canvas_controls.ts` + `src/actions/right_click_menu.ts` | [x] |
+| `www/js/on_page_load.js` | `frontend/src/main.ts` + `src/actions/canvas_controls.ts` (color-picker inputs re-created in Phase 13 scene panel) | [x] |
 | `www/arena3dweb.css` | Bootstrap 5 + `frontend/src/style.css` | [ ] |
 
 ---
