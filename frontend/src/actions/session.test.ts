@@ -1,9 +1,11 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SessionData } from '../api/client'
+import { api } from '../api/client'
 import { history } from '../commands/base'
 import { store } from '../store'
-import { ctx, resetContext } from '../three'
+import { ctx, Edge, Layer, Node, resetContext, Scene } from '../three'
 import { buildFromSession, loadSession } from './network'
+import { collectSession, exportSession } from './session'
 
 function session(partial: Partial<SessionData> = {}): SessionData {
   return {
@@ -122,5 +124,127 @@ describe('loadSession', () => {
     expect(ctx.nodeObjects).toHaveLength(0)
     history.redo()
     expect(ctx.nodeObjects).toHaveLength(2)
+  })
+})
+
+describe('collectSession', () => {
+  // A two-layer scene with one channel-less inter-layer edge.
+  function seed(): void {
+    ctx.scene = new Scene()
+    ctx.scene.setScale(0.5)
+    ctx.layers = [
+      new Layer({ id: 0, name: 'L1', geometry_parameters_width: 300 }),
+      new Layer({ id: 1, name: 'L2' }),
+    ]
+    ctx.layerGroups = { L1: 0, L2: 1 }
+    ctx.nodeGroups = { A_L1: 'L1', B_L2: 'L2' }
+    ctx.nodeLayerNames = ['A_L1', 'B_L2']
+    ctx.nodeObjects = [
+      new Node({
+        id: 0,
+        name: 'A',
+        nodeLayerName: 'A_L1',
+        layer: 'L1',
+        color: '#aa0000',
+        url: 'http://a',
+        descr: 'the A node',
+      }),
+      new Node({ id: 1, name: 'B', nodeLayerName: 'B_L2', layer: 'L2' }),
+    ]
+    ctx.layers[0].addNode(ctx.nodeObjects[0].sphere)
+    ctx.layers[1].addNode(ctx.nodeObjects[1].sphere)
+    ctx.edgeObjects = [
+      new Edge({
+        id: 0,
+        source: 'A_L1',
+        target: 'B_L2',
+        weights: [0.4],
+        interLayer: true,
+      }),
+    ]
+  }
+
+  it('round-trips: collectSession output rebuilds an equivalent scene', () => {
+    seed()
+    ctx.labelColor = '#cccccc'
+    ctx.isDirectionEnabled = true
+    const out = collectSession()
+
+    expect(out.scene.scale).toBeCloseTo(0.5)
+    expect(out.layers.map((l) => l.name)).toEqual(['L1', 'L2'])
+    expect(out.layers[0].geometry_parameters_width).toBe(300)
+    expect(out.nodes[0]).toMatchObject({
+      name: 'A',
+      layer: 'L1',
+      color: '#aa0000',
+      url: 'http://a',
+      descr: 'the A node',
+    })
+    expect(out.edges).toEqual([
+      expect.objectContaining({ src: 'A_L1', trg: 'B_L2', opacity: 0.4 }),
+    ])
+    expect(out.universalLabelColor).toBe('#cccccc')
+    expect(out.direction).toBe(true)
+
+    // feed it back through the importer
+    resetContext()
+    store.update({ network: null })
+    buildFromSession(out)
+    expect(ctx.nodeObjects.map((n) => n.name)).toEqual(['A', 'B'])
+    expect(ctx.edgeObjects).toHaveLength(1)
+  })
+
+  it('emits one edge row per channel', () => {
+    ctx.scene = new Scene()
+    ctx.channelColors = { c1: '#111', c2: '#222' }
+    ctx.edgeFileColorPriority = false
+    ctx.layers = [new Layer({ id: 0, name: 'L1' })]
+    ctx.layerGroups = { L1: 0 }
+    ctx.nodeGroups = { A_L1: 'L1', B_L1: 'L1' }
+    ctx.nodeLayerNames = ['A_L1', 'B_L1']
+    ctx.nodeObjects = [
+      new Node({ id: 0, name: 'A', nodeLayerName: 'A_L1', layer: 'L1' }),
+      new Node({ id: 1, name: 'B', nodeLayerName: 'B_L1', layer: 'L1' }),
+    ]
+    ctx.edgeObjects = [
+      new Edge({
+        id: 0,
+        source: 'A_L1',
+        target: 'B_L1',
+        weights: [0.3, 0.6],
+        channels: ['c1', 'c2'],
+        colors: ['#111', '#222'],
+      }),
+    ]
+    const rows = collectSession().edges
+    expect(rows).toHaveLength(2)
+    expect(rows.map((r) => r.channel)).toEqual(['c1', 'c2'])
+  })
+})
+
+describe('exportSession', () => {
+  it('POSTs the collected session and triggers a download', async () => {
+    ctx.scene = new Scene()
+    store.update({
+      network: { nodes: [], edges: [], layers: [], channels: [], warnings: [] },
+    })
+    const blob = new Blob(['{}'], { type: 'application/json' })
+    const spy = vi.spyOn(api, 'exportSession').mockResolvedValue(blob)
+    // jsdom-free: stub the URL + anchor bits collectSession's download uses
+    const createURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:x')
+    const revokeURL = vi
+      .spyOn(URL, 'revokeObjectURL')
+      .mockImplementation(() => {})
+
+    await exportSession('out.json')
+    expect(spy).toHaveBeenCalledOnce()
+    createURL.mockRestore()
+    revokeURL.mockRestore()
+    spy.mockRestore()
+  })
+
+  it('refuses to export with no network loaded', async () => {
+    store.update({ network: null })
+    await expect(exportSession()).rejects.toThrow(/No network/)
   })
 })

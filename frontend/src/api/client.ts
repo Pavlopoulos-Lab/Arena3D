@@ -156,6 +156,16 @@ export const api = {
     post<TopologyResponse>('/api/topology', req),
   importSession: (file: File | Blob) =>
     postFile<SessionData>('/api/session/import', file),
+  exportSession: async (session: SessionData): Promise<Blob> => {
+    const res = await fetch('/api/session/export', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(session),
+    })
+    if (!res.ok)
+      throw new Error(`POST /api/session/export failed: ${res.status}`)
+    return res.blob()
+  },
   createExternal: (session: unknown) =>
     post<{ token: string; url: string }>('/api/external', session),
   resolveExternal: async (token: string): Promise<Record<string, unknown>> => {
