@@ -198,7 +198,7 @@ Render spine done and **verified live** (playwright-cli: config loads from `/api
 - [x] Migrate Help panel (`views/help.R` → `src/ui/help.ts`) — static HTML fragment in `#panel-help` with 12 inner tabs (data-attr driven `openHelpTab`, Examples default). Help images + example data copied to `public/images/help/` + `public/data/`; `./`→`/` asset paths, `max-width:100%` on imgs, `pre` scrolls. Help CSS ported into `style.css` (`#helpDiv .tab/.tabcontent/.numbering/.indent/.last_p`). Verified live (12 tabs, tab-switch Examples↔API, 19/19 images load).
 - [x] Migrate footer (`views/footer.R` → static footer in `index.html`) — year set from `Date` in `main.ts` (v2 `YEAR` config var), CSS ported into `style.css` (white links for the dark bar; v2's `-8px` body-margin hack dropped). Verified live (year 2026, 2 lab links, fixed bottom).
 - [x] Port edge-panel toggles from `functions/edges.R` into `src/ui/edge.ts` (done with the Edge panel above: `handleEdgeWidthByWeightCheckbox`/`handleEdgeDirectionCheckbox` slider show/hide). `updateSelectedEdgesView` ported into `src/ui/data.ts` (recomputed from `ctx` on View Data panel open). `functions/edges.R` fully ported; delete in Phase 14 cleanup.
-- [ ] Add Undo/Redo buttons wired to `CommandHistory`
+- [x] Add Undo/Redo buttons wired to `CommandHistory` — navbar `ms-auto` button pair in `index.html`, wired in `event_listeners.ts` (click → `history.undo/redo`, disabled state tracks `history:changed`). Verified live (Load Example → Undo empties scene → Redo restores 11 nodes, disabled states follow).
 - [ ] Delete `views/`, `ui.R`, `server.R`, `www/arena3dweb.css`
 
 ---

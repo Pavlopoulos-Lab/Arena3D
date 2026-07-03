@@ -5,12 +5,26 @@
 // sceneZoom, keyPressed, right-click menu) live in canvas_controls — deferred
 // until that action lands. Only the window-level listeners are wired here.
 
+import { bus } from './bus'
 import { history } from './commands/base'
 import { resetScreen } from './actions/screen'
 
 export function registerGlobalListeners(): void {
   window.addEventListener('resize', resetScreen)
   window.addEventListener('keydown', handleUndoRedo)
+  wireHistoryButtons()
+}
+
+function wireHistoryButtons(): void {
+  const undo = document.getElementById('undoButton') as HTMLButtonElement | null
+  const redo = document.getElementById('redoButton') as HTMLButtonElement | null
+  if (!undo || !redo) return
+  undo.addEventListener('click', () => history.undo())
+  redo.addEventListener('click', () => history.redo())
+  bus.on('history:changed', ({ canUndo, canRedo }) => {
+    undo.disabled = !canUndo
+    redo.disabled = !canRedo
+  })
 }
 
 function handleUndoRedo(e: KeyboardEvent): void {
