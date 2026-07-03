@@ -185,7 +185,7 @@ Render spine done and **verified live** (playwright-cli: config loads from `/api
 - **WebGL caveat:** the 3D canvas is opaque to the a11y tree. Assert scene results (node counts/positions, applied layout/cluster/scale) via the `window.__arena = { ctx, history }` hook exposed in Phase 12, read with `playwright-cli`'s JS-eval, rather than pixel diffs.
 - As panels stabilise, capture the driven flows as durable `@playwright/test` specs for Phase 14 (agent-cli drives/authoring; `@playwright/test` is the committed artifact).
 
-- [ ] Build `frontend/index.html` — Bootstrap 5 navbar structure matching current tab layout
+- [x] Build `frontend/index.html` — Bootstrap 5 navbar (`data-bs-theme="dark"`, bootstrap css+js imported in `main.ts`) with the 11 v2 tabs as `data-bs-toggle="tab"` buttons over empty `#panel-*` panes (each `views/*.R` port fills its pane; Main View pane intentionally empty — selecting it reveals the canvas). v2 helper divs added (`#navControlButtonsDiv`, `#info`, `#loader`, `#descrDiv`). Verified live with playwright-cli (tabs listed in a11y tree, click switches active pane).
 - [ ] Migrate Home panel (`views/home.R` → `src/ui/home.ts`)
 - [ ] Migrate File panel (`views/file.R` → `src/ui/file.ts`)
 - [ ] Migrate Layer Selection & Layouts panel (`views/layouts.R` → `src/ui/layouts.ts`)

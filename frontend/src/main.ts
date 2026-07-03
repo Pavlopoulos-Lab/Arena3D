@@ -2,6 +2,9 @@
 // Fetches config, sets up the Three.js renderer/camera/scene, mounts the
 // canvas, wires global listeners and starts the render loop.
 
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap' // data-bs-* tab + collapse behavior for the navbar
+
 import { fetchConfig } from './api/config'
 import { store } from './store'
 import { ctx, Scene } from './three'
