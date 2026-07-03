@@ -56,12 +56,12 @@ See `PLAN.md` for the ordered implementation steps.
 > suffices. `matrix4.js` / `drag_controls.js` deleted with `src/actions/drag_controls.ts`.
 | `www/js/config/global_variables.js` | `frontend/src/three/runtime.ts` + `GET /api/config` | [x] |
 | `www/js/config/static_variables.js` | `frontend/src/three/constants.ts` | [x] |
-| `www/js/object_actions/canvas_controls.js` | `frontend/src/actions/canvas_controls.ts` | [ ] |
+| `www/js/object_actions/canvas_controls.js` | `frontend/src/actions/canvas_controls.ts` + `src/actions/nav_controls.ts` | [x] |
 | `www/js/object_actions/network.js` | `frontend/src/actions/network.ts` (upload build + session import) | [x] |
-| `www/js/object_actions/layout.js` | `frontend/src/actions/layout.ts` | [ ] |
-| `www/js/object_actions/layer.js` | `frontend/src/actions/layer.ts` | [ ] |
-| `www/js/object_actions/node.js` | `frontend/src/actions/node.ts` | [ ] |
-| `www/js/object_actions/edge.js` | `frontend/src/actions/edge.ts` | [ ] |
+| `www/js/object_actions/layout.js` | `frontend/src/actions/layout.ts` | [x] |
+| `www/js/object_actions/layer.js` | `frontend/src/actions/layer.ts` + `src/actions/nav_controls.ts` | [x] |
+| `www/js/object_actions/node.js` | `frontend/src/actions/node.ts` + `src/actions/nav_controls.ts` *(kept: attribute-upload spec)* | [ ] |
+| `www/js/object_actions/edge.js` | `frontend/src/actions/edge.ts` *(kept: attribute-upload spec)* | [ ] |
 | `www/js/object_actions/screen.js` | `frontend/src/actions/screen.ts` | [x] |
 | `www/js/object_actions/themes.js` | `frontend/src/actions/themes.ts` | [x] |
 | `www/js/object_actions/labels.js` | `frontend/src/actions/labels.ts` | [x] |

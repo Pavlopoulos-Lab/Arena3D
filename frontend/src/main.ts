@@ -24,6 +24,7 @@ import { registerCanvasControls } from './actions/canvas_controls'
 import { executeCommand } from './actions/right_click_menu'
 import { registerLayerDragControls } from './actions/drag_controls'
 import { registerLabelRendering } from './actions/labels'
+import { registerNavControls } from './actions/nav_controls'
 import { setRenderer, resetScreen, animate } from './actions/screen'
 import { registerThemeListener } from './actions/themes'
 import { registerGlobalListeners } from './event_listeners'
@@ -67,6 +68,7 @@ async function main(): Promise<void> {
   registerLabelRendering()
   registerCanvasControls()
   registerLayerDragControls()
+  registerNavControls()
   const year = document.getElementById('footer-year')
   if (year) year.textContent = String(new Date().getFullYear())
   animate()

@@ -36,6 +36,180 @@
   pointer-events: none; /* passive hint text — must not block panel clicks */
 }
 
+/* Nav control buttons + Scene/Layers/Nodes control table (port of v2
+   arena3dweb.css canvas-control rules; positions adapted to the fixed
+   navbar). */
+#navControlButtonsDiv {
+  position: fixed;
+  top: 60px;
+  left: 10px;
+  z-index: 2;
+}
+
+.displayCanvasControls {
+  margin-top: 8px;
+  color: black;
+  text-align: center;
+}
+
+#info {
+  width: 241px;
+  top: 150px; /* below the nav control buttons */
+  overflow-y: auto;
+  max-height: calc(100vh - 160px);
+}
+
+/* #info itself stays click-through (hint text); the controls inside accept
+   clicks. */
+#info table,
+#info button {
+  pointer-events: auto;
+}
+
+#canvasControls_table {
+  color: var(--bs-body-color);
+}
+
+.border_tr {
+  border-top: 10px solid lightgray;
+}
+
+.labelDrop {
+  vertical-align: bottom;
+}
+
+.raiseSlider {
+  margin-top: -30px;
+}
+
+.red {
+  font-weight: bold;
+  color: #fb3d2a;
+}
+
+.green {
+  font-weight: bold;
+  color: #46fb2a;
+}
+
+.blue {
+  font-weight: bold;
+  color: #2ac2fb;
+}
+
+.canvasControls {
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.image_expandLayers,
+.image_collapseLayers,
+.image_nodeExpand,
+.image_nodeCollapse {
+  width: 50%;
+  height: 45px;
+}
+
+/* prettier-ignore */
+.image_minusX { background-image: url(/images/canvas_control/minusX.png); }
+/* prettier-ignore */
+.image_minusX:hover { background-image: url(/images/canvas_control/minusX_hover.png); }
+/* prettier-ignore */
+.image_minusX:active { background-image: url(/images/canvas_control/minusX_active.png); }
+/* prettier-ignore */
+.image_plusX { background-image: url(/images/canvas_control/plusX.png); }
+/* prettier-ignore */
+.image_plusX:hover { background-image: url(/images/canvas_control/plusX_hover.png); }
+/* prettier-ignore */
+.image_plusX:active { background-image: url(/images/canvas_control/plusX_active.png); }
+/* prettier-ignore */
+.image_minusY { background-image: url(/images/canvas_control/minusY.png); }
+/* prettier-ignore */
+.image_minusY:hover { background-image: url(/images/canvas_control/minusY_hover.png); }
+/* prettier-ignore */
+.image_minusY:active { background-image: url(/images/canvas_control/minusY_active.png); }
+/* prettier-ignore */
+.image_plusY { background-image: url(/images/canvas_control/plusY.png); }
+/* prettier-ignore */
+.image_plusY:hover { background-image: url(/images/canvas_control/plusY_hover.png); }
+/* prettier-ignore */
+.image_plusY:active { background-image: url(/images/canvas_control/plusY_active.png); }
+/* prettier-ignore */
+.image_minusZ { background-image: url(/images/canvas_control/minusZ.png); }
+/* prettier-ignore */
+.image_minusZ:hover { background-image: url(/images/canvas_control/minusZ_hover.png); }
+/* prettier-ignore */
+.image_minusZ:active { background-image: url(/images/canvas_control/minusZ_active.png); }
+/* prettier-ignore */
+.image_plusZ { background-image: url(/images/canvas_control/plusZ.png); }
+/* prettier-ignore */
+.image_plusZ:hover { background-image: url(/images/canvas_control/plusZ_hover.png); }
+/* prettier-ignore */
+.image_plusZ:active { background-image: url(/images/canvas_control/plusZ_active.png); }
+/* prettier-ignore */
+.image_minusX_T { background-image: url(/images/canvas_control/minusX_t.png); }
+/* prettier-ignore */
+.image_minusX_T:hover { background-image: url(/images/canvas_control/minusX_hover_t.png); }
+/* prettier-ignore */
+.image_minusX_T:active { background-image: url(/images/canvas_control/minusX_active_t.png); }
+/* prettier-ignore */
+.image_plusX_T { background-image: url(/images/canvas_control/plusX_t.png); }
+/* prettier-ignore */
+.image_plusX_T:hover { background-image: url(/images/canvas_control/plusX_hover_t.png); }
+/* prettier-ignore */
+.image_plusX_T:active { background-image: url(/images/canvas_control/plusX_active_t.png); }
+/* prettier-ignore */
+.image_minusY_T { background-image: url(/images/canvas_control/minusY_t.png); }
+/* prettier-ignore */
+.image_minusY_T:hover { background-image: url(/images/canvas_control/minusY_hover_t.png); }
+/* prettier-ignore */
+.image_minusY_T:active { background-image: url(/images/canvas_control/minusY_active_t.png); }
+/* prettier-ignore */
+.image_plusY_T { background-image: url(/images/canvas_control/plusY_t.png); }
+/* prettier-ignore */
+.image_plusY_T:hover { background-image: url(/images/canvas_control/plusY_hover_t.png); }
+/* prettier-ignore */
+.image_plusY_T:active { background-image: url(/images/canvas_control/plusY_active_t.png); }
+/* prettier-ignore */
+.image_minusZ_T { background-image: url(/images/canvas_control/minusZ_t.png); }
+/* prettier-ignore */
+.image_minusZ_T:hover { background-image: url(/images/canvas_control/minusZ_hover_t.png); }
+/* prettier-ignore */
+.image_minusZ_T:active { background-image: url(/images/canvas_control/minusZ_active_t.png); }
+/* prettier-ignore */
+.image_plusZ_T { background-image: url(/images/canvas_control/plusZ_t.png); }
+/* prettier-ignore */
+.image_plusZ_T:hover { background-image: url(/images/canvas_control/plusZ_hover_t.png); }
+/* prettier-ignore */
+.image_plusZ_T:active { background-image: url(/images/canvas_control/plusZ_active_t.png); }
+/* prettier-ignore */
+.image_expandLayers { background-image: url(/images/canvas_control/expandLayers.png); }
+/* prettier-ignore */
+.image_expandLayers:hover { background-image: url(/images/canvas_control/expandLayers_hover.png); }
+/* prettier-ignore */
+.image_expandLayers:active { background-image: url(/images/canvas_control/expandLayers_active.png); }
+/* prettier-ignore */
+.image_collapseLayers { background-image: url(/images/canvas_control/collapseLayers.png); }
+/* prettier-ignore */
+.image_collapseLayers:hover { background-image: url(/images/canvas_control/collapseLayers_hover.png); }
+/* prettier-ignore */
+.image_collapseLayers:active { background-image: url(/images/canvas_control/collapseLayers_active.png); }
+/* prettier-ignore */
+.image_nodeExpand { background-image: url(/images/canvas_control/expandNodes.png); }
+/* prettier-ignore */
+.image_nodeExpand:hover { background-image: url(/images/canvas_control/expandNodes_hover.png); }
+/* prettier-ignore */
+.image_nodeExpand:active { background-image: url(/images/canvas_control/expandNodes_active.png); }
+/* prettier-ignore */
+.image_nodeCollapse { background-image: url(/images/canvas_control/collapseNodes.png); }
+/* prettier-ignore */
+.image_nodeCollapse:hover { background-image: url(/images/canvas_control/collapseNodes_hover.png); }
+/* prettier-ignore */
+.image_nodeCollapse:active { background-image: url(/images/canvas_control/collapseNodes_active.png); }
+
 /* Loading spinner (port of v2 arena3dweb.css #loader). */
 #loader {
   border: 16px solid #f3f3f3;
