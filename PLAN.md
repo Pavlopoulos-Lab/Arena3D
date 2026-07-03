@@ -186,7 +186,7 @@ Render spine done and **verified live** (playwright-cli: config loads from `/api
 - As panels stabilise, capture the driven flows as durable `@playwright/test` specs for Phase 14 (agent-cli drives/authoring; `@playwright/test` is the committed artifact).
 
 - [x] Build `frontend/index.html` — Bootstrap 5 navbar (`data-bs-theme="dark"`, bootstrap css+js imported in `main.ts`) with the 11 v2 tabs as `data-bs-toggle="tab"` buttons over empty `#panel-*` panes (each `views/*.R` port fills its pane; Main View pane intentionally empty — selecting it reveals the canvas). v2 helper divs added (`#navControlButtonsDiv`, `#info`, `#loader`, `#descrDiv`). Verified live with playwright-cli (tabs listed in a11y tree, click switches active pane).
-- [ ] Migrate Home panel (`views/home.R` → `src/ui/home.ts`)
+- [x] Migrate Home panel (`views/home.R` → `src/ui/home.ts`) — static HTML into `#panel-home`, `link_to_examples`/`link_to_fileInput` wired via new `ui/tabs.ts` `showTab` (Bootstrap Tab API). New `src/style.css`: fullscreen-canvas + panel-overlay layout replacing v2 positioning hacks (`#panel-main-view` kept invisible so the canvas shows through), `#info`, `#logo1`. Images copied to `frontend/public/images/`. Verified live (links switch to File/Help panes). Footer → separate task.
 - [ ] Migrate File panel (`views/file.R` → `src/ui/file.ts`)
 - [ ] Migrate Layer Selection & Layouts panel (`views/layouts.R` → `src/ui/layouts.ts`)
 - [ ] Migrate Scene Actions panel (`views/scene.R` → `src/ui/scene.ts`)

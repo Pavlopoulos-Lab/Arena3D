@@ -1,0 +1,44 @@
+/* App-level layout: fullscreen Three.js canvas with panel overlays.
+   Replaces v2 www/arena3dweb.css positioning hacks; per-panel rules land
+   with their panels. */
+
+#app {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Panels overlay the canvas below the fixed navbar. */
+#panelContent .tab-pane {
+  position: fixed;
+  top: 56px; /* navbar height */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 1;
+  background-color: var(--bs-body-bg);
+  padding: 1rem;
+}
+
+/* Main View has no panel content: keep it invisible so the canvas shows. */
+#panel-main-view {
+  display: none !important;
+}
+
+#info {
+  position: fixed;
+  top: 70px;
+  left: 10px;
+  z-index: 2;
+  font-size: 12px;
+  color: var(--bs-body-color);
+}
+
+#logo1 {
+  background-image: url(/images/logo.png);
+  background-repeat: no-repeat;
+  width: 200px;
+  height: 48px;
+  margin-bottom: 10px;
+}

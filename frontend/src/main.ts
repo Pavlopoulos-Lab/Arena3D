@@ -4,8 +4,10 @@
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap' // data-bs-* tab + collapse behavior for the navbar
+import './style.css'
 
 import { fetchConfig } from './api/config'
+import { initHomePanel } from './ui/home'
 import { store } from './store'
 import { ctx, Scene } from './three'
 import { history } from './commands/base'
@@ -40,6 +42,7 @@ async function main(): Promise<void> {
     app.appendChild(ctx.renderer.domElement)
   }
 
+  initHomePanel()
   registerGlobalListeners()
   registerThemeListener()
   registerLabelRendering()
