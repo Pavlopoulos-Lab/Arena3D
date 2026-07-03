@@ -149,3 +149,22 @@ export function setInterChannelCurvature(curvature: number): void {
   ctx.interChannelCurvature = curvature
   ctx.renderInterLayerEdgesFlag = true
 }
+
+// v2 edge.js setEdgeAttributes/setEdgeColorFromAttributes: recolor matching
+// edges from an attribute file (per channel when given, else the first
+// channel), then force loaded-edge-color priority so the colors show.
+export function applyEdgeAttributes(
+  rows: { edge_pair: string; color: string; channel: string | null }[]
+): void {
+  const pairs = ctx.edgeObjects.map((e) => `${e.source}---${e.target}`)
+  for (const row of rows) {
+    const pos = pairs.indexOf(row.edge_pair)
+    if (pos === -1) continue // edge not in network
+    const edge = ctx.edgeObjects[pos]
+    const channelPos = row.channel ? edge.channels.indexOf(row.channel) : 0
+    if (channelPos === -1) continue // channel not on this edge
+    edge.importedColors[channelPos] = row.color
+    edge.colors[channelPos] = row.color
+  }
+  setEdgeFileColorPriority(true)
+}

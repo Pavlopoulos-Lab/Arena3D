@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ctx, Edge, Layer, Node, resetContext, Scene } from '../three'
 import {
+  applyEdgeAttributes,
   renderInterLayerEdges,
   setChannelColor,
   setChannelVisibility,
@@ -104,5 +105,29 @@ describe('channels', () => {
     )
     expect(line?.visible).toBe(false)
     expect(ctx.channelVisibility['ch1']).toBe(false)
+  })
+})
+
+describe('applyEdgeAttributes', () => {
+  it('recolors matching edges and forces file-color priority', () => {
+    ctx.edgeObjects[0].channels = ['ppi']
+    ctx.edgeObjects[0].colors = ['#111111']
+    ctx.edgeObjects[0].importedColors = ['#111111']
+    applyEdgeAttributes([
+      { edge_pair: 'A_L1---B_L2', color: '#ff0000', channel: 'ppi' },
+      { edge_pair: 'X_L1---Y_L2', color: '#00ff00', channel: null }, // no such edge
+    ])
+    expect(ctx.edgeObjects[0].importedColors[0]).toBe('#ff0000')
+    expect(ctx.edgeObjects[0].colors[0]).toBe('#ff0000')
+    expect(ctx.edgeFileColorPriority).toBe(true)
+  })
+
+  it('skips channels the edge does not carry', () => {
+    ctx.edgeObjects[0].channels = ['ppi']
+    ctx.edgeObjects[0].importedColors = ['#111111']
+    applyEdgeAttributes([
+      { edge_pair: 'A_L1---B_L2', color: '#ff0000', channel: 'coexpression' },
+    ])
+    expect(ctx.edgeObjects[0].importedColors[0]).toBe('#111111')
   })
 })

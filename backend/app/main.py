@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from app.routers import attributes as attributes_router
 from app.routers import config as config_router
 from app.routers import external as external_router
 from app.routers import layout as layout_router
@@ -14,6 +15,7 @@ app.include_router(layout_router.router)
 app.include_router(topology_router.router)
 app.include_router(session_router.router)
 app.include_router(external_router.router)
+app.include_router(attributes_router.router)
 
 
 @app.get("/api/health")

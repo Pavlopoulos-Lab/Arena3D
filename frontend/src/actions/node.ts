@@ -4,6 +4,7 @@
 // description div (Phase 13 UI), lasso + held-key node moves + spread/move/
 // scale sliders (canvas_controls.ts), attribute upload (POST /api/attributes).
 
+import type { NodeAttributeRow } from '../api/client'
 import { store } from '../store'
 import { ctx, SELECTED_DEFAULT_COLOR } from '../three'
 import type { ColorPrioritySource, NodeGeometryType } from '../three'
@@ -158,4 +159,20 @@ export function setNodeColorPriority(source: ColorPrioritySource): void {
 export function setNodeSelectedColorPriority(flag: boolean): void {
   ctx.selectedNodeColorFlag = flag
   repaintNodes()
+}
+
+// v2 node.js setNodeAttributes + handler_clickNodeColorPriority("default"):
+// apply per-node color/size/url/description from an attribute file, then
+// flip color priority to default so imported colors show.
+export function applyNodeAttributes(rows: NodeAttributeRow[]): void {
+  for (const row of rows) {
+    const pos = ctx.nodeLayerNames.indexOf(row.node_layer)
+    if (pos === -1) continue // node not in network
+    const node = ctx.nodeObjects[pos]
+    if (row.color) node.setColor(row.color, true)
+    if (row.size !== null) node.setScale(row.size)
+    if (row.url) node.url = row.url
+    if (row.description) node.descr = row.description
+  }
+  setNodeColorPriority('default')
 }

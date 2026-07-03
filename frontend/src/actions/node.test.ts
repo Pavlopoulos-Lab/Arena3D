@@ -8,6 +8,7 @@ import {
   SELECTED_DEFAULT_COLOR,
 } from '../three'
 import {
+  applyNodeAttributes,
   decideNodeLabelFlags,
   getSelectedNodes,
   repaintNode,
@@ -106,5 +107,33 @@ describe('decideNodeLabelFlags', () => {
     ctx.lastHoveredNodeIndex = 1
     decideNodeLabelFlags()
     expect(ctx.nodeObjects[1].showLabel).toBe(true)
+  })
+})
+
+describe('applyNodeAttributes', () => {
+  it('applies color/size/url/descr to matching nodes and sets default priority', () => {
+    ctx.nodeColorPrioritySource = 'cluster'
+    applyNodeAttributes([
+      {
+        node_layer: 'A_L1',
+        color: '#ff0000',
+        size: 2.5,
+        url: 'http://x',
+        description: 'hello',
+      },
+      {
+        node_layer: 'ghost_L9',
+        color: '#00ff00',
+        size: null,
+        url: null,
+        description: null,
+      },
+    ])
+    const node = ctx.nodeObjects[0]
+    expect(node.importedColor).toBe('#ff0000')
+    expect(node.sphere.scale.x).toBe(2.5)
+    expect(node.url).toBe('http://x')
+    expect(node.descr).toBe('hello')
+    expect(ctx.nodeColorPrioritySource).toBe('default')
   })
 })

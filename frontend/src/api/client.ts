@@ -148,9 +148,27 @@ async function postFile<T>(
   return res.json() as Promise<T>
 }
 
+export interface NodeAttributeRow {
+  node_layer: string
+  color: string | null
+  size: number | null
+  url: string | null
+  description: string | null
+}
+
+export interface EdgeAttributeRow {
+  edge_pair: string
+  color: string
+  channel: string | null
+}
+
 export const api = {
   uploadNetwork: (file: File | Blob) =>
     postFile<NetworkData>('/api/network', file),
+  uploadNodeAttributes: (file: File | Blob) =>
+    postFile<NodeAttributeRow[]>('/api/attributes/nodes', file),
+  uploadEdgeAttributes: (file: File | Blob) =>
+    postFile<EdgeAttributeRow[]>('/api/attributes/edges', file),
   layout: (req: LayoutRequest) => post<LayoutResponse>('/api/layout', req),
   topology: (req: TopologyRequest) =>
     post<TopologyResponse>('/api/topology', req),

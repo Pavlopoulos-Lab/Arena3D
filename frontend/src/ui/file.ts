@@ -1,9 +1,9 @@
 // File panel — port of v2 views/file.R + functions/input.R upload handlers.
-// Node/edge attribute uploads are deferred until the backend /api/attributes
-// endpoint exists (PLAN Phase 7); their inputs are shown disabled.
 
 import { api } from '../api/client'
+import { applyEdgeAttributes } from '../actions/edge'
 import { loadNetwork, loadSession } from '../actions/network'
+import { applyNodeAttributes } from '../actions/node'
 import { startLoader, finishLoader } from '../actions/screen'
 import { exportSession } from '../actions/session'
 
@@ -19,13 +19,11 @@ const FILE_HTML = `
   </div>
   <div class="mb-3">
     <label for="node_attributes_file" class="form-label">Upload NODE attributes:</label>
-    <input class="form-control" type="file" id="node_attributes_file" accept=".tsv,.txt" disabled
-      title="Coming soon (pending /api/attributes)" />
+    <input class="form-control" type="file" id="node_attributes_file" accept=".tsv,.txt" />
   </div>
   <div class="mb-3">
     <label for="edge_attributes_file" class="form-label">Upload EDGE attributes:</label>
-    <input class="form-control" type="file" id="edge_attributes_file" accept=".tsv,.txt" disabled
-      title="Coming soon (pending /api/attributes)" />
+    <input class="form-control" type="file" id="edge_attributes_file" accept=".tsv,.txt" />
   </div>
   <button id="save_network_object" class="btn btn-primary me-2">Save Session</button>
   <button id="exampleButton" class="btn btn-secondary">Load Example</button>
@@ -80,6 +78,49 @@ async function onLoadExample(): Promise<void> {
   }
 }
 
+// v2 handleInputNodeAttributeFileUpload / handleInputEdgeAttributeFileUpload.
+async function onUploadNodeAttributes(file: File): Promise<void> {
+  startLoader()
+  try {
+    const rows = await api.uploadNodeAttributes(file)
+    applyNodeAttributes(rows)
+    // keep the Node Actions color-priority radio in sync (v2 clicked it)
+    const radio = document.querySelector<HTMLInputElement>(
+      'input[name="nodeColorPriorityRadio"][value="default"]'
+    )
+    if (radio) radio.checked = true
+    status('Node attributes applied.')
+  } catch (err) {
+    status(
+      err instanceof Error ? err.message : 'Bad node attributes file format.',
+      true
+    )
+  } finally {
+    finishLoader()
+  }
+}
+
+async function onUploadEdgeAttributes(file: File): Promise<void> {
+  startLoader()
+  try {
+    const rows = await api.uploadEdgeAttributes(file)
+    applyEdgeAttributes(rows)
+    // keep the Edge Actions priority checkbox in sync (v2 clicked it)
+    const box = document.getElementById(
+      'edgeFileColorPriority'
+    ) as HTMLInputElement | null
+    if (box) box.checked = true
+    status('Edge attributes applied.')
+  } catch (err) {
+    status(
+      err instanceof Error ? err.message : 'Bad edge attributes file format.',
+      true
+    )
+  } finally {
+    finishLoader()
+  }
+}
+
 export function initFilePanel(): void {
   const pane = document.getElementById('panel-file')
   if (!pane) return
@@ -97,6 +138,22 @@ export function initFilePanel(): void {
   ) as HTMLInputElement
   sessInput.addEventListener('change', () => {
     if (sessInput.files?.[0]) void onLoadSession(sessInput.files[0])
+  })
+
+  const nodeAttrInput = document.getElementById(
+    'node_attributes_file'
+  ) as HTMLInputElement
+  nodeAttrInput.addEventListener('change', () => {
+    if (nodeAttrInput.files?.[0])
+      void onUploadNodeAttributes(nodeAttrInput.files[0])
+  })
+
+  const edgeAttrInput = document.getElementById(
+    'edge_attributes_file'
+  ) as HTMLInputElement
+  edgeAttrInput.addEventListener('change', () => {
+    if (edgeAttrInput.files?.[0])
+      void onUploadEdgeAttributes(edgeAttrInput.files[0])
   })
 
   document

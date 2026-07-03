@@ -16,7 +16,10 @@
   right: 0;
   bottom: 0;
   overflow-y: auto;
-  z-index: 1;
+  /* Above the #info / nav-control overlays (z-index 2) so an open panel
+     covers them; Main View's pane is display:none, so the canvas + controls
+     stay visible there. */
+  z-index: 5;
   background-color: var(--bs-body-bg);
   padding: 1rem;
 }

@@ -17,7 +17,7 @@ See `PLAN.md` for the ordered implementation steps.
 | `config/ui_variables.R` | *(absorbed into frontend config — see Removed)* | [x] |
 | `functions/input.R` (TSV upload) | `backend/app/services/parser.py` + `routers/network.py` | [x] |
 | `functions/input.R` (JSON import + export) | `backend/app/services/session.py` + `routers/session.py` | [x] |
-| `functions/input.R` (attribute uploads) | *(not yet ported → future `POST /api/attributes`)* | [ ] |
+| `functions/input.R` (attribute uploads) | `backend/app/services/attributes.py` + `routers/attributes.py` | [x] |
 | `functions/init.R` | `backend/app/routers/config.py` + `backend/app/main.py` | [x] |
 | `functions/general.R` | `backend/app/services/parser.py` (file read) + `topology.py`/`parser.py` (`mapper()`) — JS-bridge helpers die with Shiny | [x] |
 | `functions/reset.R` | *(stateless server — no equivalent needed)* | [x] |
@@ -60,8 +60,8 @@ See `PLAN.md` for the ordered implementation steps.
 | `www/js/object_actions/network.js` | `frontend/src/actions/network.ts` (upload build + session import) | [x] |
 | `www/js/object_actions/layout.js` | `frontend/src/actions/layout.ts` | [x] |
 | `www/js/object_actions/layer.js` | `frontend/src/actions/layer.ts` + `src/actions/nav_controls.ts` | [x] |
-| `www/js/object_actions/node.js` | `frontend/src/actions/node.ts` + `src/actions/nav_controls.ts` *(kept: attribute-upload spec)* | [ ] |
-| `www/js/object_actions/edge.js` | `frontend/src/actions/edge.ts` *(kept: attribute-upload spec)* | [ ] |
+| `www/js/object_actions/node.js` | `frontend/src/actions/node.ts` + `src/actions/nav_controls.ts` | [x] |
+| `www/js/object_actions/edge.js` | `frontend/src/actions/edge.ts` | [x] |
 | `www/js/object_actions/screen.js` | `frontend/src/actions/screen.ts` | [x] |
 | `www/js/object_actions/themes.js` | `frontend/src/actions/themes.ts` | [x] |
 | `www/js/object_actions/labels.js` | `frontend/src/actions/labels.ts` | [x] |

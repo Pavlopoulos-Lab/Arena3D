@@ -45,7 +45,7 @@ See `MIGRATION.md` for the old-file → new-file deletion checklist.
 - [x] Implement `POST /api/network` router
 - [x] Write pytest tests using `www/data/` TSV files as fixtures (12 tests, real `aspirin_3channels.tsv`)
 - [x] Verify validation errors match current behaviour (missing columns, non-numeric weights, empty channels)
-- [ ] Delete `functions/input.R` — **deferred to Phase 7**: file also holds JSON import, session export, node/edge attribute uploads, example load. Only the TSV-upload portion is ported now.
+- [x] Delete `functions/input.R` — all responsibilities ported: TSV upload (`parser.py`), JSON import/session export (`session.py`), node/edge attribute uploads (`attributes.py`, Phase 7), example load (frontend bundled TSV).
 
 ---
 
@@ -93,7 +93,7 @@ Clustering in v2 is not a standalone action — it is an option of the layout ru
 - [x] **VR: dropped.** `functions/vr.R` deleted, not ported. v2's VR mode wrote PLY + A-Frame HTML served from external `bib.fleming.gr` infra; niche feature, out of scope for the restack. Recorded in MIGRATION.md.
 - [x] Write pytest tests for all session and external endpoints using `www/data/*.json` as fixtures (11 tests, real `Arena3DwebApp_aspirin.json` + `figure1_export.json`)
 - [x] Delete `functions/init.R`, `functions/general.R`, `functions/reset.R`, `functions/vr.R`, `functions/render.R`, `functions/js_handling.R` (`functions/edges.R` is UI logic — dies with `views/` in Phase 13)
-- [ ] **Remaining in `functions/input.R`**: node/edge attribute-file uploads (`handleInputNodeAttributeFileUpload`, `handleInputEdgeAttributeFileUpload`) — not yet ported; map to a future `POST /api/attributes` endpoint. `input.R` deletion deferred until then.
+- [x] **Attribute-file uploads ported**: `POST /api/attributes/nodes` + `/api/attributes/edges` (`services/attributes.py` + `models/attributes.py`, 7 pytest tests). Frontend `applyNodeAttributes`/`applyEdgeAttributes` (node.ts/edge.ts) + File-panel wiring; `input.R` deleted.
 
 ---
 
@@ -158,7 +158,7 @@ Deferred into Phase 12 (with renderer/camera/animate/raycaster/DragControls/CSS2
 - [x] `canvas_controls.js` (core) + canvas half of `event_listeners.js` → `src/actions/canvas_controls.ts` — `sceneZoom`, `keyPressed`/`axisRelease` (modern `event.key`), `clickDown/Drag/Up`, `dblClick` (node → layer → unselect-all priority), scene pan/orbit, held-key node-translate/layer-rotate (the node.js/layer.js deferrals), shift-lasso select (anchor, THREE.Line rectangle, dim-then-select), `registerCanvasControls()` on the canvas from main.ts (tabIndex, wheel/scroll prevention, mouseleave release). 8 Vitest tests. *(Right-click node menu → right_click_menu.ts; nav buttons/slider control table DOM → Phase 13.)*
 - [x] DragControls layer dragging → `src/actions/drag_controls.ts` — hand-port of v2's tweaked `www/js/three/drag_controls.js` on npm three math (`matrix4.js` shim dropped; both v2 files deleted). v2 gate kept (drag only while left button held over hovered layer; label flags raised); release now raises the inter-edge render flag + emits `layer:moved`. Planes list read live from ctx, so one registration survives network reloads. 4 Vitest tests (ray-hit select, ortho drag math, gate, release).
 - [x] `right_click_menu.js` + `replaceContextMenuOverNode` (event_listeners.js) → `src/actions/right_click_menu.ts` — pure graph commands (`selectNeighbors`, `selectMultiLayerPath` with v2's starting/current-layer exclusions, recursive `selectDownstreamPath` over inter-layer edges), `executeCommand` tail (render flags + label flags + store sync), `<select>` menu over the clicked node in `#labelDiv` (Link opens URL; Description → Phase 13 panel), wired to `contextmenu` + removed on `clickUp` in canvas_controls. 5 Vitest tests. *(Loader spinner + descrDiv content → Phase 13.)*
-- [ ] Delete `www/js/object_actions/` — **almost done**: only `node.js` + `edge.js` remain, as living spec for the attribute-file uploads (`setNode/EdgeAttributes` → deferred `POST /api/attributes`). `canvas_controls.js`/`layer.js`/`layout.js` deleted with the nav-controls port (`src/actions/nav_controls.ts`: fixed buttons, Scene/Layers/Nodes control table with hold-to-repeat rotate/move intervals, spread/scale, recenter, info instructions — attached on first `network:loaded` as v2). Verified live (scene rotate hold+release, layer/node move, scale sliders, recenter, spread, table toggle, inter-edge pause).
+- [x] Delete `www/js/object_actions/` — all ported. `node.js`/`edge.js` deleted with the attribute-upload port (`applyNodeAttributes`/`applyEdgeAttributes`). Nav-controls port (`src/actions/nav_controls.ts`: fixed buttons, Scene/Layers/Nodes control table with hold-to-repeat rotate/move intervals, spread/scale, recenter, info instructions — attached on first `network:loaded` as v2). Verified live (scene rotate hold+release, layer/node move, scale sliders, recenter, spread, table toggle, inter-edge pause, node+edge attribute upload).
 
 ---
 
