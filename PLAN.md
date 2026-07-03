@@ -138,16 +138,23 @@ All 8 in `src/commands/scene.ts`. Commands are **thin**: they apply/reverse alre
 
 ## Phase 11 — Frontend: Object Actions
 
-- [ ] Migrate `canvas_controls.js` → `src/actions/canvas_controls.ts`
-- [ ] Migrate `layout.js` → `src/actions/layout.ts`
-- [ ] Migrate `node.js` → `src/actions/node.ts`
-- [ ] Migrate `edge.js` → `src/actions/edge.ts`
-- [ ] Migrate `layer.js` → `src/actions/layer.ts`
-- [ ] Migrate `network.js` → `src/actions/network.ts`
-- [ ] Migrate `screen.js` → `src/actions/screen.ts`
-- [ ] Migrate `themes.js` → `src/actions/themes.ts`
-- [ ] Migrate `labels.js` → `src/actions/labels.ts`
-- [ ] Migrate `right_click_menu.js` → `src/actions/right_click_menu.ts`
+**Re-scoped.** The v2 actions split cleanly into two groups by dependency:
+- **Pure data-model actions** (no renderer/camera/animate/DOM) — portable + unit-testable now.
+- **Render-loop / DOM / event actions** — need the renderer, camera, `animate()` loop, raycaster, DragControls, CSS2D labels, and the UI panels. Those dependencies are built in **Phase 12** (main loop, `screen.js` renderer/camera, `event_listeners.js`) and **Phase 13** (UI panels). Migrating them now would mean stubbing all of that, so they move to the phase where their deps exist.
+
+Done now (portable core):
+- [x] Migrate `layout.js` → `src/actions/layout.ts` — `executeLayout` coordinate normalization (backend returns raw igraph `[y,z]`, confirmed) + `applyLayout` / `applyTopology` dispatching the Phase 10 commands. 5 Vitest tests. *(allLayers scope; perLayer/local refinements deferred to Phase 13 scope UI.)*
+
+Deferred into Phase 12 (with renderer/camera/animate/raycaster/DragControls/CSS2D) and Phase 13 (UI/DOM), then delete `www/js/object_actions/`:
+- [ ] `screen.js` → `src/actions/screen.ts` (renderer, camera, window bounds, raycaster, `animate()`)
+- [ ] `network.js` → `src/actions/network.ts` (buildNetwork orchestrator; feeds `LoadNetworkCommand`)
+- [ ] `node.js` → `src/actions/node.ts` (build + raycaster hover/selection; color/size actions)
+- [ ] `edge.js` → `src/actions/edge.ts` (build + inter/intra render toggles)
+- [ ] `layer.js` → `src/actions/layer.ts` (spread/move + DragControls + layer checkboxes)
+- [ ] `themes.js` → `src/actions/themes.ts` (needs renderer `setClearColor`; listens to `theme:changed`)
+- [ ] `labels.js` → `src/actions/labels.ts` (CSS2D label rendering in the animate loop)
+- [ ] `canvas_controls.js` → `src/actions/canvas_controls.ts` (mouse/keyboard canvas controls, 510 lines, heavy DOM)
+- [ ] `right_click_menu.js` → `src/actions/right_click_menu.ts` (DOM context menu)
 - [ ] Delete `www/js/object_actions/`
 
 ---
