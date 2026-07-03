@@ -66,6 +66,7 @@ export function checkHoverOverNode(event: {
 
 // v2 read the hideLayer DOM checkboxes; layer visibility now lives on Layer.
 export function decideNodeLabelFlags(): void {
+  ctx.renderNodeLabelsFlag = true
   ctx.nodeObjects.forEach((node, i) => {
     const layer =
       ctx.layers[ctx.layerGroups[ctx.nodeGroups[ctx.nodeLayerNames[i]]]]

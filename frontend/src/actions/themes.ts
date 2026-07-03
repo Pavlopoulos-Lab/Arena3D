@@ -7,6 +7,7 @@ import { bus } from '../bus'
 import { store } from '../store'
 import { ctx } from '../three'
 import { assignChannelColorsFromPalette, redrawIntraLayerEdges } from './edge'
+import { setLabelColor } from './labels'
 import { repaintLayers } from './layer'
 import { setRendererColor } from './screen'
 
@@ -65,8 +66,8 @@ export function applyTheme(name: string, fromInit = false): void {
     repaintLayers(theme.floor)
     redrawIntraLayerEdges()
     ctx.renderInterLayerEdgesFlag = true
-    // v2 also rebuilt the channel edit list + label colors — Phase 13 UI /
-    // labels.ts react to the same theme:changed event
+    setLabelColor(theme.label)
+    // v2 also rebuilt the channel edit list — Phase 13 UI
   }
 }
 

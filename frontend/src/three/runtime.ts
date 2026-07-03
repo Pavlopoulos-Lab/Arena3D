@@ -70,6 +70,9 @@ export interface RuntimeContext {
   selectedNodeColorFlag: boolean
   showAllNodeLabelsFlag: boolean
   showSelectedNodeLabelsFlag: boolean
+  renderNodeLabelsFlag: boolean
+  showAllLayerLabelsFlag: boolean
+  showSelectedLayerLabelsFlag: boolean
 
   // Inter-layer edge render machinery (v2 edge.js globals)
   renderInterLayerEdgesFlag: boolean
@@ -133,6 +136,9 @@ export const ctx: RuntimeContext = {
   selectedNodeColorFlag: true,
   showAllNodeLabelsFlag: false,
   showSelectedNodeLabelsFlag: true,
+  renderNodeLabelsFlag: false,
+  showAllLayerLabelsFlag: true,
+  showSelectedLayerLabelsFlag: false,
 
   renderInterLayerEdgesFlag: false,
   waitEdgeRenderFlag: true,
@@ -176,6 +182,9 @@ export function resetContext(): void {
   ctx.selectedNodeColorFlag = true
   ctx.showAllNodeLabelsFlag = false
   ctx.showSelectedNodeLabelsFlag = true
+  ctx.renderNodeLabelsFlag = false
+  ctx.showAllLayerLabelsFlag = true
+  ctx.showSelectedLayerLabelsFlag = false
   ctx.renderInterLayerEdgesFlag = false
   ctx.waitEdgeRenderFlag = true
   ctx.interEdgesRemoved = false

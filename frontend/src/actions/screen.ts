@@ -71,13 +71,19 @@ export function raycaster(): THREE.Raycaster {
   return RAYCASTER
 }
 
+// Per-tick hooks (labels.ts registers its render fns here; avoids an
+// import cycle screen -> labels -> node -> screen).
+const animateHooks: Array<() => void> = []
+export function registerAnimateHook(fn: () => void): void {
+  animateHooks.push(fn)
+}
+
 // FPS-limited render loop.
 export function animate(): void {
   setTimeout(() => requestAnimationFrame(animate), 1000 / ctx.fps)
 
-  // ponytail: CSS2D label rendering hooks in here once labels.ts lands (v2
-  // called renderLayerLabels / renderNodeLabels before render).
   renderInterLayerEdges()
+  for (const fn of animateHooks) fn()
   if (ctx.scene && ctx.camera)
     ctx.renderer?.render(ctx.scene.THREE_Object, ctx.camera)
 }

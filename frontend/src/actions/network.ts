@@ -17,6 +17,7 @@ import {
   resetContext,
   Scene,
 } from '../three'
+import { createLabels } from './labels'
 import { initialSpreadLayers } from './layer'
 import { scrambleNodes } from './node'
 
@@ -46,6 +47,7 @@ export function buildNetwork(data: NetworkData): void {
   initializeChannels(data.channels)
   initializeNodes(data.nodes)
   createEdgeObjects(data.edges)
+  createLabels() // v2 executePostNetworkSetup
 
   store.update({ network: data, selectedChannels: [...data.channels] })
 }
