@@ -75,15 +75,19 @@ export function initLayerPanel(): void {
     })
   }
 
-  document.getElementById('showLayerCoords')?.addEventListener('change', (e) => {
-    showLayerCoords((e.target as HTMLInputElement).checked)
-  })
+  document
+    .getElementById('showLayerCoords')
+    ?.addEventListener('change', (e) => {
+      showLayerCoords((e.target as HTMLInputElement).checked)
+    })
   document.getElementById('showWireFrames')?.addEventListener('change', (e) => {
     showWireFrames((e.target as HTMLInputElement).checked)
   })
-  document.getElementById('resizeLayerLabels')?.addEventListener('input', (e) => {
-    resizeLayerLabels(Number((e.target as HTMLInputElement).value))
-  })
+  document
+    .getElementById('resizeLayerLabels')
+    ?.addEventListener('input', (e) => {
+      resizeLayerLabels(Number((e.target as HTMLInputElement).value))
+    })
   document.getElementById('layerOpacity')?.addEventListener('input', (e) => {
     setFloorOpacity(Number((e.target as HTMLInputElement).value))
   })

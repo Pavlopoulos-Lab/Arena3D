@@ -22,7 +22,9 @@ export function initFpsPanel(): void {
   const pane = document.getElementById('panel-fps')
   if (!pane) return
   pane.innerHTML = FPS_HTML
-  for (const radio of document.querySelectorAll<HTMLInputElement>('input[name="fps"]')) {
+  for (const radio of document.querySelectorAll<HTMLInputElement>(
+    'input[name="fps"]'
+  )) {
     radio.addEventListener('change', () => {
       ctx.fps = Number(radio.value) || 30
     })

@@ -49,12 +49,16 @@ export function initHomePanel(): void {
   const pane = document.getElementById('panel-home')
   if (!pane) return
   pane.innerHTML = HOME_HTML
-  document.getElementById('link_to_examples')?.addEventListener('click', (e) => {
-    e.preventDefault()
-    showTab('#panel-help')
-  })
-  document.getElementById('link_to_fileInput')?.addEventListener('click', (e) => {
-    e.preventDefault()
-    showTab('#panel-file')
-  })
+  document
+    .getElementById('link_to_examples')
+    ?.addEventListener('click', (e) => {
+      e.preventDefault()
+      showTab('#panel-help')
+    })
+  document
+    .getElementById('link_to_fileInput')
+    ?.addEventListener('click', (e) => {
+      e.preventDefault()
+      showTab('#panel-file')
+    })
 }

@@ -95,7 +95,9 @@ function buildChannelEditList(): void {
     const picker = row.querySelector<HTMLInputElement>('.channel_colorPicker')!
     const hide = row.querySelector<HTMLInputElement>('.channel_checkbox')!
     picker.addEventListener('change', () => setChannelColor(ch, picker.value))
-    hide.addEventListener('change', () => setChannelVisibility(ch, !hide.checked))
+    hide.addEventListener('change', () =>
+      setChannelVisibility(ch, !hide.checked)
+    )
     container.appendChild(row)
   }
 }
@@ -111,22 +113,26 @@ export function initEdgePanel(): void {
     })
 
   // Direction toggle shows/hides the arrow-size sliders (edges.R).
-  document.getElementById('edgeDirectionToggle')?.addEventListener('change', (e) => {
-    const on = (e.target as HTMLInputElement).checked
-    show('intraDirectionArrowSizeWrap', on)
-    show('interDirectionArrowSizeWrap', on)
-    toggleDirection(on)
-  })
+  document
+    .getElementById('edgeDirectionToggle')
+    ?.addEventListener('change', (e) => {
+      const on = (e.target as HTMLInputElement).checked
+      show('intraDirectionArrowSizeWrap', on)
+      show('interDirectionArrowSizeWrap', on)
+      toggleDirection(on)
+    })
   range('intraDirectionArrowSize', setIntraDirectionArrowSize)
   range('interDirectionArrowSize', setInterDirectionArrowSize)
 
   // Opacity-by-weight hides the manual opacity sliders (edges.R).
-  document.getElementById('edgeWidthByWeight')?.addEventListener('change', (e) => {
-    const byWeight = (e.target as HTMLInputElement).checked
-    show('intraLayerEdgeOpacityWrap', !byWeight)
-    show('interLayerEdgeOpacityWrap', !byWeight)
-    setEdgeWidthByWeight(byWeight)
-  })
+  document
+    .getElementById('edgeWidthByWeight')
+    ?.addEventListener('change', (e) => {
+      const byWeight = (e.target as HTMLInputElement).checked
+      show('intraLayerEdgeOpacityWrap', !byWeight)
+      show('interLayerEdgeOpacityWrap', !byWeight)
+      setEdgeWidthByWeight(byWeight)
+    })
   range('intraLayerEdgeOpacity', setIntraLayerEdgeOpacity)
   range('interLayerEdgeOpacity', setInterLayerEdgeOpacity)
 

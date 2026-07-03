@@ -46,15 +46,20 @@ export function initScenePanel(): void {
   if (!pane) return
   pane.innerHTML = SCENE_HTML
 
-  document.getElementById('toggleSceneCoords')?.addEventListener('change', (e) => {
-    ctx.scene?.toggleCoords((e.target as HTMLInputElement).checked)
-  })
+  document
+    .getElementById('toggleSceneCoords')
+    ?.addEventListener('change', (e) => {
+      ctx.scene?.toggleCoords((e.target as HTMLInputElement).checked)
+    })
 
   // ponytail: v2 auto-rotate kept the canvas-button rotation interval alive;
   // those buttons aren't ported, so this is a steady Y spin in the render loop.
-  document.getElementById('autoRotateScene')?.addEventListener('change', (e) => {
-    if (ctx.scene) ctx.scene.autoRotate = (e.target as HTMLInputElement).checked
-  })
+  document
+    .getElementById('autoRotateScene')
+    ?.addEventListener('change', (e) => {
+      if (ctx.scene)
+        ctx.scene.autoRotate = (e.target as HTMLInputElement).checked
+    })
   registerAnimateHook(() => {
     if (ctx.scene?.autoRotate) ctx.scene.rotateY(MathUtils.degToRad(0.5))
   })

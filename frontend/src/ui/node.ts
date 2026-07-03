@@ -95,9 +95,11 @@ export function initNodePanel(): void {
     })
   }
 
-  document.getElementById('resizeNodeLabels')?.addEventListener('input', (e) => {
-    resizeNodeLabels(Number((e.target as HTMLInputElement).value))
-  })
+  document
+    .getElementById('resizeNodeLabels')
+    ?.addEventListener('input', (e) => {
+      resizeNodeLabels(Number((e.target as HTMLInputElement).value))
+    })
 
   for (const radio of document.querySelectorAll<HTMLInputElement>(
     'input[name="nodeGeometryRadio"]'
@@ -121,7 +123,9 @@ export function initNodePanel(): void {
       setNodeSelectedColorPriority((e.target as HTMLInputElement).checked)
     })
 
-  const searchBar = document.getElementById('nodeSearchBar') as HTMLTextAreaElement
+  const searchBar = document.getElementById(
+    'nodeSearchBar'
+  ) as HTMLTextAreaElement
   searchBar.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault() // v2: bypass the newline
