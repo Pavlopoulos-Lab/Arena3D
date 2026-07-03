@@ -207,7 +207,7 @@ Render spine done and **verified live** (playwright-cli: config loads from `/api
 
 - [x] Delete remaining `www/` (R) directory — `functions/`, `config/` already gone. The 3 test fixtures actually used moved to `backend/tests/fixtures/` (tests repointed); images were already in `frontend/public/`. `www/` deleted.
 - [x] Delete `Arena3Dweb.Rproj`, `Rprofile.site`, `global.R` (dead R/Shiny startup config; `global.R` lib-loading maps to `backend/app/main.py`)
-- [ ] Full Docker production build test — `docker build` + `docker run`
+- [~] Docker production build — both stages verified independently (frontend `npm run build` ✓, backend `uv sync --frozen --no-group dev` ✓); `docker build`/`run` itself **not run** in this environment (Docker daemon socket permission denied). Fixed the README run port (`8080:8080`, was `8080:80`). Needs a real `docker build` on a machine with daemon access before release.
 - [ ] Full Playwright E2E test suite pass — upload fixture network, apply layout, clustering, export session
 - [x] Update `CLAUDE.md` for new stack — rewritten for FastAPI + Vite/TS/Three.js; dropped the R/Shiny run instructions + living-spec framing (all R deleted).
 - [x] Update `README.md` for new stack and Docker instructions — Overview/Features/Getting Started rewritten for FastAPI + Vite/TS/Three.js; dropped R/RStudio + VR; docker-compose + single-image build; example-data paths updated; Shiny badge → Live Demo.

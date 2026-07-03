@@ -64,7 +64,7 @@ For a single production image (nginx serving the built frontend + uvicorn):
 
 ```bash
 docker build -t arena3dweb .
-docker run -p 8080:80 arena3dweb
+docker run -p 8080:8080 arena3dweb   # http://localhost:8080
 ```
 
 #### From Source
