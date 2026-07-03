@@ -205,8 +205,8 @@ Render spine done and **verified live** (playwright-cli: config loads from `/api
 
 ## Phase 14 — Final Cleanup & Production
 
-- [ ] Delete remaining `www/`, `functions/`, `config/` (R) directories
-- [ ] Delete `Arena3Dweb.Rproj`, `Rprofile.site`, `global.R`
+- [ ] Delete remaining `www/` (R) directory — **`functions/`, `config/` already gone**; `www/data` + `www/images` kept: `www/data/*.tsv|json` are backend pytest fixtures (`test_network.py`/`test_session.py`), images already copied to `frontend/public/`. Relocate fixtures before deleting `www/`.
+- [x] Delete `Arena3Dweb.Rproj`, `Rprofile.site`, `global.R` (dead R/Shiny startup config; `global.R` lib-loading maps to `backend/app/main.py`)
 - [ ] Full Docker production build test — `docker build` + `docker run`
 - [ ] Full Playwright E2E test suite pass — upload fixture network, apply layout, clustering, export session
 - [ ] Update `CLAUDE.md` for new stack
