@@ -92,7 +92,7 @@ See `PLAN.md` for the ordered implementation steps.
 | `views/data.R` | `frontend/src/ui/data.ts` | [x] |
 | `views/fps.R` | `frontend/src/ui/fps.ts` | [ ] |
 | `views/help.R` | `frontend/src/ui/help.ts` | [ ] |
-| `views/footer.R` | `frontend/index.html` (static footer) | [ ] |
+| `views/footer.R` | `frontend/index.html` (static footer) | [x] |
 
 ---
 

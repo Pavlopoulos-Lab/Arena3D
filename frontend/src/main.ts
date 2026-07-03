@@ -66,6 +66,8 @@ async function main(): Promise<void> {
   registerLabelRendering()
   registerCanvasControls()
   registerLayerDragControls()
+  const year = document.getElementById('footer-year')
+  if (year) year.textContent = String(new Date().getFullYear())
   animate()
 
   // Test hook: lets Playwright read scene state via page.evaluate (WebGL is

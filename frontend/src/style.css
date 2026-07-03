@@ -36,6 +36,23 @@
   pointer-events: none; /* passive hint text — must not block panel clicks */
 }
 
+/* Footer (port of v2 arena3dweb.css footer rules). */
+footer {
+  font-family: Arial;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #2b4e99;
+  text-align: center;
+  font-size: 18px;
+  color: white;
+  z-index: 2;
+}
+
+footer a {
+  color: white;
+}
+
 #logo1 {
   background-image: url(/images/logo.png);
   background-repeat: no-repeat;

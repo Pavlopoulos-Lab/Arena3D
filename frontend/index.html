@@ -22,37 +22,125 @@
         <div class="collapse navbar-collapse" id="navbarTabs">
           <ul class="navbar-nav" role="tablist">
             <li class="nav-item" role="presentation">
-              <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#panel-home" type="button" role="tab">Home</button>
+              <button
+                class="nav-link active"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-home"
+                type="button"
+                role="tab"
+              >
+                Home
+              </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-main-view" type="button" role="tab">Main View</button>
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-main-view"
+                type="button"
+                role="tab"
+              >
+                Main View
+              </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-file" type="button" role="tab">File</button>
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-file"
+                type="button"
+                role="tab"
+              >
+                File
+              </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-layouts" type="button" role="tab">Layer Selection &amp; Layouts</button>
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-layouts"
+                type="button"
+                role="tab"
+              >
+                Layer Selection &amp; Layouts
+              </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-scene" type="button" role="tab">Scene Actions</button>
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-scene"
+                type="button"
+                role="tab"
+              >
+                Scene Actions
+              </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-layer" type="button" role="tab">Layer Actions</button>
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-layer"
+                type="button"
+                role="tab"
+              >
+                Layer Actions
+              </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-node" type="button" role="tab">Node Actions</button>
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-node"
+                type="button"
+                role="tab"
+              >
+                Node Actions
+              </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-edge" type="button" role="tab">Edge Actions</button>
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-edge"
+                type="button"
+                role="tab"
+              >
+                Edge Actions
+              </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-data" type="button" role="tab">View Data</button>
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-data"
+                type="button"
+                role="tab"
+              >
+                View Data
+              </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-fps" type="button" role="tab">FPS</button>
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-fps"
+                type="button"
+                role="tab"
+              >
+                FPS
+              </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-help" type="button" role="tab">Help</button>
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-help"
+                type="button"
+                role="tab"
+              >
+                Help
+              </button>
             </li>
           </ul>
         </div>
@@ -61,7 +149,11 @@
 
     <!-- Panel panes overlay the canvas; each views/*.R port fills its pane. -->
     <div class="tab-content" id="panelContent">
-      <div class="tab-pane fade show active" id="panel-home" role="tabpanel"></div>
+      <div
+        class="tab-pane fade show active"
+        id="panel-home"
+        role="tabpanel"
+      ></div>
       <!-- Main View is intentionally empty: selecting it just reveals the canvas. -->
       <div class="tab-pane fade" id="panel-main-view" role="tabpanel"></div>
       <div class="tab-pane fade" id="panel-file" role="tabpanel"></div>
@@ -81,6 +173,16 @@
     <div id="app"></div>
     <div id="labelDiv"></div>
     <div id="descrDiv"></div>
+    <footer>
+      &copy; <span id="footer-year"></span>
+      <a href="https://sites.google.com/site/pavlopoulossite" target="_blank"
+        >Bioinformatics and Integrative Biology Lab</a
+      >
+      |
+      <a href="https://www.fleming.gr" target="_blank"
+        >Biomedical Sciences Research Center "Alexander Fleming"</a
+      >
+    </footer>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
