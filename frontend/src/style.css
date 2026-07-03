@@ -33,6 +33,7 @@
   z-index: 2;
   font-size: 12px;
   color: var(--bs-body-color);
+  pointer-events: none; /* passive hint text — must not block panel clicks */
 }
 
 #logo1 {
