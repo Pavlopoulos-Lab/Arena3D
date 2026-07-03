@@ -199,7 +199,7 @@ Render spine done and **verified live** (playwright-cli: config loads from `/api
 - [x] Migrate footer (`views/footer.R` → static footer in `index.html`) — year set from `Date` in `main.ts` (v2 `YEAR` config var), CSS ported into `style.css` (white links for the dark bar; v2's `-8px` body-margin hack dropped). Verified live (year 2026, 2 lab links, fixed bottom).
 - [x] Port edge-panel toggles from `functions/edges.R` into `src/ui/edge.ts` (done with the Edge panel above: `handleEdgeWidthByWeightCheckbox`/`handleEdgeDirectionCheckbox` slider show/hide). `updateSelectedEdgesView` ported into `src/ui/data.ts` (recomputed from `ctx` on View Data panel open). `functions/edges.R` fully ported; delete in Phase 14 cleanup.
 - [x] Add Undo/Redo buttons wired to `CommandHistory` — navbar `ms-auto` button pair in `index.html`, wired in `event_listeners.ts` (click → `history.undo/redo`, disabled state tracks `history:changed`). Verified live (Load Example → Undo empties scene → Redo restores 11 nodes, disabled states follow).
-- [ ] Delete `views/`, `ui.R`, `server.R`, `www/arena3dweb.css`
+- [x] Delete `views/`, `ui.R`, `server.R`, `www/arena3dweb.css` (+ fully-ported `functions/edges.R`). v2 favicon copied to `frontend/public/`. All panels verified live in the tasks above; remaining CSS rules were ported per-panel into `style.css`.
 
 ---
 

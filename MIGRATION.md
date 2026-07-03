@@ -71,7 +71,7 @@ See `PLAN.md` for the ordered implementation steps.
 | `www/js/general.js` | `frontend/src/utils.ts` | [x] |
 | `www/js/event_listeners.js` | `frontend/src/event_listeners.ts` + `src/actions/canvas_controls.ts` + `src/actions/right_click_menu.ts` | [x] |
 | `www/js/on_page_load.js` | `frontend/src/main.ts` + `src/actions/canvas_controls.ts` (color-picker inputs re-created in Phase 13 scene panel) | [x] |
-| `www/arena3dweb.css` | Bootstrap 5 + `frontend/src/style.css` | [ ] |
+| `www/arena3dweb.css` | Bootstrap 5 + `frontend/src/style.css` | [x] |
 
 ---
 
@@ -79,19 +79,19 @@ See `PLAN.md` for the ordered implementation steps.
 
 | Old file | New file | Done |
 |---|---|---|
-| `ui.R` | `frontend/index.html` | [ ] |
-| `server.R` | `backend/app/main.py` + routers | [ ] |
+| `ui.R` | `frontend/index.html` | [x] |
+| `server.R` | `backend/app/main.py` + routers | [x] |
 | `global.R` | `backend/app/main.py` (lifespan) | [ ] |
-| `views/home.R` | `frontend/src/ui/home.ts` | [ ] |
-| `views/file.R` | `frontend/src/ui/file.ts` | [ ] |
-| `views/layouts.R` | `frontend/src/ui/layouts.ts` | [ ] |
-| `views/scene.R` | `frontend/src/ui/scene.ts` | [ ] |
-| `views/layer.R` | `frontend/src/ui/layer.ts` | [ ] |
-| `views/node.R` | `frontend/src/ui/node.ts` | [ ] |
-| `views/edge.R` | `frontend/src/ui/edge.ts` | [ ] |
+| `views/home.R` | `frontend/src/ui/home.ts` | [x] |
+| `views/file.R` | `frontend/src/ui/file.ts` | [x] |
+| `views/layouts.R` | `frontend/src/ui/layouts.ts` | [x] |
+| `views/scene.R` | `frontend/src/ui/scene.ts` | [x] |
+| `views/layer.R` | `frontend/src/ui/layer.ts` | [x] |
+| `views/node.R` | `frontend/src/ui/node.ts` | [x] |
+| `views/edge.R` | `frontend/src/ui/edge.ts` | [x] |
 | `views/data.R` | `frontend/src/ui/data.ts` | [x] |
-| `views/fps.R` | `frontend/src/ui/fps.ts` | [ ] |
-| `views/help.R` | `frontend/src/ui/help.ts` | [ ] |
+| `views/fps.R` | `frontend/src/ui/fps.ts` | [x] |
+| `views/help.R` | `frontend/src/ui/help.ts` | [x] |
 | `views/footer.R` | `frontend/index.html` (static footer) | [x] |
 
 ---
