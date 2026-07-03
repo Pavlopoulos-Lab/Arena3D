@@ -9,6 +9,7 @@ import './style.css'
 import { fetchConfig } from './api/config'
 import { initHomePanel } from './ui/home'
 import { initFilePanel } from './ui/file'
+import { initLayoutsPanel } from './ui/layouts'
 import { store } from './store'
 import { ctx, Scene } from './three'
 import { history } from './commands/base'
@@ -45,6 +46,7 @@ async function main(): Promise<void> {
 
   initHomePanel()
   initFilePanel()
+  initLayoutsPanel()
   registerGlobalListeners()
   registerThemeListener()
   registerLabelRendering()
