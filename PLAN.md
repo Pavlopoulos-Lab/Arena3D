@@ -110,13 +110,13 @@ Clustering in v2 is not a standalone action — it is an option of the layout ru
 
 ## Phase 9 — Frontend: Three.js Classes
 
-- [ ] Identify all manual patches in `www/js/three/three.js` — document each one
-- [ ] Migrate `Scene.js` → `Scene.ts` — reimplement patches as subclasses in `src/three/`
-- [ ] Migrate `Layer.js` → `Layer.ts`
-- [ ] Migrate `Node.js` → `Node.ts`
-- [ ] Migrate `Edge.js` → `Edge.ts`
-- [ ] Write Vitest unit tests for all four classes
-- [ ] Delete `www/js/classes/`, `www/js/three/`
+- [x] Identify all manual patches in `www/js/three/three.js` — **none found**: file is byte-identical to stock Three.js r117 (diff = only a missing trailing newline). SPEC's "patched copy" claim is wrong; no `src/three/` subclasses needed.
+- [x] Migrate `Scene.js` → `src/three/Scene.ts` — plain TS on npm `three` r170 (`THREE.Math`→`THREE.MathUtils`). Ambient globals → typed `src/three/runtime.ts` context; statics → `src/three/constants.ts`. `Scene.rotate()` (DOM slider + Shiny glue) deferred to Phase 11.
+- [x] Migrate `Layer.js` → `src/three/Layer.ts`
+- [x] Migrate `Node.js` → `src/three/Node.ts`
+- [x] Migrate `Edge.js` → `src/three/Edge.ts`
+- [x] Write Vitest unit tests for all four classes (16 tests in `src/three/three.test.ts`; tsc + eslint + prettier clean)
+- [x] Delete `www/js/classes/` + `www/js/three/three.js`. **`matrix4.js` / `drag_controls.js` kept** as living spec for Phase 11 (canvas_controls) — deleted there once ported.
 
 ---
 

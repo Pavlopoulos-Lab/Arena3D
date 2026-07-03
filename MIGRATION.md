@@ -36,13 +36,24 @@ See `PLAN.md` for the ordered implementation steps.
 
 | Old file | New file | Done |
 |---|---|---|
-| `www/js/three/three.js` *(patched)* | `three` npm package + `src/three/` extensions | [ ] |
-| `www/js/three/matrix4.js` | `three` npm package (bundled) | [ ] |
-| `www/js/three/drag_controls.js` | `three/examples/jsm/controls/DragControls` (npm) | [ ] |
-| `www/js/classes/Scene.js` | `frontend/src/classes/Scene.ts` | [ ] |
-| `www/js/classes/Layer.js` | `frontend/src/classes/Layer.ts` | [ ] |
-| `www/js/classes/Node.js` | `frontend/src/classes/Node.ts` | [ ] |
-| `www/js/classes/Edge.js` | `frontend/src/classes/Edge.ts` | [ ] |
+| `www/js/three/three.js` *(NOT patched — see below)* | `three` npm package (r170) | [x] |
+| `www/js/three/matrix4.js` | `three` npm package (bundled) — kept as Phase 11 spec | [ ] |
+| `www/js/three/drag_controls.js` | `three/examples/jsm/controls/DragControls` (npm) — kept as Phase 11 spec | [ ] |
+| `www/js/classes/Scene.js` | `frontend/src/three/Scene.ts` | [x] |
+| `www/js/classes/Layer.js` | `frontend/src/three/Layer.ts` | [x] |
+| `www/js/classes/Node.js` | `frontend/src/three/Node.ts` | [x] |
+| `www/js/classes/Edge.js` | `frontend/src/three/Edge.ts` | [x] |
+
+> **Phase 9 finding:** `www/js/three/three.js` was byte-for-byte identical to
+> stock Three.js **r117** (verified by diff — only a missing trailing newline).
+> The SPEC's "manually patched copy" claim is wrong: there are **no** core
+> patches, so no `src/three/` subclasses were needed. The four classes ported to
+> plain TS on npm `three` r170 (only API change: `THREE.Math` → `THREE.MathUtils`).
+> Shared ambient globals from `static_variables.js` were replaced by a typed
+> `src/three/runtime.ts` context; static geometry/palette constants by
+> `src/three/constants.ts`. All four classes now live under `src/three/`
+> (not the SPEC's split `classes/` + `three/`), since with no patches one folder
+> suffices. `matrix4.js` / `drag_controls.js` stay until Phase 11 (canvas_controls).
 | `www/js/config/global_variables.js` | `frontend/src/config/global_variables.ts` + `GET /api/config` | [ ] |
 | `www/js/config/static_variables.js` | `frontend/src/config/static_variables.ts` | [ ] |
 | `www/js/object_actions/canvas_controls.js` | `frontend/src/actions/canvas_controls.ts` | [ ] |
