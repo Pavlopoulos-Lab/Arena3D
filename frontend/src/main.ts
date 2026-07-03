@@ -15,6 +15,7 @@ import { initLayerPanel } from './ui/layer'
 import { initNodePanel } from './ui/node'
 import { initEdgePanel } from './ui/edge'
 import { initFpsPanel } from './ui/fps'
+import { initDataPanel } from './ui/data'
 import { store } from './store'
 import { ctx, Scene } from './three'
 import { history } from './commands/base'
@@ -57,6 +58,7 @@ async function main(): Promise<void> {
   initNodePanel()
   initEdgePanel()
   initFpsPanel()
+  initDataPanel()
   registerGlobalListeners()
   registerThemeListener()
   registerLabelRendering()

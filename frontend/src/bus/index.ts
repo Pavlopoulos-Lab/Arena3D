@@ -8,7 +8,7 @@ export interface BusEvents {
   'edge:color-changed': { edgeId: string; color: string }
   'layout:applied': { positions: Record<string, [number, number]> }
   'clustering:applied': { clusters: Record<string, number> }
-  'topology:applied': { scales: Record<string, number> }
+  'topology:applied': { metric: string; scales: Record<string, number> }
   'layer:moved': { layerIndex: number }
   'theme:changed': { theme: string }
   'history:changed': { canUndo: boolean; canRedo: boolean }

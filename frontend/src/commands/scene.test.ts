@@ -121,7 +121,7 @@ describe('ApplyLayoutCommand', () => {
 
 describe('ApplyTopologyCommand', () => {
   it('scales nodes and restores', () => {
-    const c = new ApplyTopologyCommand({ 'A::L': 2.5, 'B::L': 0.5 })
+    const c = new ApplyTopologyCommand('Degree', { 'A::L': 2.5, 'B::L': 0.5 })
     c.execute()
     expect(ctx.nodeObjects[0].getScale()).toBe(2.5)
     expect(ctx.nodeObjects[1].getScale()).toBe(0.5)

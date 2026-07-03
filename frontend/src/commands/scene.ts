@@ -238,7 +238,10 @@ export class ApplyTopologyCommand implements Command {
   description = 'Apply topology metric'
   private readonly before: Record<string, number> = {}
 
-  constructor(private readonly scales: Record<string, number>) {
+  constructor(
+    private readonly metric: string,
+    private readonly scales: Record<string, number>
+  ) {
     for (const name of Object.keys(scales))
       this.before[name] =
         ctx.nodeObjects[ctx.nodeLayerNames.indexOf(name)].getScale()
@@ -247,7 +250,7 @@ export class ApplyTopologyCommand implements Command {
   private apply(scales: Record<string, number>): void {
     for (const [name, s] of Object.entries(scales))
       ctx.nodeObjects[ctx.nodeLayerNames.indexOf(name)].setScale(s)
-    bus.emit('topology:applied', { scales })
+    bus.emit('topology:applied', { metric: this.metric, scales })
   }
 
   execute(): void {

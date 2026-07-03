@@ -58,7 +58,7 @@ export async function applyLayout(req: LayoutRequest): Promise<void> {
 export async function applyTopology(req: TopologyRequest): Promise<void> {
   // scales are already mapped into the target range server-side (SPEC §6).
   const res = await api.topology(req)
-  history.execute(new ApplyTopologyCommand(res.scales))
+  history.execute(new ApplyTopologyCommand(req.metric, res.scales))
 }
 
 // Predefined layer arrangements (v2 applyPredefinedLayout). Direct layer
