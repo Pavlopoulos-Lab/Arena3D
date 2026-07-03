@@ -43,3 +43,62 @@
   height: 48px;
   margin-bottom: 10px;
 }
+
+/* Help panel — inner tab bar + content (port of v2 arena3dweb.css help rules). */
+#helpDiv .tab {
+  overflow: hidden;
+  background-color: #f1f1f1;
+  width: 100%;
+}
+
+#helpDiv .tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+  color: #000;
+}
+
+#helpDiv .tab button:hover {
+  background-color: #ddd;
+}
+
+#helpDiv .tab button.active {
+  background-color: #ccc;
+}
+
+#helpDiv .tabcontent {
+  display: none;
+  padding: 1%;
+  width: 100%;
+  word-break: break-word;
+  text-align: justify;
+}
+
+#helpDiv .tabcontent img {
+  max-width: 100%;
+}
+
+#helpDiv pre {
+  overflow-x: auto;
+  padding: 8px;
+  background-color: rgba(128, 128, 128, 0.15);
+}
+
+#helpDiv .numbering {
+  color: red;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+#helpDiv .indent {
+  margin-left: 20px;
+}
+
+#helpDiv .last_p {
+  margin-bottom: 100px;
+}
