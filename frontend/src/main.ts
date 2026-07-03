@@ -13,6 +13,7 @@ import { initLayoutsPanel } from './ui/layouts'
 import { initScenePanel } from './ui/scene'
 import { initLayerPanel } from './ui/layer'
 import { initNodePanel } from './ui/node'
+import { initEdgePanel } from './ui/edge'
 import { store } from './store'
 import { ctx, Scene } from './three'
 import { history } from './commands/base'
@@ -53,6 +54,7 @@ async function main(): Promise<void> {
   initScenePanel()
   initLayerPanel()
   initNodePanel()
+  initEdgePanel()
   registerGlobalListeners()
   registerThemeListener()
   registerLabelRendering()
