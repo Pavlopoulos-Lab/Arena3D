@@ -3,10 +3,12 @@
 // igraph coordinates into each node's layer plane, and dispatches the Phase 10
 // commands so the change is one undo step.
 
+import { MathUtils } from 'three'
 import { api, type LayoutRequest, type TopologyRequest } from '../api/client'
 import { ctx } from '../three'
 import { history } from '../commands/base'
 import { ApplyLayoutCommand, ApplyTopologyCommand } from '../commands/scene'
+import { initialSpreadLayers } from './layer'
 
 // v2 executeLayout: the backend returns raw 2D [y, z] coords; map them into the
 // layer plane, target range [-minWidth/2, minWidth/2], then scale by the node's
@@ -57,4 +59,83 @@ export async function applyTopology(req: TopologyRequest): Promise<void> {
   // scales are already mapped into the target range server-side (SPEC §6).
   const res = await api.topology(req)
   history.execute(new ApplyTopologyCommand(res.scales))
+}
+
+// Predefined layer arrangements (v2 applyPredefinedLayout). Direct layer
+// transforms, not undoable — as in v2. Needs > 1 layer.
+export type PredefinedLayout = 'parallel' | 'zigZag' | 'starLike' | 'cube'
+
+export function applyPredefinedLayout(name: PredefinedLayout): void {
+  if (ctx.layers.length <= 1) return
+  resetSceneAndLayerPositions()
+
+  if (name === 'parallel') initialSpreadLayers(1)
+  else if (name === 'zigZag') {
+    for (let i = 1; i < ctx.layers.length; i += 2) ctx.layers[i].translateY(500)
+    initialSpreadLayers(1)
+  } else if (name === 'starLike') applyStarLayout()
+  else if (name === 'cube') applyCubeLayout()
+
+  // replaces the v2 Shiny syncs: displaced layers need edge + label redraw
+  ctx.renderInterLayerEdgesFlag = true
+  ctx.renderLayerLabelsFlag = true
+}
+
+function resetSceneAndLayerPositions(): void {
+  ctx.scene!.tiltDefault()
+  for (const layer of ctx.layers) {
+    layer.plane.position.set(0, 0, 0)
+    if (ctx.camera) layer.plane.quaternion.copy(ctx.camera.quaternion)
+  }
+}
+
+// Petals around the origin: each layer rotated by its share of 360° and
+// pushed outward by half its width + 100.
+function applyStarLayout(): void {
+  const degree = 360 / ctx.layers.length
+  ctx.layers.forEach((layer, i) => {
+    layer.plane.rotateZ(MathUtils.degToRad(degree * i))
+    layer.plane.translateY(-layer.geometry_parameters_width / 2 - 100)
+  })
+}
+
+// Up to 6 layers form a cube's sides; additional cubes line up along x.
+function applyCubeLayout(): void {
+  const layersPerCube = 6
+  const cubes = Math.ceil(ctx.layers.length / layersPerCube)
+  const largest = Math.max(
+    ...ctx.layers.map((l) => l.geometry_parameters_width)
+  )
+  const distance = cubes * (largest + 400)
+
+  for (let j = 0; j < cubes; j++) {
+    let cubeSideCode = 0
+    const maxI = Math.min(j * layersPerCube + layersPerCube, ctx.layers.length)
+
+    for (let i = j * layersPerCube; i < maxI; i++) {
+      const plane = ctx.layers[i].plane
+      if (cubes > 1)
+        plane.position.set(decideCubeStartingX(j, cubes, distance), 0, 0)
+
+      if (!(cubeSideCode % 2)) plane.rotateZ(MathUtils.degToRad(90))
+      if (cubeSideCode >= 4) plane.rotateY(MathUtils.degToRad(90))
+
+      const offset = ctx.layers[i].geometry_parameters_width / 2 + 100
+      if (cubeSideCode === 0 || cubeSideCode === 1 || cubeSideCode === 5)
+        plane.translateX(offset)
+      else plane.translateX(-offset)
+
+      cubeSideCode++
+    }
+  }
+}
+
+function decideCubeStartingX(
+  j: number,
+  cubes: number,
+  distance: number
+): number {
+  const half = Math.floor(cubes / 2)
+  if (cubes % 2 && j === half) return 0
+  return j < half ? -distance / cubes : distance / cubes
 }

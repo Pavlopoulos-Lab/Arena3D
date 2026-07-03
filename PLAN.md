@@ -143,7 +143,7 @@ All 8 in `src/commands/scene.ts`. Commands are **thin**: they apply/reverse alre
 - **Render-loop / DOM / event actions** — need the renderer, camera, `animate()` loop, raycaster, DragControls, CSS2D labels, and the UI panels. Those dependencies are built in **Phase 12** (main loop, `screen.js` renderer/camera, `event_listeners.js`) and **Phase 13** (UI panels). Migrating them now would mean stubbing all of that, so they move to the phase where their deps exist.
 
 Done now (portable core):
-- [x] Migrate `layout.js` → `src/actions/layout.ts` — `executeLayout` coordinate normalization (backend returns raw igraph `[y,z]`, confirmed) + `applyLayout` / `applyTopology` dispatching the Phase 10 commands. 5 Vitest tests. *(allLayers scope; perLayer/local refinements deferred to Phase 13 scope UI.)*
+- [x] Migrate `layout.js` → `src/actions/layout.ts` — `executeLayout` coordinate normalization (backend returns raw igraph `[y,z]`, confirmed) + `applyLayout` / `applyTopology` dispatching the Phase 10 commands. 5 Vitest tests. *(allLayers scope; perLayer/local refinements deferred to Phase 13 scope UI — `layout.js` kept as their spec.)* **Predefined layouts added**: `applyPredefinedLayout` (parallel / zigZag / starLike petals / cube sides with multi-cube x-offsets) — direct layer transforms as v2, raises edge+label render flags in place of the Shiny syncs. 5 more Vitest tests.
 
 Deferred into Phase 12 (with renderer/camera/animate/raycaster/DragControls/CSS2D) and Phase 13 (UI/DOM), then delete `www/js/object_actions/`:
 - [ ] `screen.js` → `src/actions/screen.ts` (renderer, camera, window bounds, raycaster, `animate()`)
