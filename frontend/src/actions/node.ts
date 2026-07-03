@@ -27,7 +27,7 @@ export function scrambleNodes(
   }
 }
 
-function updateSelectedNodesStore(): void {
+export function updateSelectedNodesStore(): void {
   store.update({
     selectedNodes: ctx.nodeObjects
       .filter((n) => n.isSelected)
