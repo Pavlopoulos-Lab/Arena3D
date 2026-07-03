@@ -161,17 +161,26 @@ Deferred into Phase 12 (with renderer/camera/animate/raycaster/DragControls/CSS2
 
 ## Phase 12 — Frontend: Event Handling & Main Loop
 
-- [ ] Migrate `general.js` → `src/utils.ts`
-- [ ] Migrate `event_listeners.js` → `src/event_listeners.ts` — add `Ctrl+Z` / `Ctrl+Shift+Z` undo/redo
-- [ ] Migrate `on_page_load.js` → `src/main.ts` — Three.js canvas setup, calls `GET /api/config` on load
-- [ ] Replace `rshiny_handlers.js` + `rshiny_update.js` with typed EventBus + API client calls
-- [ ] Delete `www/js/event_listeners.js`, `www/js/on_page_load.js`, `www/js/general.js`
+Render spine done and **verified live** (playwright-cli: config loads from `/api/config`, canvas mounts, tilted coord axes render). Also ported `screen.js` here (renderer/camera/bounds/raycaster/`animate`) — it was deferred out of Phase 11 for exactly this reason.
+
+- [x] Migrate `general.js` → `src/utils.ts` (6 Vitest tests)
+- [x] Migrate `screen.js` → `src/actions/screen.ts` — renderer, camera, window bounds, raycaster, FPS-limited `animate()`. Added `ctx.renderer/camera/fps/*Bound*` (persist across network reloads, not in `resetContext`).
+- [x] Migrate `event_listeners.js` (window-level) → `src/event_listeners.ts` — `resize` + `Ctrl+Z` / `Ctrl+Shift+Z` (and `Ctrl+Y`) undo/redo wired to `CommandHistory`
+- [x] Migrate `on_page_load.js` → `src/main.ts` — config fetch → renderer/camera/scene setup → mount canvas → animate; exposes `window.__arena = { ctx, history }` test hook (Phase 13 Playwright reads scene state through it)
+- [ ] **Deferred (need canvas_controls, still in Phase 11 list):** the canvas mouse/keyboard scene controls (`clickDown/Drag/Up`, `sceneZoom`, `keyPressed`, right-click menu) — land with `canvas_controls.ts`.
+- [ ] Replace `rshiny_handlers.js` + `rshiny_update.js` fully with EventBus + API (foundation done: bus/store/api client + commands already dispatch events; remaining handlers map to the Phase 11-deferred actions + Phase 13 panels)
+- [ ] Delete `www/js/event_listeners.js`, `www/js/on_page_load.js`; `www/js/general.js` → **can delete now** (fully ported to `src/utils.ts`)
 - [ ] Delete `www/js/rshiny_handlers.js`, `www/js/rshiny_update.js`
 - [ ] Delete `www/js/config/`
 
 ---
 
 ## Phase 13 — Frontend: UI Panels
+
+**Verification with Playwright Agent CLI** (`playwright-cli`, `@playwright/cli@0.1.15`, installed globally). The panels are plain DOM (Bootstrap), so agent-cli's accessibility-ref model drives them deterministically and token-efficiently — use it to build + verify each panel against the running dev server (`npm run dev`), not by eyeballing screenshots:
+- Drive each panel: `playwright-cli navigate http://localhost:5173`, then ref-based `click` / `type` / `upload` to exercise buttons, dropdowns, the File upload, and the Undo/Redo buttons.
+- **WebGL caveat:** the 3D canvas is opaque to the a11y tree. Assert scene results (node counts/positions, applied layout/cluster/scale) via the `window.__arena = { ctx, history }` hook exposed in Phase 12, read with `playwright-cli`'s JS-eval, rather than pixel diffs.
+- As panels stabilise, capture the driven flows as durable `@playwright/test` specs for Phase 14 (agent-cli drives/authoring; `@playwright/test` is the committed artifact).
 
 - [ ] Build `frontend/index.html` — Bootstrap 5 navbar structure matching current tab layout
 - [ ] Migrate Home panel (`views/home.R` → `src/ui/home.ts`)

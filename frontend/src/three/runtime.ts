@@ -11,6 +11,7 @@
 // here as records accordingly.
 
 import type { Scene } from './Scene'
+import type * as THREE from 'three'
 import type { Layer } from './Layer'
 import type { Node } from './Node'
 import type { Edge } from './Edge'
@@ -18,8 +19,19 @@ import type { Edge } from './Edge'
 export type ColorPrioritySource = 'default' | 'picker' | 'cluster'
 
 export interface RuntimeContext {
-  // Screen bounds (v2: yBoundMax = window.innerHeight / 2)
+  // Renderer + camera (Phase 12; persist across network reloads, so NOT reset
+  // by resetContext). null until main.ts sets up the screen.
+  renderer: THREE.WebGLRenderer | null
+  camera: THREE.OrthographicCamera | null
+  fps: number
+
+  // Screen bounds (v2 screen.js; yBoundMax = window.innerHeight / 2)
+  xBoundMin: number
+  xBoundMax: number
+  yBoundMin: number
   yBoundMax: number
+  zBoundMin: number
+  zBoundMax: number
   mousePreviousX: number
   mousePreviousY: number
 
@@ -54,8 +66,20 @@ export interface RuntimeContext {
   nodeColorPrioritySource: ColorPrioritySource
 }
 
+const winW = typeof window !== 'undefined' ? window.innerWidth : 800
+const winH = typeof window !== 'undefined' ? window.innerHeight : 800
+
 export const ctx: RuntimeContext = {
-  yBoundMax: typeof window !== 'undefined' ? window.innerHeight / 2 : 400,
+  renderer: null,
+  camera: null,
+  fps: 30,
+
+  xBoundMin: -winW / 2,
+  xBoundMax: winW / 2,
+  yBoundMin: -winH / 2,
+  yBoundMax: winH / 2,
+  zBoundMin: -winH / 2.5,
+  zBoundMax: winH / 2.5,
   mousePreviousX: 0,
   mousePreviousY: 0,
 
