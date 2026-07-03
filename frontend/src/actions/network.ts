@@ -17,6 +17,7 @@ import {
   resetContext,
   Scene,
 } from '../three'
+import { initialSpreadLayers } from './layer'
 import { scrambleNodes } from './node'
 
 // v2 uploadNetwork(): one undoable step wrapping the full build.
@@ -57,19 +58,6 @@ function initializeLayers(names: string[]): void {
     ctx.scene!.addLayer(layer.plane)
   })
   initialSpreadLayers()
-}
-
-// v2 layer.js initialSpreadLayers — lives here until actions/layer.ts is ported.
-export function initialSpreadLayers(direction = 1): void {
-  const n = ctx.layers.length
-  const spacing = (ctx.xBoundMax * 2) / n
-  ctx.layers.forEach((layer, i) => {
-    const offset =
-      n % 2
-        ? (i - Math.floor(n / 2)) * spacing
-        : (i - n / 2) * spacing + spacing / 2
-    layer.translateX(direction * offset)
-  })
 }
 
 function initializeChannels(channels: string[]): void {

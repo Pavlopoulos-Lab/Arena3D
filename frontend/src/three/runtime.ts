@@ -76,6 +76,11 @@ export interface RuntimeContext {
   waitEdgeRenderFlag: boolean
   interEdgesRemoved: boolean
   interLayerEdgesRenderPauseFlag: boolean
+
+  // Layer hover/label state (v2 layer.js globals)
+  lastHoveredLayerIndex: number | null
+  hoveredLayerPaintedFlag: boolean
+  renderLayerLabelsFlag: boolean
 }
 
 const winW = typeof window !== 'undefined' ? window.innerWidth : 800
@@ -130,6 +135,10 @@ export const ctx: RuntimeContext = {
   waitEdgeRenderFlag: true,
   interEdgesRemoved: false,
   interLayerEdgesRenderPauseFlag: false,
+
+  lastHoveredLayerIndex: null,
+  hoveredLayerPaintedFlag: false,
+  renderLayerLabelsFlag: false,
 }
 
 // Reset registries + tunables to defaults (used by tests and network reload).
@@ -166,6 +175,9 @@ export function resetContext(): void {
   ctx.waitEdgeRenderFlag = true
   ctx.interEdgesRemoved = false
   ctx.interLayerEdgesRenderPauseFlag = false
+  ctx.lastHoveredLayerIndex = null
+  ctx.hoveredLayerPaintedFlag = false
+  ctx.renderLayerLabelsFlag = false
 }
 
 // Registry snapshot — the mutable scene-graph state a network load replaces.
