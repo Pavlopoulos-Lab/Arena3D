@@ -110,12 +110,14 @@ export function registerAnimateHook(fn: () => void): void {
   animateHooks.push(fn)
 }
 
-// Labels are DOM overlays positioned from world coordinates, refreshed only
-// when their flags are raised. Any scene-level transform (pan, orbit, zoom,
-// auto-rotate) moves everything under the scene sphere, so watch its world
-// matrix and re-flag the labels when it changes.
+// Labels are DOM overlays positioned from world coordinates, and inter-layer
+// edges bake world coordinates into their geometry (they hang off the scene
+// root, not the pan/sphere hierarchy) — neither follows scene transforms on
+// its own. Any scene-level transform (pan, orbit, zoom, auto-rotate) moves
+// everything under the scene sphere, so watch its world matrix and re-flag
+// both when it changes.
 const lastSphereMatrix = new THREE.Matrix4()
-function flagLabelsOnSceneMove(): void {
+function flagWorldSpaceRedrawsOnSceneMove(): void {
   const sphere = ctx.scene?.sphere
   if (!sphere) return
   sphere.updateWorldMatrix(true, false)
@@ -123,6 +125,7 @@ function flagLabelsOnSceneMove(): void {
     lastSphereMatrix.copy(sphere.matrixWorld)
     ctx.renderLayerLabelsFlag = true
     ctx.renderNodeLabelsFlag = true
+    ctx.renderInterLayerEdgesFlag = true
   }
 }
 
@@ -137,7 +140,7 @@ export function animate(now = 0): void {
   // Snap to the frame grid so throttled rates stay even (e.g. 30 on 60Hz).
   lastFrameTime = now - ((now - lastFrameTime) % interval)
 
-  flagLabelsOnSceneMove()
+  flagWorldSpaceRedrawsOnSceneMove()
   renderInterLayerEdges()
   for (const fn of animateHooks) fn()
   renderFrame()
