@@ -110,7 +110,8 @@ export class Edge {
     if (!forExport && this.isSelected && ctx.selectedEdgeColorFlag)
       color = SELECTED_DEFAULT_COLOR
     else if (this.channels.length > 0 && !ctx.edgeFileColorPriority)
-      color = ctx.channelColors[this.channels[i]]
+      // a channel missing from the registry would make THREE.Color throw/white
+      color = ctx.channelColors[this.channels[i]] ?? ctx.edgeDefaultColor
     else if (ctx.edgeFileColorPriority) color = this.importedColors[i]
 
     return color
