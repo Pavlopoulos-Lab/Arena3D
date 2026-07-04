@@ -5,6 +5,7 @@
 import { MathUtils } from 'three'
 import { ctx } from '../three'
 import { registerAnimateHook, setRendererColor } from '../actions/screen'
+import { isBloomEnabled, setBloomEnabled } from '../three/postprocessing'
 import { applyPredefinedLayout, type PredefinedLayout } from '../actions/layout'
 
 const SCENE_HTML = `
@@ -13,9 +14,13 @@ const SCENE_HTML = `
     <input class="form-check-input" type="checkbox" id="toggleSceneCoords" checked />
     <label class="form-check-label" for="toggleSceneCoords">Show Scene Coord System</label>
   </div>
-  <div class="form-check mb-3">
+  <div class="form-check mb-2">
     <input class="form-check-input" type="checkbox" id="autoRotateScene" />
     <label class="form-check-label" for="autoRotateScene">Enable Scene Auto Rotate</label>
+  </div>
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" id="toggleBloom" />
+    <label class="form-check-label" for="toggleBloom">Node Glow (dark backgrounds)</label>
   </div>
   <label class="form-label">Select Predefined Layout:</label>
   <div class="form-check">
@@ -63,6 +68,16 @@ export function initScenePanel(): void {
   registerAnimateHook(() => {
     if (ctx.scene?.autoRotate) ctx.scene.rotateY(MathUtils.degToRad(0.5))
   })
+
+  const bloomToggle = document.getElementById(
+    'toggleBloom'
+  ) as HTMLInputElement | null
+  if (bloomToggle) {
+    bloomToggle.checked = isBloomEnabled()
+    bloomToggle.addEventListener('change', (e) => {
+      setBloomEnabled((e.target as HTMLInputElement).checked)
+    })
+  }
 
   document.getElementById('scene_color')?.addEventListener('change', (e) => {
     setRendererColor((e.target as HTMLInputElement).value)

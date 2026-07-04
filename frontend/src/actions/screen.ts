@@ -3,6 +3,11 @@
 
 import * as THREE from 'three'
 import { ctx } from '../three'
+import {
+  onBackgroundColor,
+  renderFrame,
+  resizePostprocessing,
+} from '../three/postprocessing'
 import { renderInterLayerEdges } from './edge'
 
 // v2 global raycaster (config/global_variables.js). Reused each frame.
@@ -52,10 +57,14 @@ export function resizeRenderer(): void {
   // Re-read DPR too: the window may have moved between monitors.
   ctx.renderer?.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   ctx.renderer?.setSize(2 * ctx.xBoundMax, 2 * ctx.yBoundMax)
+  resizePostprocessing(2 * ctx.xBoundMax, 2 * ctx.yBoundMax)
 }
 
 export function setRendererColor(hexColor: string): void {
-  if (ctx.scene?.exists()) ctx.renderer?.setClearColor(hexColor)
+  if (ctx.scene?.exists()) {
+    ctx.renderer?.setClearColor(hexColor)
+    onBackgroundColor(hexColor) // bloom only stays on over dark backgrounds
+  }
 }
 
 // Loading spinner (v2 handler_startLoader/finishLoader): show #loader and dim
@@ -114,6 +123,5 @@ export function animate(now = 0): void {
 
   renderInterLayerEdges()
   for (const fn of animateHooks) fn()
-  if (ctx.scene && ctx.camera)
-    ctx.renderer?.render(ctx.scene.THREE_Object, ctx.camera)
+  renderFrame()
 }
