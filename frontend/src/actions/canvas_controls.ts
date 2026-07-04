@@ -5,7 +5,9 @@
 // (Phase 13 UI).
 
 import * as THREE from 'three'
+import { bus } from '../bus'
 import { ctx } from '../three'
+import { registerAnimateHook } from './screen'
 import { redrawIntraLayerEdges, unselectAllEdges } from './edge'
 import {
   checkHoverOverLayer,
@@ -33,11 +35,42 @@ let lasso: THREE.Line | null = null
 
 type CanvasMouseEvent = MouseEvent & { layerX: number; layerY: number }
 
+// Smooth wheel zoom: the wheel sets a target scale (same 0.2–2 bounds as
+// Scene.zoom) and easeZoomStep lerps toward it each frame. Users with
+// prefers-reduced-motion get the old instant zoom.
+let zoomTarget: number | null = null
+const reducedMotion = (): boolean =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
 // on mouse wheel scroll
 export function sceneZoom(event: WheelEvent): void {
   if (!ctx.scene?.exists()) return
   event.preventDefault() // keep the page from scrolling (v2 initializeCanvasDiv)
-  ctx.scene.zoom(event.deltaY)
+  if (reducedMotion()) {
+    ctx.scene.zoom(event.deltaY)
+    return
+  }
+  const current = zoomTarget ?? ctx.scene.getScale()
+  const factor = event.deltaY < 0 ? 1.1 : 0.9
+  zoomTarget = Math.min(2, Math.max(0.2, current * factor))
+}
+
+export function easeZoomStep(): void {
+  if (zoomTarget === null || !ctx.scene?.exists()) return
+  const scale = ctx.scene.getScale()
+  const next = scale + (zoomTarget - scale) * 0.25
+  if (Math.abs(next - zoomTarget) < 0.001) {
+    ctx.scene.setScale(zoomTarget)
+    zoomTarget = null
+  } else {
+    ctx.scene.setScale(next)
+  }
+}
+
+export function resetZoomTarget(): void {
+  zoomTarget = null
 }
 
 const ARROW_CODES: Record<string, number> = {
@@ -234,6 +267,8 @@ function createLassoGeometry(x: number, y: number): void {
 export function registerCanvasControls(): void {
   const canvas = ctx.renderer?.domElement
   if (!canvas) return
+  registerAnimateHook(easeZoomStep)
+  bus.on('network:loaded', resetZoomTarget) // new scene -> stale zoom target
   canvas.tabIndex = 1 // focusable, so it receives keydown events (v2)
   canvas.addEventListener('wheel', sceneZoom)
   canvas.addEventListener('keydown', keyPressed)
