@@ -196,13 +196,13 @@ const INFO_HTML = `
   </ul>
   <table id="canvasControls_table"><tbody>
     <tr><td colspan="4"><h5>Scene</h5></td></tr>
-    <tr><td colspan="4">Rotation Controls</td></tr>
+    <tr><td colspan="4" class="controlsSubLabel">Rotation Controls</td></tr>
     ${axisRowsHtml('sliderValue1', 'Angle: 5&#730;', 'sceneRotateSlider', { min: 1, max: 15, value: 5, step: 1 }, '')}
     <tr><td colspan="4"><button id="recenterButton">Recenter Network</button></td></tr>
     <tr class="border_tr"><td colspan="4"><h5>Layers</h5></td></tr>
-    <tr><td colspan="4">Rotation Controls</td></tr>
+    <tr><td colspan="4" class="controlsSubLabel">Rotation Controls</td></tr>
     ${axisRowsHtml('sliderValue2', 'Angle: 5&#730;', 'layerRotateSlider', { min: 1, max: 15, value: 5, step: 1 }, '')}
-    <tr><td colspan="4">Translation Controls</td></tr>
+    <tr><td colspan="4" class="controlsSubLabel">Translation Controls</td></tr>
     <tr>
       <td colspan="2" class="canvasControls image_expandLayers" data-nav="expandLayers"></td>
       <td colspan="2" class="canvasControls image_collapseLayers" data-nav="collapseLayers"></td>
@@ -216,7 +216,7 @@ const INFO_HTML = `
       <td id="sliderValue4">x1</td>
     </tr>
     <tr class="border_tr"><td colspan="4"><h5>Nodes</h5></td></tr>
-    <tr><td colspan="4">Translation Controls</td></tr>
+    <tr><td colspan="4" class="controlsSubLabel">Translation Controls</td></tr>
     <tr>
       <td colspan="2" class="canvasControls image_nodeExpand" data-nav="expandNodes"></td>
       <td colspan="2" class="canvasControls image_nodeCollapse" data-nav="collapseNodes"></td>
