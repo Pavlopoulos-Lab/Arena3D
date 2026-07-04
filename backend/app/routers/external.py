@@ -30,9 +30,16 @@ def _sweep() -> None:
         return
     cutoff = time.time() - TTL_SECONDS
     for name in os.listdir(config.TMP_PATH):
+        if not name.endswith(".json"):
+            continue
         path = os.path.join(config.TMP_PATH, name)
-        if name.endswith(".json") and os.path.getmtime(path) < cutoff:
-            os.remove(path)
+        # A concurrent sweep/resolve may remove or stat the file between the
+        # listdir and here; skip rather than 500 the request.
+        try:
+            if os.path.getmtime(path) < cutoff:
+                os.remove(path)
+        except OSError:
+            continue
 
 
 @router.post("/api/external", response_model=ExternalCreateResponse)
