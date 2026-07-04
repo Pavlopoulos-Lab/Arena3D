@@ -26,7 +26,7 @@ export function initFpsPanel(): void {
     'input[name="fps"]'
   )) {
     radio.addEventListener('change', () => {
-      ctx.fps = Number(radio.value) || 30
+      ctx.fps = Number(radio.value) || 60
     })
   }
 }

@@ -5,6 +5,9 @@ export interface Command {
   execute(): void
   undo(): void
   description: string // shown in UI, e.g. "Apply Force Layout"
+  // Called when the command is permanently discarded (redo branch cut off);
+  // frees GPU resources that only this command still references.
+  dispose?(): void
 }
 
 class CommandHistory {
@@ -14,6 +17,7 @@ class CommandHistory {
   execute(command: Command): void {
     command.execute()
     this.undoStack.push(command)
+    for (const discarded of this.redoStack) discarded.dispose?.()
     this.redoStack = []
     this.notify()
   }

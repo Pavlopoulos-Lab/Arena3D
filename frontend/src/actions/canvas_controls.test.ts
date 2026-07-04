@@ -10,6 +10,7 @@ import {
   lassoSelectNodes,
   rotateLayersWithHeldKey,
   sceneZoom,
+  easeZoomStep,
 } from './canvas_controls'
 
 type AnyEvent = Parameters<typeof clickDown>[0]
@@ -66,9 +67,10 @@ describe('keyboard', () => {
 })
 
 describe('zoom', () => {
-  it('wheel scroll scales the scene', () => {
+  it('wheel scroll eases the scene scale toward the target', () => {
     const before = ctx.scene!.getScale()
     sceneZoom({ deltaY: -1, preventDefault: () => {} } as WheelEvent)
+    for (let i = 0; i < 60; i++) easeZoomStep()
     expect(ctx.scene!.getScale()).toBeCloseTo(before * 1.1)
   })
 })

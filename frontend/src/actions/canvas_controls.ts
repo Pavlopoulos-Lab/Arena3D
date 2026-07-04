@@ -5,7 +5,9 @@
 // (Phase 13 UI).
 
 import * as THREE from 'three'
+import { bus } from '../bus'
 import { ctx } from '../three'
+import { registerAnimateHook } from './screen'
 import { redrawIntraLayerEdges, unselectAllEdges } from './edge'
 import {
   checkHoverOverLayer,
@@ -33,11 +35,42 @@ let lasso: THREE.Line | null = null
 
 type CanvasMouseEvent = MouseEvent & { layerX: number; layerY: number }
 
+// Smooth wheel zoom: the wheel sets a target scale (same 0.2–2 bounds as
+// Scene.zoom) and easeZoomStep lerps toward it each frame. Users with
+// prefers-reduced-motion get the old instant zoom.
+let zoomTarget: number | null = null
+const reducedMotion = (): boolean =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
 // on mouse wheel scroll
 export function sceneZoom(event: WheelEvent): void {
   if (!ctx.scene?.exists()) return
   event.preventDefault() // keep the page from scrolling (v2 initializeCanvasDiv)
-  ctx.scene.zoom(event.deltaY)
+  if (reducedMotion()) {
+    ctx.scene.zoom(event.deltaY)
+    return
+  }
+  const current = zoomTarget ?? ctx.scene.getScale()
+  const factor = event.deltaY < 0 ? 1.1 : 0.9
+  zoomTarget = Math.min(2, Math.max(0.2, current * factor))
+}
+
+export function easeZoomStep(): void {
+  if (zoomTarget === null || !ctx.scene?.exists()) return
+  const scale = ctx.scene.getScale()
+  const next = scale + (zoomTarget - scale) * 0.25
+  if (Math.abs(next - zoomTarget) < 0.001) {
+    ctx.scene.setScale(zoomTarget)
+    zoomTarget = null
+  } else {
+    ctx.scene.setScale(next)
+  }
+}
+
+export function resetZoomTarget(): void {
+  zoomTarget = null
 }
 
 const ARROW_CODES: Record<string, number> = {
@@ -90,7 +123,17 @@ export function clickDrag(event: CanvasMouseEvent): void {
     ctx.mousePreviousY - event.screenY
   )
 
-  if (distance > 10) {
+  // Held-key node/layer transforms apply a fixed step per processed event, so
+  // they keep the v2 10px granularity; pan/orbit/lasso use deltas and get a
+  // finer 2px threshold for smoother motion (v2's 10px gate made orbit jump
+  // in ~10-degree increments).
+  const heldKeyTransform =
+    ctx.scene.leftClickPressed &&
+    !event.shiftKey &&
+    ctx.scene.axisPressed !== ''
+  const threshold = heldKeyTransform ? 10 : 2
+
+  if (distance > threshold) {
     const x = event.screenX
     const y = event.screenY
 
@@ -120,8 +163,19 @@ export function clickDrag(event: CanvasMouseEvent): void {
     ctx.mousePreviousY = y
   }
 
+  // Coalesce hover raycasts to one per rendered frame — raycasting every
+  // node sphere per mousemove gets expensive on large networks.
   if (!ctx.scene.leftClickPressed && !ctx.scene.middleClickPressed)
-    if (!checkHoverOverNode(event)) checkHoverOverLayer(event)
+    pendingHover = { clientX: event.clientX, clientY: event.clientY }
+}
+
+let pendingHover: { clientX: number; clientY: number } | null = null
+
+export function processPendingHover(): void {
+  if (!pendingHover || !ctx.scene?.exists()) return
+  const event = pendingHover
+  pendingHover = null
+  if (!checkHoverOverNode(event)) checkHoverOverLayer(event)
 }
 
 export function clickUp(event: MouseEvent): void {
@@ -142,6 +196,7 @@ export function clickUp(event: MouseEvent): void {
       decideNodeLabelFlags()
       updateSelectedNodesStore()
       ctx.scene.remove(lasso)
+      lasso.geometry.dispose()
       lasso = null
     }
     shiftX = null
@@ -176,6 +231,7 @@ export function translateNodesWithHeldKey(event: {
     else if (ctx.scene!.axisPressed === 'c') ctx.nodeObjects[i].translateY(step)
   }
   redrawIntraLayerEdges()
+  ctx.renderInterLayerEdgesFlag = true
 }
 
 // v2 layer.js rotateLayersWithHeldKey — z/x/c + drag rotates selected layers.
@@ -193,6 +249,7 @@ export function rotateLayersWithHeldKey(event: {
     else if (ctx.scene!.axisPressed === 'x') ctx.layers[i].rotateX(rads)
     else if (ctx.scene!.axisPressed === 'c') ctx.layers[i].rotateY(rads)
   }
+  ctx.renderInterLayerEdgesFlag = true
 }
 
 // v2 node.js lassoSelectNodes — shift + left-drag rectangle select.
@@ -214,8 +271,13 @@ export function lassoSelectNodes(x: number, y: number): void {
   }
 }
 
+const lassoMaterial = new THREE.LineBasicMaterial({ color: '#eef1b6' })
+
 function createLassoGeometry(x: number, y: number): void {
-  if (lasso) ctx.scene!.remove(lasso)
+  if (lasso) {
+    ctx.scene!.remove(lasso)
+    lasso.geometry.dispose() // rebuilt every pointer move — don't accumulate
+  }
   const points = [
     new THREE.Vector3(shiftX!, shiftY!, 0),
     new THREE.Vector3(x, shiftY!, 0),
@@ -225,7 +287,7 @@ function createLassoGeometry(x: number, y: number): void {
   ]
   lasso = new THREE.Line(
     new THREE.BufferGeometry().setFromPoints(points),
-    new THREE.LineBasicMaterial({ color: '#eef1b6' })
+    lassoMaterial
   )
   ctx.scene!.add(lasso)
 }
@@ -234,6 +296,9 @@ function createLassoGeometry(x: number, y: number): void {
 export function registerCanvasControls(): void {
   const canvas = ctx.renderer?.domElement
   if (!canvas) return
+  registerAnimateHook(easeZoomStep)
+  registerAnimateHook(processPendingHover)
+  bus.on('network:loaded', resetZoomTarget) // new scene -> stale zoom target
   canvas.tabIndex = 1 // focusable, so it receives keydown events (v2)
   canvas.addEventListener('wheel', sceneZoom)
   canvas.addEventListener('keydown', keyPressed)

@@ -52,12 +52,18 @@ function layerPlanes(): THREE.Object3D[] {
 
 export function onPointerDown(event: PointerLikeEvent): void {
   if (!surface || !ctx.camera) return
+  // Don't re-raycast here: the pointer-down ray kept landing on other
+  // objects (coord/edge Lines have a fat world-unit raycast threshold, and
+  // an overlapping layer's children can sit in front), which either aborted
+  // the drag or grabbed the wrong plane. The hover pass already resolved
+  // which plane the user sees under the cursor — trust it.
+  if (ctx.lastHoveredNodeIndex !== null) return // grabbing a node, not a layer
+  const idx = ctx.lastHoveredLayerIndex
+  if (idx === null || !ctx.layers[idx]) return
   updatePointer(event)
   _raycaster.setFromCamera(_pointer, ctx.camera)
-  const intersections = _raycaster.intersectObjects(layerPlanes(), true)
-  if (intersections.length === 0) return
 
-  selected = intersections[0].object
+  selected = ctx.layers[idx].plane
   _plane.setFromNormalAndCoplanarPoint(
     ctx.camera.getWorldDirection(_plane.normal),
     _worldPosition.setFromMatrixPosition(selected.matrixWorld)
@@ -86,6 +92,7 @@ export function onPointerMove(event: PointerLikeEvent): void {
     if (_raycaster.ray.intersectPlane(_plane, _intersection)) {
       ctx.renderLayerLabelsFlag = true
       ctx.renderNodeLabelsFlag = true
+      ctx.renderInterLayerEdgesFlag = true // edges follow the dragged layer
       selected.position.copy(
         _intersection.sub(_offset).applyMatrix4(_inverseMatrix)
       )
