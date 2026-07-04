@@ -203,7 +203,8 @@ body {
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   border-left: 1px solid var(--arena-border);
   box-shadow: var(--arena-shadow);
-  padding: 1.4rem 1.35rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
+  /* extra bottom padding clears the fixed footer bar */
+  padding: 1.4rem 1.35rem calc(3rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* Slide the drawer in when it becomes the active pane. */
