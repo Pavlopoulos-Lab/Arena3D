@@ -183,24 +183,26 @@ function axisRowsHtml(
 }
 
 const INFO_HTML = `
-  1. <b>Zoom</b>: Mouse Wheel<br/>
-  2. <b>Pan</b>: Click Drag Scene / Arrow Keys<br/>
-  3. <b>Orbit</b>: Mouse Middle Drag<br/>
-  4. <b>Drag Layer</b>: Click Drag<br/>
-  5. <b>Rotate Layer</b>: <span class='blue'>Z</span> / <span class='red'>X</span> / <span class='green'>C</span> + Click Drag<br/>
-  6. <b>Move Selected Nodes</b>: <span class='blue'>Z</span> / <span class='green'>C</span> + Click Drag<br/>
-  7. <b>Node/Layer Selection</b>: Double Click<br/>
-  8. <b>Lasso Nodes</b>: Shift + Click Drag<br/>
-  9. <b>Unselect All Nodes</b>: Double Click Scene
+  <ul id="navShortcuts">
+    <li><span>Zoom</span><span><kbd>Wheel</kbd></span></li>
+    <li><span>Pan</span><span><kbd>Drag</kbd> / <kbd>&#8592;&#8593;&#8594;&#8595;</kbd></span></li>
+    <li><span>Orbit</span><span><kbd>Middle Drag</kbd></span></li>
+    <li><span>Drag Layer</span><span><kbd>Drag</kbd></span></li>
+    <li><span>Rotate Layer</span><span><kbd class='blue'>Z</kbd><kbd class='red'>X</kbd><kbd class='green'>C</kbd> + <kbd>Drag</kbd></span></li>
+    <li><span>Move Selected Nodes</span><span><kbd class='blue'>Z</kbd><kbd class='green'>C</kbd> + <kbd>Drag</kbd></span></li>
+    <li><span>Select Node/Layer</span><span><kbd>Dbl Click</kbd></span></li>
+    <li><span>Lasso Nodes</span><span><kbd>Shift</kbd> + <kbd>Drag</kbd></span></li>
+    <li><span>Unselect All</span><span><kbd>Dbl Click</kbd> Scene</span></li>
+  </ul>
   <table id="canvasControls_table"><tbody>
     <tr><td colspan="4"><h5>Scene</h5></td></tr>
-    <tr><td colspan="4">Rotation Controls</td></tr>
+    <tr><td colspan="4" class="controlsSubLabel">Rotation Controls</td></tr>
     ${axisRowsHtml('sliderValue1', 'Angle: 5&#730;', 'sceneRotateSlider', { min: 1, max: 15, value: 5, step: 1 }, '')}
     <tr><td colspan="4"><button id="recenterButton">Recenter Network</button></td></tr>
     <tr class="border_tr"><td colspan="4"><h5>Layers</h5></td></tr>
-    <tr><td colspan="4">Rotation Controls</td></tr>
+    <tr><td colspan="4" class="controlsSubLabel">Rotation Controls</td></tr>
     ${axisRowsHtml('sliderValue2', 'Angle: 5&#730;', 'layerRotateSlider', { min: 1, max: 15, value: 5, step: 1 }, '')}
-    <tr><td colspan="4">Translation Controls</td></tr>
+    <tr><td colspan="4" class="controlsSubLabel">Translation Controls</td></tr>
     <tr>
       <td colspan="2" class="canvasControls image_expandLayers" data-nav="expandLayers"></td>
       <td colspan="2" class="canvasControls image_collapseLayers" data-nav="collapseLayers"></td>
@@ -214,7 +216,7 @@ const INFO_HTML = `
       <td id="sliderValue4">x1</td>
     </tr>
     <tr class="border_tr"><td colspan="4"><h5>Nodes</h5></td></tr>
-    <tr><td colspan="4">Translation Controls</td></tr>
+    <tr><td colspan="4" class="controlsSubLabel">Translation Controls</td></tr>
     <tr>
       <td colspan="2" class="canvasControls image_nodeExpand" data-nav="expandNodes"></td>
       <td colspan="2" class="canvasControls image_nodeCollapse" data-nav="collapseNodes"></td>
@@ -242,6 +244,35 @@ function holdAction(name: string): (() => void) | null {
   return map[name] ?? null
 }
 
+// Real stop/start affordance for the render-pause button (previously a
+// static "Stop:Render..." label that never reflected the actual flag).
+function setPauseButtonState(paused: boolean): void {
+  const btn = document.getElementById('interLayerEdgesRenderPauseButton')
+  if (!btn) return
+  btn.classList.toggle('is-paused', paused)
+  btn.innerHTML = paused
+    ? '<span class="nav-toggle-icon">&#9654;</span>Render Inter-Layer Edges'
+    : '<span class="nav-toggle-icon">&#10074;&#10074;</span>Pause Inter-Layer Edges'
+  btn.setAttribute(
+    'aria-label',
+    paused
+      ? 'Resume inter-layer edge rendering'
+      : 'Pause inter-layer edge rendering'
+  )
+}
+
+// Up/down chevron reflecting whether #info is currently expanded.
+function setControlsToggleState(open: boolean): void {
+  const btn = document.getElementById('displayCanvasControlsButton')
+  if (!btn) return
+  btn.classList.toggle('is-open', open)
+  btn.innerHTML = `<span class="nav-toggle-icon">${open ? '&#9652;' : '&#9662;'}</span>Navigation Controls`
+  btn.setAttribute(
+    'aria-label',
+    open ? 'Hide navigation controls' : 'Show navigation controls'
+  )
+}
+
 // v2 attached the controls on first network build (canvasControlsAttached
 // flag); #info keeps its "waiting for network" hint until then.
 export function registerNavControls(): void {
@@ -257,20 +288,25 @@ function attachNavControls(): void {
   if (!buttonsDiv || !info) return
 
   buttonsDiv.innerHTML = `
-    <button id="interLayerEdgesRenderPauseButton" class="displayCanvasControls">Stop:Render Inter-Layer Edges</button><br/>
-    <button id="displayCanvasControlsButton" class="displayCanvasControls">Navigation Controls</button>`
+    <button id="interLayerEdgesRenderPauseButton" class="displayCanvasControls nav-toggle-btn" type="button"></button>
+    <button id="displayCanvasControlsButton" class="displayCanvasControls nav-toggle-btn" type="button"></button>`
   document
     .getElementById('interLayerEdgesRenderPauseButton')!
-    .addEventListener('click', toggleInterLayerEdgesRendering)
+    .addEventListener('click', () => {
+      setPauseButtonState(toggleInterLayerEdgesRendering())
+    })
   document
     .getElementById('displayCanvasControlsButton')!
     .addEventListener('click', () => {
-      info.style.display =
-        info.style.display === 'none' ? 'inline-block' : 'none'
+      const open = info.style.display === 'none'
+      info.style.display = open ? 'inline-block' : 'none'
+      setControlsToggleState(open)
     })
 
   info.innerHTML = INFO_HTML
   info.style.display = 'inline-block'
+  setPauseButtonState(ctx.interLayerEdgesRenderPauseFlag)
+  setControlsToggleState(true)
 
   document
     .getElementById('recenterButton')!

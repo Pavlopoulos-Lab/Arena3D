@@ -12,16 +12,23 @@ import {
   findIndexByUuid,
   getCaseInsensitiveIndices,
   getRandomArbitrary,
+  setRandomSeed,
 } from '../utils'
 import { raycaster, setRaycaster } from './screen'
 
+// v2 set.seed(123): fixed so every network load scatters to the same layout.
+const SCRAMBLE_SEED = 123
+
 // v2 node.js scrambleNodes — random y/z spread onto each node's layer plane.
+// Re-seeds first so the same network always scatters identically (Load Example
+// and uploads are reproducible).
 export function scrambleNodes(
   yMin = ctx.yBoundMin,
   yMax = ctx.yBoundMax,
   zMin = ctx.zBoundMin,
   zMax = ctx.zBoundMax
 ): void {
+  setRandomSeed(SCRAMBLE_SEED)
   for (const node of ctx.nodeObjects) {
     node.translateY(getRandomArbitrary(yMin, yMax))
     node.translateZ(getRandomArbitrary(zMin, zMax))

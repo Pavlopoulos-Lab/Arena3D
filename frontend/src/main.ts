@@ -17,6 +17,7 @@ import { initEdgePanel } from './ui/edge'
 import { initFpsPanel } from './ui/fps'
 import { initDataPanel } from './ui/data'
 import { initHelpPanel } from './ui/help'
+import { registerDrawerToggle } from './ui/drawer_toggle'
 import { store } from './store'
 import { ctx, Scene } from './three'
 import { history } from './commands/base'
@@ -26,7 +27,7 @@ import { registerLayerDragControls } from './actions/drag_controls'
 import { registerLabelRendering } from './actions/labels'
 import { registerNavControls } from './actions/nav_controls'
 import { setRenderer, resetScreen, animate } from './actions/screen'
-import { registerThemeListener } from './actions/themes'
+import { registerThemeButtons, registerThemeListener } from './actions/themes'
 import { registerGlobalListeners } from './event_listeners'
 
 async function main(): Promise<void> {
@@ -63,8 +64,10 @@ async function main(): Promise<void> {
   initFpsPanel()
   initDataPanel()
   initHelpPanel()
+  registerDrawerToggle()
   registerGlobalListeners()
   registerThemeListener()
+  registerThemeButtons()
   registerLabelRendering()
   registerCanvasControls()
   registerLayerDragControls()
