@@ -45,7 +45,7 @@ export class Edge {
     this.target = target
     this.name = this.source.concat('---').concat(this.target)
     this.colors = colors ?? [ctx.edgeDefaultColor]
-    this.importedColors = this.colors
+    this.importedColors = [...this.colors] // distinct array: baseline for file-color priority
     this.weights = weights
     this.channels = channels
     this.interLayer = interLayer

@@ -16,7 +16,7 @@ Source: `REPORT_CODE_REVIEW.md` (commit 5f3a04a). One item = one commit. Check o
 - [x] **M4. Fix super-node repulsion at x == 0** — `backend/app/services/clustering.py _super_node_coords`: replace slope hack with direct vector scaling `(x * F, y * F)`.
 - [x] **M5. Guard `_sweep` race** — `backend/app/routers/external.py`: wrap per-file stat/remove in `try/except OSError: continue`.
 - [x] **M6. Single-edge layer topology** — `backend/app/services/topology.py`: verify v2 intent for the `len(layer_edges) < 2` skip; either compute for 1 edge or return a client-visible warning.
-- [ ] **M7. Un-alias `Edge.importedColors`** — `frontend/src/three/Edge.ts`: `this.importedColors = [...this.colors]`.
+- [x] **M7. Un-alias `Edge.importedColors`** — `frontend/src/three/Edge.ts`: `this.importedColors = [...this.colors]`.
 
 ## Low
 
