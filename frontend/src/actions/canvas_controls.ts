@@ -163,8 +163,19 @@ export function clickDrag(event: CanvasMouseEvent): void {
     ctx.mousePreviousY = y
   }
 
+  // Coalesce hover raycasts to one per rendered frame — raycasting every
+  // node sphere per mousemove gets expensive on large networks.
   if (!ctx.scene.leftClickPressed && !ctx.scene.middleClickPressed)
-    if (!checkHoverOverNode(event)) checkHoverOverLayer(event)
+    pendingHover = { clientX: event.clientX, clientY: event.clientY }
+}
+
+let pendingHover: { clientX: number; clientY: number } | null = null
+
+export function processPendingHover(): void {
+  if (!pendingHover || !ctx.scene?.exists()) return
+  const event = pendingHover
+  pendingHover = null
+  if (!checkHoverOverNode(event)) checkHoverOverLayer(event)
 }
 
 export function clickUp(event: MouseEvent): void {
@@ -284,6 +295,7 @@ export function registerCanvasControls(): void {
   const canvas = ctx.renderer?.domElement
   if (!canvas) return
   registerAnimateHook(easeZoomStep)
+  registerAnimateHook(processPendingHover)
   bus.on('network:loaded', resetZoomTarget) // new scene -> stale zoom target
   canvas.tabIndex = 1 // focusable, so it receives keydown events (v2)
   canvas.addEventListener('wheel', sceneZoom)
