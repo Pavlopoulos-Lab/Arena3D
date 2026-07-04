@@ -27,9 +27,26 @@ export function findIndexByUuid(
   return array.findIndex((object) => object.uuid === uuid)
 }
 
-// Random float in [min, max).
+// Seeded PRNG (mulberry32) so a given network always scatters to the same
+// layout — Load Example and uploads are reproducible instead of random each
+// time. Call setRandomSeed() to restart the sequence. Mirrors the backend's
+// random.seed(123) for layout algorithms.
+let rngState = 123 >>> 0
+
+export function setRandomSeed(seed: number): void {
+  rngState = seed >>> 0
+}
+
+function seededRandom(): number {
+  rngState = (rngState + 0x6d2b79f5) | 0
+  let t = Math.imul(rngState ^ (rngState >>> 15), 1 | rngState)
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+}
+
+// Random float in [min, max) from the seeded sequence.
 export function getRandomArbitrary(min: number, max: number): number {
-  return Math.random() * (max - min) + min
+  return seededRandom() * (max - min) + min
 }
 
 export function toRadians(angle: number): number {
