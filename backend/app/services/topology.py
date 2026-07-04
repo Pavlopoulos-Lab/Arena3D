@@ -72,8 +72,8 @@ def compute_topology(req: TopologyRequest) -> tuple[dict[str, float], dict[str, 
             layer_edges = g.within_layers_edges(edges, layers)
         else:
             layer_edges = g.intra_layer_edges(edges, next(iter(layers)))
-        if len(layer_edges) < 2:
-            continue  # v2: fewer than 2 edges cannot form a graph
+        if not layer_edges:
+            continue  # no edges in this scope → nothing to score
         graph = g.build_graph(layer_edges, remove_multiple=True)
         names = graph.vs["name"]
         values = METRICS[req.metric](graph, req.directed)

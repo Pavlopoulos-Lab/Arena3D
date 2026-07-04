@@ -85,6 +85,30 @@ def test_constant_metric_defaults_to_one() -> None:
     assert all(v == pytest.approx(1.0) for v in scales.values())
 
 
+def test_single_edge_layer_is_scored() -> None:
+    # one edge forms a valid 2-node graph; both endpoints get the default scale
+    nodes = [{"id": f"{n}_L1", "label": n, "layer": "L1"} for n in ("A", "B")]
+    edges = [
+        {
+            "src": "A_L1",
+            "trg": "B_L1",
+            "source_node": "A",
+            "source_layer": "L1",
+            "target_node": "B",
+            "target_layer": "L1",
+            "weight": 1.0,
+            "scaled_weight": 0.5,
+            "channel": None,
+        }
+    ]
+    scales, _ = compute_topology(
+        TopologyRequest(
+            nodes=nodes, edges=edges, metric="Degree", scope="perLayer", selected_layers=["L1"]
+        )
+    )
+    assert set(scales) == {"A_L1", "B_L1"}
+
+
 def test_unknown_metric_400() -> None:
     nodes, edges = _star_net()
     resp = client.post(
