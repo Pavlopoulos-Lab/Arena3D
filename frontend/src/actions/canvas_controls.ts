@@ -231,6 +231,7 @@ export function translateNodesWithHeldKey(event: {
     else if (ctx.scene!.axisPressed === 'c') ctx.nodeObjects[i].translateY(step)
   }
   redrawIntraLayerEdges()
+  ctx.renderInterLayerEdgesFlag = true
 }
 
 // v2 layer.js rotateLayersWithHeldKey — z/x/c + drag rotates selected layers.
@@ -248,6 +249,7 @@ export function rotateLayersWithHeldKey(event: {
     else if (ctx.scene!.axisPressed === 'x') ctx.layers[i].rotateX(rads)
     else if (ctx.scene!.axisPressed === 'c') ctx.layers[i].rotateY(rads)
   }
+  ctx.renderInterLayerEdgesFlag = true
 }
 
 // v2 node.js lassoSelectNodes — shift + left-drag rectangle select.

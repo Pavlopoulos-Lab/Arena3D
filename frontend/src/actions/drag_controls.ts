@@ -98,6 +98,7 @@ export function onPointerMove(event: PointerLikeEvent): void {
     if (_raycaster.ray.intersectPlane(_plane, _intersection)) {
       ctx.renderLayerLabelsFlag = true
       ctx.renderNodeLabelsFlag = true
+      ctx.renderInterLayerEdgesFlag = true // edges follow the dragged layer
       selected.position.copy(
         _intersection.sub(_offset).applyMatrix4(_inverseMatrix)
       )

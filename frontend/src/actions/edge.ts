@@ -42,9 +42,13 @@ export function renderInterLayerEdges(): void {
   }
 }
 
+// v2 also removed the edges while ctx.scene.dragging; that made them vanish
+// during every pan/orbit (where they move with the scene and need no redraw)
+// and lag behind layer drags. Layer/node drags now raise
+// renderInterLayerEdgesFlag per move instead, so the edges follow live; the
+// render-pause button remains the escape hatch for huge networks.
 function existsConditionToRemoveInterEdges(): boolean {
   return (
-    (ctx.scene?.dragging ?? false) ||
     ctx.interLayerEdgesRenderPauseFlag ||
     (!ctx.edgeWidthByWeight && ctx.interLayerEdgeOpacity === 0)
   )
