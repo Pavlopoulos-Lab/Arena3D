@@ -29,6 +29,10 @@ import {
 } from './right_click_menu'
 
 // v2 globals: lasso anchor (shift+click) and the lasso rectangle line.
+// Node indices the current lasso rectangle covers. Tracked explicitly so
+// selection doesn't rely on the opacity-0.5 sentinel, which hover also sets
+// (a node hovered at mouse-up would otherwise be selected too).
+const lassoHits = new Set<number>()
 let shiftX: number | null = null
 let shiftY: number | null = null
 let lasso: THREE.Line | null = null
@@ -185,9 +189,9 @@ export function clickUp(event: MouseEvent): void {
     ctx.scene.leftClickPressed = false
     removeContextMenu() // v2 removed the right-click options list here
     if (lasso) {
-      // nodes dimmed to 0.5 are inside the lasso -> select them
+      // select exactly the nodes the lasso rectangle covered
       ctx.nodeObjects.forEach((node, i) => {
-        if (node.getOpacity() === 0.5) {
+        if (lassoHits.has(i)) {
           node.setOpacity(1)
           node.isSelected = true
           repaintNode(i)
@@ -198,6 +202,7 @@ export function clickUp(event: MouseEvent): void {
       ctx.scene.remove(lasso)
       lasso.geometry.dispose()
       lasso = null
+      lassoHits.clear()
     }
     shiftX = null
     shiftY = null
@@ -262,13 +267,14 @@ export function lassoSelectNodes(x: number, y: number): void {
 
   createLassoGeometry(x, y)
 
-  for (const node of ctx.nodeObjects) {
+  lassoHits.clear()
+  ctx.nodeObjects.forEach((node, i) => {
     const nodeX = node.getWorldPosition('x')
     const nodeY = node.getWorldPosition('y')
-    node.setOpacity(
-      nodeX < maxX && nodeX > minX && nodeY < maxY && nodeY > minY ? 0.5 : 1
-    )
-  }
+    const inside = nodeX < maxX && nodeX > minX && nodeY < maxY && nodeY > minY
+    node.setOpacity(inside ? 0.5 : 1) // visual feedback only
+    if (inside) lassoHits.add(i)
+  })
 }
 
 const lassoMaterial = new THREE.LineBasicMaterial({ color: '#eef1b6' })
