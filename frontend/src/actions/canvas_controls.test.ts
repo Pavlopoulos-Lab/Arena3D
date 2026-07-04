@@ -115,7 +115,7 @@ describe('lasso', () => {
     expect(ctx.nodeObjects[0].getOpacity()).toBe(0.5) // A at origin: inside
     expect(ctx.nodeObjects[1].getOpacity()).toBe(1) // B at (50,50): outside
 
-    clickUp(fakeEvent({}) as unknown as MouseEvent)
+    clickUp(fakeEvent({}))
     expect(ctx.nodeObjects[0].isSelected).toBe(true)
     expect(ctx.nodeObjects[1].isSelected).toBe(false)
     expect(ctx.scene!.dragging).toBe(false)
@@ -125,7 +125,7 @@ describe('lasso', () => {
 describe('dblClick', () => {
   it('with nothing hovered unselects all nodes', () => {
     ctx.nodeObjects[0].isSelected = true
-    dblClick(fakeEvent({ clientX: 0, clientY: 0 } as Partial<AnyEvent>))
+    dblClick(fakeEvent({ clientX: 0, clientY: 0 }))
     expect(ctx.nodeObjects[0].isSelected).toBe(false)
   })
 })

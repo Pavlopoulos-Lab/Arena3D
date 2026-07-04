@@ -139,8 +139,8 @@ export function attachLayerDragControls(el: DragSurface): void {
   el.style.touchAction = 'none' // disable touch scroll
   el.addEventListener('pointermove', onPointerMove as unknown as EventListener)
   el.addEventListener('pointerdown', onPointerDown as unknown as EventListener)
-  el.addEventListener('pointerup', onPointerCancel as EventListener)
-  el.addEventListener('pointerleave', onPointerCancel as EventListener)
+  el.addEventListener('pointerup', onPointerCancel)
+  el.addEventListener('pointerleave', onPointerCancel)
 }
 
 // Called once from main.ts, after the canvas is mounted. v2 recreated
