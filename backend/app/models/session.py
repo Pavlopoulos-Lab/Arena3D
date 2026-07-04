@@ -17,6 +17,7 @@ class SessionImportResponse(BaseModel):
     direction: bool
     edgeOpacityByWeight: bool
     scramble_nodes: bool
+    warnings: list[str] = []
 
 
 class ExternalCreateResponse(BaseModel):

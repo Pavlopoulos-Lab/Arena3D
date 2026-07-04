@@ -75,10 +75,9 @@ def _handle_channels(edges: list[dict[str, Any]]) -> tuple[list[dict[str, Any]],
     warnings: list[str] = []
     has_channel = any("channel" in e for e in edges)
     if has_channel and any(_empty(e.get("channel")) for e in edges):
+        warnings.append("At least one edge has no channel name. Removing channels completely.")
         for e in edges:
             e.pop("channel", None)
-        if not all(_empty(e.get("channel")) for e in edges):
-            warnings.append("At least one edge has no channel name. Removing channels completely.")
     return edges, warnings
 
 
@@ -135,7 +134,7 @@ def normalize_session(data: dict[str, Any]) -> dict[str, Any]:
         n["descr"] = _default(n.get("descr"), "")
 
     edges = [dict(e) for e in data["edges"]]
-    edges, _ = _handle_channels(edges)
+    edges, warnings = _handle_channels(edges)
     edges = _dedup_edges(edges)
     for e in edges:
         e["opacity"] = _default(e.get("opacity"), 1)
@@ -150,4 +149,5 @@ def normalize_session(data: dict[str, Any]) -> dict[str, Any]:
         "direction": _default(data.get("direction"), False),
         "edgeOpacityByWeight": _default(data.get("edgeOpacityByWeight"), True),
         "scramble_nodes": scramble,
+        "warnings": warnings,
     }

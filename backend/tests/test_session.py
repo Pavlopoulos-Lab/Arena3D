@@ -76,6 +76,7 @@ def test_channels_dropped_when_partial() -> None:
     ]
     out = normalize_session(s)
     assert all("channel" not in e for e in out["edges"])
+    assert any("channel" in w.lower() for w in out["warnings"])
 
 
 def test_duplicate_edges_collapsed() -> None:

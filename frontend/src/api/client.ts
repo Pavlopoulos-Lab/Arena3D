@@ -82,6 +82,7 @@ export interface SessionData {
   direction: boolean
   edgeOpacityByWeight: boolean
   scramble_nodes: boolean
+  warnings?: string[]
 }
 
 export type Scope = 'perLayer' | 'allLayers' | 'nodesPerLayers'
