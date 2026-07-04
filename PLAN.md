@@ -12,7 +12,7 @@ Source: `REPORT_CODE_REVIEW.md` (commit 5f3a04a). One item = one commit. Check o
 
 - [x] **M1. Surface channel-removal warning** — `session.py _handle_channels`: compute warning before popping channels; return warnings through `SessionImportResponse` and show in frontend file panel.
 - [x] **M2. Reject duplicate layer names** — `session.py _validate`: error on duplicate `layers[].name`.
-- [ ] **M3. Stop deriving `source_node` by slicing** — `frontend/src/actions/network.ts buildFromSession`: resolve source/target node + layer from the session nodes list, not `slice(0, -len-1)` string surgery.
+- [x] **M3. Stop deriving `source_node` by slicing** — `frontend/src/actions/network.ts buildFromSession`: resolve source/target node + layer from the session nodes list, not `slice(0, -len-1)` string surgery.
 - [ ] **M4. Fix super-node repulsion at x == 0** — `backend/app/services/clustering.py _super_node_coords`: replace slope hack with direct vector scaling `(x * F, y * F)`.
 - [ ] **M5. Guard `_sweep` race** — `backend/app/routers/external.py`: wrap per-file stat/remove in `try/except OSError: continue`.
 - [ ] **M6. Single-edge layer topology** — `backend/app/services/topology.py`: verify v2 intent for the `len(layer_edges) < 2` skip; either compute for 1 edge or return a client-visible warning.

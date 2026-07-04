@@ -212,19 +212,26 @@ export function buildFromSession(s: SessionData): void {
   }
 
   // edges from JSON (opacity plays the scaled-weight role; colors are file
-  // colors, hence edgeFileColorPriority below)
-  const rows: EdgeRow[] = s.edges.map((e) => ({
-    src: e.src,
-    trg: e.trg,
-    source_node: e.src.slice(0, -(ctx.nodeGroups[e.src] ?? '').length - 1),
-    source_layer: ctx.nodeGroups[e.src] ?? '',
-    target_node: e.trg.slice(0, -(ctx.nodeGroups[e.trg] ?? '').length - 1),
-    target_layer: ctx.nodeGroups[e.trg] ?? '',
-    weight: Number(e.opacity),
-    scaled_weight: Number(e.opacity),
-    channel: e.channel ?? null,
-    color: e.color,
-  }))
+  // colors, hence edgeFileColorPriority below). Resolve endpoints against the
+  // node list rather than slicing the id — a node name may itself contain
+  // '_<layer>', and the backend guarantees src/trg reference a known node.
+  const nodeById = new Map(s.nodes.map((n) => [`${n.name}_${n.layer}`, n]))
+  const rows: EdgeRow[] = s.edges.map((e) => {
+    const src = nodeById.get(e.src)
+    const trg = nodeById.get(e.trg)
+    return {
+      src: e.src,
+      trg: e.trg,
+      source_node: src?.name ?? e.src,
+      source_layer: src?.layer ?? '',
+      target_node: trg?.name ?? e.trg,
+      target_layer: trg?.layer ?? '',
+      weight: Number(e.opacity),
+      scaled_weight: Number(e.opacity),
+      channel: e.channel ?? null,
+      color: e.color,
+    }
+  })
   createEdgeObjects(rows)
   createLabels()
 
