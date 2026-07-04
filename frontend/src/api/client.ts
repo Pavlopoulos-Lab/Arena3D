@@ -186,10 +186,11 @@ export const api = {
   },
   createExternal: (session: unknown) =>
     post<{ token: string; url: string }>('/api/external', session),
-  resolveExternal: async (token: string): Promise<Record<string, unknown>> => {
+  // Backend returns a normalized SessionImportResponse, same shape as import.
+  resolveExternal: async (token: string): Promise<SessionData> => {
     const res = await fetch(`/api/external/${token}`)
     if (!res.ok)
       throw new Error(`GET /api/external/${token} failed: ${res.status}`)
-    return res.json() as Promise<Record<string, unknown>>
+    return res.json() as Promise<SessionData>
   },
 }

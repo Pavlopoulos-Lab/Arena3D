@@ -6,7 +6,10 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap' // data-bs-* tab + collapse behavior for the navbar
 import './style.css'
 
+import { api } from './api/client'
 import { fetchConfig } from './api/config'
+import { loadSession } from './actions/network'
+import { showTab } from './ui/tabs'
 import { initHomePanel } from './ui/home'
 import { initFilePanel } from './ui/file'
 import { initLayoutsPanel } from './ui/layouts'
@@ -82,6 +85,24 @@ async function main(): Promise<void> {
     ctx,
     history,
     executeCommand,
+  }
+
+  await loadExternalSession()
+}
+
+// A partner app can hand off a session via POST /api/external, which returns a
+// URL of the form `/?session=<token>`. Resolve that token back to a normalized
+// session and load it, same as a file import.
+async function loadExternalSession(): Promise<void> {
+  if (typeof window === 'undefined') return
+  const token = new URLSearchParams(window.location.search).get('session')
+  if (!token) return
+  try {
+    const session = await api.resolveExternal(token)
+    loadSession(session)
+    showTab('#panel-main-view')
+  } catch (err) {
+    console.error('[arena3d] external session load failed', err)
   }
 }
 
