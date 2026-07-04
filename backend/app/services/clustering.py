@@ -82,9 +82,10 @@ def _super_node_coords(
     result: dict[int, tuple[float, float]] = {}
     for c in cluster_ids:
         x, y = float(coords[idx[c]][0]), float(coords[idx[c]][1])
-        a = y / x if x != 0 else y / 0.01
-        x *= REPELLING_FORCE
-        result[c] = (x, a * x)
+        # Push the super-node radially away from the origin. The old slope-based
+        # form (x*F, (y/x)*x*F) equals this for x != 0 but collapsed to (0, 0)
+        # when x == 0 (Circle/Grid layouts routinely place nodes there).
+        result[c] = (x * REPELLING_FORCE, y * REPELLING_FORCE)
     return result
 
 
