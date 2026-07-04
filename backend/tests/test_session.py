@@ -54,6 +54,13 @@ def test_empty_layer_name_raises() -> None:
         normalize_session(bad)
 
 
+def test_duplicate_layer_names_raise() -> None:
+    bad = _minimal()
+    bad["layers"] = [{"name": "L1"}, {"name": "L1"}]
+    with pytest.raises(SessionValidationError):
+        normalize_session(bad)
+
+
 def test_node_referencing_unknown_layer_raises() -> None:
     bad = _minimal()
     bad["nodes"] = [{"name": "A", "layer": "L1"}, {"name": "B", "layer": "MISSING"}]

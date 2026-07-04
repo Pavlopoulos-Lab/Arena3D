@@ -40,6 +40,10 @@ def _validate(data: dict[str, Any]) -> None:
     layers = data["layers"]
     if not layers or any(_empty(row.get("name")) for row in layers):
         raise SessionValidationError("JSON layers must each have a non-empty name.")
+    if len({row["name"] for row in layers}) != len(layers):
+        # Duplicate names collapse layerGroups on the frontend, orphaning the
+        # earlier layer's nodes onto the wrong plane.
+        raise SessionValidationError("JSON layer names must be unique.")
     if len({row["name"] for row in layers}) > config.MAX_LAYERS:
         raise SessionValidationError(
             f"The network must contain no more than {config.MAX_LAYERS} layers."
