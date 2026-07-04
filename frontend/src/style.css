@@ -186,20 +186,58 @@ body {
   z-index: 0;
 }
 
-/* Panels overlay the canvas below the fixed navbar. */
+/* Action panels open as a right-side drawer so the 3D scene stays visible;
+   only Home and Help take the full view (they are reading, not operating on
+   the scene). Main View's pane is display:none, so the canvas shows through. */
 #panelContent .tab-pane {
   position: fixed;
   top: 56px; /* navbar height */
-  left: 0;
   right: 0;
   bottom: 0;
+  width: min(440px, 94vw);
   overflow-y: auto;
-  /* Above the #info / nav-control overlays (z-index 2) so an open panel
-     covers them; Main View's pane is display:none, so the canvas + controls
-     stay visible there. */
-  z-index: 5;
+  overscroll-behavior: contain;
+  z-index: 5; /* above the #info / nav-control overlays (z-index 2) */
+  background-color: var(--arena-surface);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border-left: 1px solid var(--arena-border);
+  box-shadow: var(--arena-shadow);
+  padding: 1.4rem 1.35rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Slide the drawer in when it becomes the active pane. */
+#panelContent .tab-pane.show {
+  animation: drawer-in 0.28s var(--arena-ease);
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Home and Help are full-width reading surfaces, not scene controls. */
+#panel-home,
+#panel-help {
+  left: 0;
+  width: auto;
   background-color: var(--bs-body-bg);
-  padding: 1rem;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-left: 0;
+  box-shadow: none;
+  padding: 1.6rem 2rem;
+}
+
+/* Wide data tables get a roomier drawer. */
+#panel-data {
+  width: min(680px, 96vw);
 }
 
 /* Main View has no panel content: keep it invisible so the canvas shows. */
