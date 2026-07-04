@@ -747,55 +747,84 @@ footer a:hover {
   }
 }
 
-/* Help panel — inner tab bar + content (port of v2 arena3dweb.css help rules). */
+/* Help panel — inner tab bar + content, themed to match the dark chrome. */
+#helpDiv {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
 #helpDiv .tab {
-  overflow: hidden;
-  background-color: #f1f1f1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
   width: 100%;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--arena-border);
 }
 
 #helpDiv .tab button {
-  background-color: inherit;
-  float: left;
-  border: none;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--arena-border);
+  border-radius: 999px;
   outline: none;
   cursor: pointer;
-  padding: 14px 16px;
-  transition: 0.3s;
-  font-size: 17px;
-  color: #000;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--arena-text-muted);
+  transition:
+    color 0.15s var(--arena-ease),
+    background-color 0.15s var(--arena-ease),
+    border-color 0.15s var(--arena-ease);
 }
 
 #helpDiv .tab button:hover {
-  background-color: #ddd;
+  color: var(--arena-text);
+  border-color: var(--arena-border-strong);
+  background-color: rgba(255, 255, 255, 0.06);
 }
 
 #helpDiv .tab button.active {
-  background-color: #ccc;
+  color: #06101f;
+  background-color: var(--arena-accent);
+  border-color: var(--arena-accent);
 }
 
 #helpDiv .tabcontent {
   display: none;
-  padding: 1%;
   width: 100%;
+  max-width: 78ch;
+  line-height: 1.65;
   word-break: break-word;
-  text-align: justify;
+}
+
+#helpDiv .tabcontent h2,
+#helpDiv .tabcontent h3 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-top: 1.75rem;
 }
 
 #helpDiv .tabcontent img {
   max-width: 100%;
+  border: 1px solid var(--arena-border);
+  border-radius: var(--arena-radius-sm);
 }
 
 #helpDiv pre {
   overflow-x: auto;
-  padding: 8px;
-  background-color: rgba(128, 128, 128, 0.15);
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--arena-border);
+  border-radius: var(--arena-radius-sm);
+  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--arena-text);
 }
 
 #helpDiv .numbering {
-  color: red;
-  font-weight: bold;
-  font-size: 18px;
+  color: var(--arena-accent);
+  font-weight: 700;
+  font-size: 1.05rem;
 }
 
 #helpDiv .indent {
