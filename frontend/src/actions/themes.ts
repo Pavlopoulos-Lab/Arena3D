@@ -94,8 +94,6 @@ export function registerThemeButtons(): void {
   })
 }
 
-let currentTheme = 'dark' // matches the app's default dark chrome
-
 function attachThemeButtons(): void {
   const themeDiv = document.getElementById('themeDiv')
   if (!themeDiv || themeDiv.childElementCount > 0) return
@@ -106,13 +104,12 @@ function attachThemeButtons(): void {
     btn.className = 'themeButton'
     btn.textContent = name.charAt(0).toUpperCase() + name.slice(1)
     btn.addEventListener('click', () => {
+      // store.currentTheme is the single source of truth (defaults to 'dark').
       history.execute(
         new ChangeThemeCommand(
           name,
-          () => currentTheme,
-          (t) => {
-            currentTheme = t
-          }
+          () => store.get().currentTheme,
+          (t) => store.update({ currentTheme: t })
         )
       )
     })
