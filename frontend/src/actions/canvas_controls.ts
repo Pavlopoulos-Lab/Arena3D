@@ -123,7 +123,17 @@ export function clickDrag(event: CanvasMouseEvent): void {
     ctx.mousePreviousY - event.screenY
   )
 
-  if (distance > 10) {
+  // Held-key node/layer transforms apply a fixed step per processed event, so
+  // they keep the v2 10px granularity; pan/orbit/lasso use deltas and get a
+  // finer 2px threshold for smoother motion (v2's 10px gate made orbit jump
+  // in ~10-degree increments).
+  const heldKeyTransform =
+    ctx.scene.leftClickPressed &&
+    !event.shiftKey &&
+    ctx.scene.axisPressed !== ''
+  const threshold = heldKeyTransform ? 10 : 2
+
+  if (distance > threshold) {
     const x = event.screenX
     const y = event.screenY
 
