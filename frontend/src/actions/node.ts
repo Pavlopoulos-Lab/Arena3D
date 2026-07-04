@@ -43,7 +43,7 @@ export function checkHoverOverNode(event: {
 }): boolean {
   setRaycaster(event)
   const spheres = ctx.nodeObjects.map(({ sphere }) => sphere)
-  const intersects = raycaster().intersectObjects(spheres)
+  const intersects = raycaster().intersectObjects(spheres, false)
   let changed = false
   let hovering = false
 
@@ -94,7 +94,7 @@ export function performDoubleClickNodeSelection(event: {
 }): boolean {
   setRaycaster(event)
   const spheres = ctx.nodeObjects.map(({ sphere }) => sphere)
-  const intersects = raycaster().intersectObjects(spheres)
+  const intersects = raycaster().intersectObjects(spheres, false)
   if (intersects.length === 0) return false
 
   const i = findIndexByUuid(spheres, intersects[0].object.uuid)

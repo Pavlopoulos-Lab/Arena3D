@@ -61,7 +61,9 @@ export function checkHoverOverLayer(event: {
 }): void {
   setRaycaster(event)
   const planes = ctx.layers.map(({ plane }) => plane)
-  const intersects = raycaster().intersectObjects(planes)
+  // Non-recursive: planes carry node spheres/labels/coord lines as children;
+  // a child hit isn't in `planes`, so findIndexByUuid returned -1 and crashed.
+  const intersects = raycaster().intersectObjects(planes, false)
   if (intersects.length > 0) {
     if (ctx.lastHoveredLayerIndex !== null) {
       repaintLayers()
