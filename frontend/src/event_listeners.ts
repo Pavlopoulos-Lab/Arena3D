@@ -43,8 +43,19 @@ function wireHistoryButtons(): void {
   })
 }
 
+function isTextEntry(target: EventTarget | null): boolean {
+  const el = target as HTMLElement | null
+  if (!el) return false
+  return (
+    el.tagName === 'INPUT' ||
+    el.tagName === 'TEXTAREA' ||
+    el.isContentEditable
+  )
+}
+
 function handleUndoRedo(e: KeyboardEvent): void {
   if (!(e.ctrlKey || e.metaKey)) return
+  if (isTextEntry(e.target)) return // let the input handle its own undo/redo
   const key = e.key.toLowerCase()
   if (key === 'z' && !e.shiftKey) {
     e.preventDefault()

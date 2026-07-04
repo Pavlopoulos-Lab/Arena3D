@@ -21,7 +21,7 @@ Source: `REPORT_CODE_REVIEW.md` (commit 5f3a04a). One item = one commit. Check o
 ## Low
 
 - [x] **L1. Dedicated lasso membership flag** — `canvas_controls.ts`: track lasso-hit nodes in a Set instead of the opacity===0.5 sentinel (hover pollution).
-- [ ] **L2. Skip undo/redo in text inputs** — `event_listeners.ts handleUndoRedo`: return early when `event.target` is input/textarea/contentEditable.
+- [x] **L2. Skip undo/redo in text inputs** — `event_listeners.ts handleUndoRedo`: return early when `event.target` is input/textarea/contentEditable.
 - [ ] **L3. Don't arm axis keys with Ctrl held** — `canvas_controls.ts keyPressed`: ignore z/x/c when `ctrlKey || metaKey`.
 - [ ] **L4. Single source of truth for theme** — write theme changes to `store` (or drop `AppState.currentTheme`); remove module-local duplicate in `themes.ts`.
 - [ ] **L5. Fallback for unknown channel color** — `Edge.decideColor`: `ctx.channelColors[...] ?? ctx.edgeDefaultColor`.
