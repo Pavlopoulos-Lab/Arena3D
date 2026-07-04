@@ -101,9 +101,16 @@ export function registerAnimateHook(fn: () => void): void {
   animateHooks.push(fn)
 }
 
-// FPS-limited render loop.
-export function animate(): void {
-  setTimeout(() => requestAnimationFrame(animate), 1000 / ctx.fps)
+// FPS-limited render loop. Pure rAF (no setTimeout) so the browser can
+// align frames with vsync and auto-pause when the tab is hidden; the
+// timestamp check enforces ctx.fps as an upper bound.
+let lastFrameTime = 0
+export function animate(now = 0): void {
+  requestAnimationFrame(animate)
+  const interval = 1000 / ctx.fps
+  if (now - lastFrameTime < interval) return
+  // Snap to the frame grid so throttled rates stay even (e.g. 30 on 60Hz).
+  lastFrameTime = now - ((now - lastFrameTime) % interval)
 
   renderInterLayerEdges()
   for (const fn of animateHooks) fn()
