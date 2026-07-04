@@ -244,6 +244,35 @@ function holdAction(name: string): (() => void) | null {
   return map[name] ?? null
 }
 
+// Real stop/start affordance for the render-pause button (previously a
+// static "Stop:Render..." label that never reflected the actual flag).
+function setPauseButtonState(paused: boolean): void {
+  const btn = document.getElementById('interLayerEdgesRenderPauseButton')
+  if (!btn) return
+  btn.classList.toggle('is-paused', paused)
+  btn.innerHTML = paused
+    ? '<span class="nav-toggle-icon">&#9654;</span>Render Inter-Layer Edges'
+    : '<span class="nav-toggle-icon">&#10074;&#10074;</span>Pause Inter-Layer Edges'
+  btn.setAttribute(
+    'aria-label',
+    paused
+      ? 'Resume inter-layer edge rendering'
+      : 'Pause inter-layer edge rendering'
+  )
+}
+
+// Up/down chevron reflecting whether #info is currently expanded.
+function setControlsToggleState(open: boolean): void {
+  const btn = document.getElementById('displayCanvasControlsButton')
+  if (!btn) return
+  btn.classList.toggle('is-open', open)
+  btn.innerHTML = `<span class="nav-toggle-icon">${open ? '&#9652;' : '&#9662;'}</span>Navigation Controls`
+  btn.setAttribute(
+    'aria-label',
+    open ? 'Hide navigation controls' : 'Show navigation controls'
+  )
+}
+
 // v2 attached the controls on first network build (canvasControlsAttached
 // flag); #info keeps its "waiting for network" hint until then.
 export function registerNavControls(): void {
@@ -259,20 +288,25 @@ function attachNavControls(): void {
   if (!buttonsDiv || !info) return
 
   buttonsDiv.innerHTML = `
-    <button id="interLayerEdgesRenderPauseButton" class="displayCanvasControls">Stop:Render Inter-Layer Edges</button><br/>
-    <button id="displayCanvasControlsButton" class="displayCanvasControls">Navigation Controls</button>`
+    <button id="interLayerEdgesRenderPauseButton" class="displayCanvasControls nav-toggle-btn" type="button"></button>
+    <button id="displayCanvasControlsButton" class="displayCanvasControls nav-toggle-btn" type="button"></button>`
   document
     .getElementById('interLayerEdgesRenderPauseButton')!
-    .addEventListener('click', toggleInterLayerEdgesRendering)
+    .addEventListener('click', () => {
+      setPauseButtonState(toggleInterLayerEdgesRendering())
+    })
   document
     .getElementById('displayCanvasControlsButton')!
     .addEventListener('click', () => {
-      info.style.display =
-        info.style.display === 'none' ? 'inline-block' : 'none'
+      const open = info.style.display === 'none'
+      info.style.display = open ? 'inline-block' : 'none'
+      setControlsToggleState(open)
     })
 
   info.innerHTML = INFO_HTML
   info.style.display = 'inline-block'
+  setPauseButtonState(ctx.interLayerEdgesRenderPauseFlag)
+  setControlsToggleState(true)
 
   document
     .getElementById('recenterButton')!

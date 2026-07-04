@@ -337,6 +337,31 @@ body {
   border-color: var(--arena-accent);
 }
 
+/* Icon + label toggle buttons (render-pause, controls disclosure): the icon
+   swaps per state instead of the label alone carrying the meaning. */
+.nav-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.nav-toggle-icon {
+  color: var(--arena-accent);
+  font-size: 10px;
+  line-height: 1;
+}
+
+/* Paused = an actual stopped state worth calling out, not just a hover tint. */
+.nav-toggle-btn.is-paused {
+  border-color: rgba(var(--arena-accent-rgb), 0.5);
+  background-color: rgba(var(--arena-accent-rgb), 0.1);
+}
+
+.nav-toggle-btn.is-paused .nav-toggle-icon {
+  color: #ffb454;
+}
+
 #info {
   width: 258px;
   top: 150px; /* below the nav control buttons */
