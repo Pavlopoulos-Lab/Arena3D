@@ -63,8 +63,14 @@ export function applyTheme(name: string, fromInit = false): void {
 
   if (!fromInit) {
     // v2 repaintLayersFromPicker: switch layers to picker priority with the
-    // theme's floor color
+    // theme's floor color. The floor_color input is the source of truth on the
+    // picker path (repaintLayers()/Layer.getColor() read it on hover-exit), so
+    // update it too — otherwise hover-exit reverts to the stale (dark) color.
     ctx.layerColorPrioritySource = 'picker'
+    const floorInput =
+      typeof document !== 'undefined' &&
+      (document.getElementById('floor_color') as HTMLInputElement | null)
+    if (floorInput) floorInput.value = theme.floor
     repaintLayers(theme.floor)
     redrawIntraLayerEdges()
     ctx.renderInterLayerEdgesFlag = true

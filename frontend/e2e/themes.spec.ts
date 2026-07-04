@@ -30,6 +30,10 @@ test('theme buttons attach on load and switch scene theme (undoable)', async ({
 
   await page.locator('#lightThemeButton').click()
   expect(await page.evaluate(edgeColor())).toBe('#5c5c5c')
+  // Regression: floor_color input is the picker-path source of truth, so a
+  // theme toggle must update it — otherwise hover-exit repaint reverts layers
+  // to the stale (dark) color.
+  await expect(page.locator('#floor_color')).toHaveValue('#8aa185')
 
   await page.locator('#grayThemeButton').click()
   expect(await page.evaluate(edgeColor())).toBe('#6e2a5a')
