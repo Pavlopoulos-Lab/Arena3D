@@ -39,13 +39,14 @@ beforeEach(() => {
 
 describe('layer drag', () => {
   it('pointer-down over a plane selects it and sets the move cursor', () => {
+    ctx.lastHoveredLayerIndex = 0 // hover pass resolved the plane
     onPointerDown({ clientX: 400, clientY: 400 }) // screen center -> origin
     expect(surface.style.cursor).toBe('move')
   })
 
   it('drags the hovered plane while the left button is held', () => {
-    onPointerDown({ clientX: 400, clientY: 400 })
     ctx.lastHoveredLayerIndex = 0
+    onPointerDown({ clientX: 400, clientY: 400 })
     ctx.scene!.leftClickPressed = true
 
     onPointerMove({ clientX: 500, clientY: 400, pointerType: 'mouse' })
@@ -55,7 +56,18 @@ describe('layer drag', () => {
     expect(ctx.renderNodeLabelsFlag).toBe(true)
   })
 
+  it('does not engage while a node is hovered (v2 gate)', () => {
+    ctx.lastHoveredLayerIndex = 0
+    ctx.lastHoveredNodeIndex = 3
+    onPointerDown({ clientX: 400, clientY: 400 })
+    expect(surface.style.cursor).not.toBe('move')
+    ctx.scene!.leftClickPressed = true
+    onPointerMove({ clientX: 500, clientY: 400, pointerType: 'mouse' })
+    expect(ctx.layers[0].plane.position.x).toBe(0)
+  })
+
   it('does not drag when no layer is hovered (v2 gate)', () => {
+    ctx.lastHoveredLayerIndex = 0
     onPointerDown({ clientX: 400, clientY: 400 })
     ctx.lastHoveredLayerIndex = null
     ctx.scene!.leftClickPressed = true
@@ -66,6 +78,7 @@ describe('layer drag', () => {
   it('release emits layer:moved and raises the inter-edge render flag', () => {
     let moved = -1
     const off = bus.on('layer:moved', ({ layerIndex }) => (moved = layerIndex))
+    ctx.lastHoveredLayerIndex = 0
     onPointerDown({ clientX: 400, clientY: 400 })
     onPointerCancel()
     expect(moved).toBe(0)

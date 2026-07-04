@@ -52,24 +52,18 @@ function layerPlanes(): THREE.Object3D[] {
 
 export function onPointerDown(event: PointerLikeEvent): void {
   if (!surface || !ctx.camera) return
+  // Don't re-raycast here: the pointer-down ray kept landing on other
+  // objects (coord/edge Lines have a fat world-unit raycast threshold, and
+  // an overlapping layer's children can sit in front), which either aborted
+  // the drag or grabbed the wrong plane. The hover pass already resolved
+  // which plane the user sees under the cursor — trust it.
+  if (ctx.lastHoveredNodeIndex !== null) return // grabbing a node, not a layer
+  const idx = ctx.lastHoveredLayerIndex
+  if (idx === null || !ctx.layers[idx]) return
   updatePointer(event)
   _raycaster.setFromCamera(_pointer, ctx.camera)
-  const planes = layerPlanes()
-  const intersections = _raycaster.intersectObjects(planes, true)
-  if (intersections.length === 0) return
 
-  // The recursive ray often hits a plane child first (coord-system line,
-  // intra-layer edge, label sphere) — resolve up to the owning plane so the
-  // drag gate's uuid check doesn't silently fail. Node spheres keep the v2
-  // behavior of not engaging a layer drag.
-  const hit = intersections[0].object
-  if (ctx.nodeObjects.some(({ sphere }) => sphere.uuid === hit.uuid)) return
-  let owner: THREE.Object3D | null = hit
-  while (owner && findIndexByUuid(planes, owner.uuid) === -1)
-    owner = owner.parent
-  if (!owner) return
-
-  selected = owner
+  selected = ctx.layers[idx].plane
   _plane.setFromNormalAndCoplanarPoint(
     ctx.camera.getWorldDirection(_plane.normal),
     _worldPosition.setFromMatrixPosition(selected.matrixWorld)
