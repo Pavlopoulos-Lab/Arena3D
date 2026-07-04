@@ -349,13 +349,30 @@ body {
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* The overlay hides while empty (before a network is loaded it only shows
-   the waiting hint, which should stay a quiet unboxed line). */
+/* Before a network is loaded, #info holds only the waiting hint: present it as
+   a centered empty-state card over the canvas instead of a top-left line. */
 #info:not(:has(table)) {
-  background: none;
-  border: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -50%);
+  width: auto;
+  max-width: 340px;
+  max-height: none;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--arena-text-muted);
+  padding: 1.5rem 1.75rem;
+  border-radius: var(--arena-radius);
+}
+
+#info:not(:has(table))::before {
+  content: '◇';
+  display: block;
+  font-size: 1.6rem;
+  color: var(--arena-accent);
+  margin-bottom: 0.5rem;
 }
 
 /* #info itself stays click-through (hint text); the controls inside accept
@@ -367,10 +384,43 @@ body {
 
 #canvasControls_table {
   color: var(--bs-body-color);
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+#canvasControls_table h5 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--arena-text);
+  margin: 0.35rem 0;
+}
+
+#canvasControls_table #recenterButton {
+  width: 100%;
+  margin: 0.25rem 0 0.5rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.82rem;
+  color: var(--arena-text);
+  background: rgba(var(--arena-accent-rgb), 0.14);
+  border: 1px solid rgba(var(--arena-accent-rgb), 0.4);
+  border-radius: var(--arena-radius-sm);
+  transition:
+    background-color 0.15s var(--arena-ease),
+    border-color 0.15s var(--arena-ease);
+}
+
+#canvasControls_table #recenterButton:hover {
+  background: rgba(var(--arena-accent-rgb), 0.24);
+  border-color: var(--arena-accent);
 }
 
 .border_tr {
-  border-top: 10px solid lightgray;
+  border-top: 1px solid var(--arena-border-strong);
+}
+
+.border_tr td {
+  padding-top: 0.5rem;
 }
 
 .labelDrop {
@@ -570,19 +620,31 @@ body {
 
 #closeButton {
   position: absolute;
-  right: 0;
-  background-color: red;
-  border: 1px solid gray;
-  border-radius: 5px;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--arena-text-muted);
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--arena-border);
+  border-radius: var(--arena-radius-sm);
+  transition:
+    color 0.15s var(--arena-ease),
+    background-color 0.15s var(--arena-ease),
+    border-color 0.15s var(--arena-ease);
 }
 
 #closeButton:hover {
-  background-color: #ff756b;
-  border: 1px solid white;
+  color: #fff;
+  background-color: rgba(220, 70, 60, 0.85);
+  border-color: rgba(220, 70, 60, 0.9);
 }
 
 #closeButton:active {
-  background-color: #ab150a;
+  background-color: rgba(180, 40, 32, 0.9);
 }
 
 /* Footer — quiet translucent bar instead of v2's solid blue banner. */
