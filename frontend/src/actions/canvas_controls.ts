@@ -185,6 +185,7 @@ export function clickUp(event: MouseEvent): void {
       decideNodeLabelFlags()
       updateSelectedNodesStore()
       ctx.scene.remove(lasso)
+      lasso.geometry.dispose()
       lasso = null
     }
     shiftX = null
@@ -257,8 +258,13 @@ export function lassoSelectNodes(x: number, y: number): void {
   }
 }
 
+const lassoMaterial = new THREE.LineBasicMaterial({ color: '#eef1b6' })
+
 function createLassoGeometry(x: number, y: number): void {
-  if (lasso) ctx.scene!.remove(lasso)
+  if (lasso) {
+    ctx.scene!.remove(lasso)
+    lasso.geometry.dispose() // rebuilt every pointer move — don't accumulate
+  }
   const points = [
     new THREE.Vector3(shiftX!, shiftY!, 0),
     new THREE.Vector3(x, shiftY!, 0),
@@ -268,7 +274,7 @@ function createLassoGeometry(x: number, y: number): void {
   ]
   lasso = new THREE.Line(
     new THREE.BufferGeometry().setFromPoints(points),
-    new THREE.LineBasicMaterial({ color: '#eef1b6' })
+    lassoMaterial
   )
   ctx.scene!.add(lasso)
 }
