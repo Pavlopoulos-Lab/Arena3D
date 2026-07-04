@@ -128,6 +128,15 @@ body {
     box-shadow 0.15s var(--arena-ease);
 }
 
+/* The native dropdown popup (option list) renders with the OS default light
+   background, so inheriting only the light --arena-text made options
+   unreadable (light-on-light). Force an opaque dark background + light text. */
+.form-select option,
+.form-select optgroup {
+  background-color: var(--arena-surface-solid);
+  color: var(--arena-text);
+}
+
 .form-control:focus,
 .form-select:focus {
   background-color: rgba(255, 255, 255, 0.04);

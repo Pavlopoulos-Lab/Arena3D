@@ -29,4 +29,4 @@ Source: `REPORT_CODE_REVIEW.md` (commit 5f3a04a). One item = one commit. Check o
 
 ## UI
 
-- [ ] **U1. Fix unreadable select options** — layout/clustering/local-layout/topology-metric `<select class="form-select">` dropdowns (`frontend/src/ui/layouts.ts`) render light text on light background. Add explicit `color`/`background-color` for `select.form-select` and its `option`s in `frontend/src/style.css` so options are readable in all themes.
+- [x] **U1. Fix unreadable select options** — layout/clustering/local-layout/topology-metric `<select class="form-select">` dropdowns (`frontend/src/ui/layouts.ts`) render light text on light background. Add explicit `color`/`background-color` for `select.form-select` and its `option`s in `frontend/src/style.css` so options are readable in all themes.
