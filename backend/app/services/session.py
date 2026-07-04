@@ -57,9 +57,7 @@ def _validate(data: dict[str, Any]) -> None:
     layer_names = {row["name"] for row in layers}
     bad_layer = next((n["layer"] for n in nodes if n["layer"] not in layer_names), None)
     if bad_layer is not None:
-        raise SessionValidationError(
-            f"JSON node references unknown layer '{bad_layer}'."
-        )
+        raise SessionValidationError(f"JSON node references unknown layer '{bad_layer}'.")
     node_ids = {f"{n['name']}_{n['layer']}" for n in nodes}
     edges = data["edges"]
     if any(_empty(e.get("src")) or _empty(e.get("trg")) for e in edges):

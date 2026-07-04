@@ -61,7 +61,11 @@ async function onLoadSession(file: File): Promise<void> {
     const session = await api.importSession(file)
     loadSession(session)
     const warnings = session.warnings ?? []
-    status(warnings.length ? `Session loaded. ${warnings.join(' ')}` : 'Session loaded.')
+    status(
+      warnings.length
+        ? `Session loaded. ${warnings.join(' ')}`
+        : 'Session loaded.'
+    )
     showTab('#panel-main-view') // reveal the scene; drawer toggle shows closed
   } catch (err) {
     status(err instanceof Error ? err.message : 'Session load failed.', true)
