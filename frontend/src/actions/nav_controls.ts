@@ -183,15 +183,17 @@ function axisRowsHtml(
 }
 
 const INFO_HTML = `
-  1. <b>Zoom</b>: Mouse Wheel<br/>
-  2. <b>Pan</b>: Click Drag Scene / Arrow Keys<br/>
-  3. <b>Orbit</b>: Mouse Middle Drag<br/>
-  4. <b>Drag Layer</b>: Click Drag<br/>
-  5. <b>Rotate Layer</b>: <span class='blue'>Z</span> / <span class='red'>X</span> / <span class='green'>C</span> + Click Drag<br/>
-  6. <b>Move Selected Nodes</b>: <span class='blue'>Z</span> / <span class='green'>C</span> + Click Drag<br/>
-  7. <b>Node/Layer Selection</b>: Double Click<br/>
-  8. <b>Lasso Nodes</b>: Shift + Click Drag<br/>
-  9. <b>Unselect All Nodes</b>: Double Click Scene
+  <ul id="navShortcuts">
+    <li><span>Zoom</span><span><kbd>Wheel</kbd></span></li>
+    <li><span>Pan</span><span><kbd>Drag</kbd> / <kbd>&#8592;&#8593;&#8594;&#8595;</kbd></span></li>
+    <li><span>Orbit</span><span><kbd>Middle Drag</kbd></span></li>
+    <li><span>Drag Layer</span><span><kbd>Drag</kbd></span></li>
+    <li><span>Rotate Layer</span><span><kbd class='blue'>Z</kbd><kbd class='red'>X</kbd><kbd class='green'>C</kbd> + <kbd>Drag</kbd></span></li>
+    <li><span>Move Selected Nodes</span><span><kbd class='blue'>Z</kbd><kbd class='green'>C</kbd> + <kbd>Drag</kbd></span></li>
+    <li><span>Select Node/Layer</span><span><kbd>Dbl Click</kbd></span></li>
+    <li><span>Lasso Nodes</span><span><kbd>Shift</kbd> + <kbd>Drag</kbd></span></li>
+    <li><span>Unselect All</span><span><kbd>Dbl Click</kbd> Scene</span></li>
+  </ul>
   <table id="canvasControls_table"><tbody>
     <tr><td colspan="4"><h5>Scene</h5></td></tr>
     <tr><td colspan="4">Rotation Controls</td></tr>
