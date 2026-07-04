@@ -11,7 +11,12 @@ const RAYVECTOR = new THREE.Vector3()
 const RAYDIR = new THREE.Vector3()
 
 export function setRenderer(): void {
-  ctx.renderer = new THREE.WebGLRenderer({ antialias: true })
+  ctx.renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    powerPreference: 'high-performance',
+  })
+  // Cap DPR at 2: full retina sharpness, avoids 3x+ fill-rate cost on mobile.
+  ctx.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 }
 
 export function resetScreen(): void {
@@ -44,6 +49,8 @@ export function setCamera(): void {
 }
 
 export function resizeRenderer(): void {
+  // Re-read DPR too: the window may have moved between monitors.
+  ctx.renderer?.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   ctx.renderer?.setSize(2 * ctx.xBoundMax, 2 * ctx.yBoundMax)
 }
 
