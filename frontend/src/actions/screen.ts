@@ -110,6 +110,22 @@ export function registerAnimateHook(fn: () => void): void {
   animateHooks.push(fn)
 }
 
+// Labels are DOM overlays positioned from world coordinates, refreshed only
+// when their flags are raised. Any scene-level transform (pan, orbit, zoom,
+// auto-rotate) moves everything under the scene sphere, so watch its world
+// matrix and re-flag the labels when it changes.
+const lastSphereMatrix = new THREE.Matrix4()
+function flagLabelsOnSceneMove(): void {
+  const sphere = ctx.scene?.sphere
+  if (!sphere) return
+  sphere.updateWorldMatrix(true, false)
+  if (!lastSphereMatrix.equals(sphere.matrixWorld)) {
+    lastSphereMatrix.copy(sphere.matrixWorld)
+    ctx.renderLayerLabelsFlag = true
+    ctx.renderNodeLabelsFlag = true
+  }
+}
+
 // FPS-limited render loop. Pure rAF (no setTimeout) so the browser can
 // align frames with vsync and auto-pause when the tab is hidden; the
 // timestamp check enforces ctx.fps as an upper bound.
@@ -121,6 +137,7 @@ export function animate(now = 0): void {
   // Snap to the frame grid so throttled rates stay even (e.g. 30 on 60Hz).
   lastFrameTime = now - ((now - lastFrameTime) % interval)
 
+  flagLabelsOnSceneMove()
   renderInterLayerEdges()
   for (const fn of animateHooks) fn()
   renderFrame()
