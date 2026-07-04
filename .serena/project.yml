@@ -31,8 +31,12 @@ project_name: "Arena3Dweb"
 # When using multiple languages, the first language server that supports a given file will be used for that file.
 # The first language is the default language and the respective language server will be used as a fallback.
 # Note that when using the JetBrains backend, language servers are not used and this list is correspondingly ignored.
+# R dropped: legacy code being deleted through the v3 migration, and its LSP
+# (R `languageserver` package) isn't installed — its failure aborted the whole
+# language-server manager. Active dev is TS (frontend) + Python (backend).
 languages:
-- r
+- typescript
+- python
 
 # the encoding used by text files in the project
 # For a list of possible encodings, see https://docs.python.org/3.11/library/codecs.html#standard-encodings

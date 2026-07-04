@@ -5,32 +5,38 @@ requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.30.0",
-    "networkx>=3.3",
-    "scipy>=1.14.0",
-    "python-louvain>=0.16",
+    "igraph>=0.11.0",
     "pandas>=2.2.0",
     "pydantic>=2.8.0",
+    "python-multipart>=0.0.9",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "httpx>=0.27.0",
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",
     "mypy>=1.11.0",
     "ruff>=0.6.0",
+    "pandas-stubs>=3.0.3.260530",
 ]
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# ruff config lives in backend/; legacy R-side scripts live above it (../www) — never lint those
+extend-exclude = ["../www", "../functions", "../views", "../config"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"  # numpy/pandas stubs require 3.12+ type syntax
 strict = true
+
+[[tool.mypy.overrides]]
+module = "igraph.*"
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

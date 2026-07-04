@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "eslint src",
     "format": "prettier --write src",
@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",
+    "@types/bootstrap": "^5.2.11",
     "@types/three": "^0.170.0",
     "eslint": "^9.0.0",
     "prettier": "^3.0.0",

@@ -2,27 +2,20 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Active Migration
+Arena3Dweb is a web application for interactive 3D visualization of multilayered networks: **FastAPI backend** (Python, `uv`) + **Vite / TypeScript / Three.js frontend** (npm).
 
-This repository is being migrated from R/Shiny to FastAPI + Vite + TypeScript + Three.js (npm).
-
-- **`SPEC.md`** — architecture decisions, chosen stack, design patterns, API contract, and rationale. Read this first to understand why things are structured the way they are.
-- **`PLAN.md`** — phased implementation checklist with checkboxes. Check this to see what has been done and what remains before starting any work.
-- **`MIGRATION.md`** — maps each old R/Shiny file to its new equivalent; old files are deleted only after their replacement is tested.
-
-If you are on the `v3` branch, the presence of old R/Shiny files (`server.R`, `functions/`, `views/`, `www/js/`) means those pieces have not been ported yet — they are the living specification for what the new code should do.
+The app was migrated from R/Shiny to this stack. All R/Shiny source is gone; the migration history lives in:
+- **`SPEC.md`** — architecture decisions, chosen stack, design patterns, API contract, and rationale.
+- **`PLAN.md`** — phased implementation checklist (essentially complete).
+- **`MIGRATION.md`** — old R/Shiny file → new equivalent map (all rows done).
 
 ## Running the App
 
-### v3 (FastAPI + Vite — active development, `v3` branch)
-
-**Backend:**
+**Backend** (package management via `uv` — no manual venv/pip):
 ```bash
 cd backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload   # http://localhost:8000
+uv sync                                  # installs deps + dev group into .venv
+uv run uvicorn app.main:app --reload     # http://localhost:8000
 ```
 
 **Frontend:**
@@ -39,7 +32,7 @@ docker-compose up
 
 **Backend tests:**
 ```bash
-cd backend && pytest
+cd backend && uv run pytest
 ```
 
 **Frontend tests:**
@@ -48,63 +41,37 @@ cd frontend && npm test          # Vitest unit tests
 cd frontend && npm run test:e2e  # Playwright E2E
 ```
 
-**Lint / format:**
+**Lint / format / typecheck:**
 ```bash
-cd backend && ruff check . && ruff format .
-cd frontend && npm run lint && npm run format
-```
-
----
-
-### v2 (R/Shiny — legacy, `main` branch)
-
-**From RStudio:**
-1. Open `Arena3Dweb.Rproj`
-2. Open `server.R`, select "Run External", click "Run App"
-
-**Via Docker:**
-```bash
-docker pull pavlopouloslab/arena3dweb
-docker run -p 3838:3838 pavlopouloslab/arena3dweb
-```
-
-**From R CLI:**
-```r
-shiny::runApp('.')
+cd backend && uv run ruff check . && uv run ruff format . && uv run mypy app
+cd frontend && npm run lint && npm run format && npx tsc --noEmit
 ```
 
 ## Architecture Overview
 
-This is an **R/Shiny + Three.js** web application for interactive 3D visualization of multilayered networks.
+### Backend (`backend/app/`)
+Stateless FastAPI — the frontend holds all scene state; the server validates input and runs the graph algorithms.
 
-### R/Shiny Layer (backend)
-- `global.R` — loaded once; imports libraries
-- `ui.R` — loads all JS/CSS, defines the navbar tab layout (Home, File, Layer Selection & Layouts, Scene Actions, Layer Actions, Node Actions, Edge Actions, View Data, FPS, Help)
-- `server.R` — wires all `observeEvent` handlers; calls `initializeServerApp()` on startup
-- `views/` — one R file per UI tab (e.g. `file.R`, `layer.R`), each exporting a `generate*Div()` function
-- `functions/` — server-side logic split by domain:
-  - `input.R` — network file upload and validation
-  - `init.R` — app startup: pushes global constants to JS, attaches download handler
-  - `js_handling.R` — helpers to sync JS state back to Shiny inputs
-  - `render.R` — modal/error/warning rendering
-  - `general.R`, `reset.R`, `edges.R`, `vr.R` — domain-specific handlers
-  - `igraph/` — layout, clustering, topology metric calculations using igraph
-- `config/` — R-side variables (`global_variables.R`, `server_variables.R`, `static_variables.R`, `ui_variables.R`)
+- `main.py` — app + router registration; `config.py` — constants (limits, palettes, scale targets) served at `GET /api/config`.
+- `models/` — Pydantic request/response models (`network`, `layout`, `topology`, `session`, `attributes`).
+- `routers/` — one per endpoint: `config`, `network` (TSV upload), `layout`, `topology`, `session` (import/export), `external` (token-shared sessions), `attributes` (node/edge attribute files).
+- `services/` — logic: `parser` (TSV parse/validate), `graph` (igraph construction + scopes), `layouts` (11 layout algos), `clustering` (4 community algos, optional layout step), `topology` (Degree / Clustering Coefficient / Betweenness), `session`, `attributes`.
+- Algorithms use **python-igraph** — same C core as R's igraph, so layouts/clustering/topology port 1:1.
 
-### JavaScript Layer (frontend, `www/js/`)
-- **Three.js** (`three/three.js`) — core 3D rendering engine; `matrix4.js` and `drag_controls.js` are Three.js add-ons
-- **Classes** (`classes/`) — `Scene`, `Layer`, `Node`, `Edge` — OOP wrappers around Three.js objects
-- **Object actions** (`object_actions/`) — functions for each entity type: `screen.js`, `network.js`, `layout.js`, `layer.js`, `node.js`, `edge.js`, `labels.js`, `themes.js`, `canvas_controls.js`, `right_click_menu.js`
-- **Shiny bridge** — `rshiny_handlers.js` registers all `Shiny.addCustomMessageHandler("handler_*", ...)` callbacks; `rshiny_update.js` sends data from JS back to Shiny
-- **Config** (`config/`) — `global_variables.js` (runtime globals initialized from R via `handler_initializeGlobals`), `static_variables.js` (constants like color palettes, geometry sizes)
-- `general.js` — utility functions; `event_listeners.js` — mouse/keyboard events; `on_page_load.js` — Three.js canvas setup
+### Frontend (`frontend/src/`)
+- `main.ts` — entry point: fetch config → set up Three.js → mount canvas → wire panels + listeners → `animate()`. Exposes `window.__arena = { ctx, history }` as a Playwright test hook (the WebGL canvas is opaque to the a11y tree).
+- `three/` — `Scene`, `Layer`, `Node`, `Edge` classes on npm `three` r170; `runtime.ts` holds the shared mutable `ctx` (replaces v2 ambient globals); `constants.ts` static geometry/palette constants.
+- `actions/` — one module per domain (`network`, `layout`, `layer`, `node`, `edge`, `labels`, `themes`, `screen`, `canvas_controls`, `nav_controls`, `drag_controls`, `right_click_menu`, `session`). These mutate the object model + `ctx`.
+- `commands/` — `Command` interface + `CommandHistory` (undo/redo); `scene.ts` holds the concrete commands. Every scene mutation that should be undoable routes through a command.
+- `ui/` — one module per navbar panel (`home`, `file`, `layouts`, `scene`, `layer`, `node`, `edge`, `data`, `fps`, `help`), each filling its `#panel-*` pane with Bootstrap DOM and wiring controls to `actions`/`commands`.
+- `bus/` — typed `EventBus` singleton (returns unsubscribe fns); `store/` — typed `AppState` store. Together they replace the old Shiny input/output sync.
+- `api/client.ts` — hand-written typed client mirroring the Pydantic models.
 
-### R ↔ JS Communication Pattern
-- **R → JS**: `session$sendCustomMessage("handler_*", payload)` in R calls the registered handler in `rshiny_handlers.js`
-- **JS → R**: Shiny input updates (e.g. `Shiny.setInputValue`) trigger `observeEvent` handlers in `server.R`
-- Constants (MAX_LAYERS, MAX_EDGES, MAX_CHANNELS, channel colors) are defined in R config and pushed to JS globals at startup via `handler_initializeGlobals`
+### Communication
+- **Frontend → backend**: `api.*` calls to `/api/*` (network parse, layout, topology, session, attributes).
+- **Within frontend**: components emit/subscribe on the `EventBus` and read/write the `store`; the render loop reacts to `ctx` flags (`renderInterLayerEdgesFlag`, label flags, etc.).
 
 ### Network Data Model
-- Networks are uploaded as TSV with mandatory columns: `SourceNode`, `SourceLayer`, `TargetNode`, `TargetLayer` (optional: `Weight`, `Channel`, edge color columns)
-- Sessions are exported/imported as JSON containing full node/edge/layer state
-- The REST API endpoint accepts a URL parameter to load a network directly from an external application
+- Networks upload as TSV with mandatory columns `SourceNode`, `SourceLayer`, `TargetNode`, `TargetLayer` (optional: `Weight`, `Channel`, edge color columns).
+- Node/edge attribute files add per-node color/size/url/description and per-edge (optionally per-channel) color.
+- Sessions export/import as JSON with full node/edge/layer/scene state. `POST /api/external` returns a token URL so another app can hand off a session.

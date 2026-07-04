@@ -1,12 +1,220 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Arena3Dweb</title>
   </head>
   <body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top" id="navBar">
+      <div class="container-fluid">
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarTabs"
+          aria-controls="navbarTabs"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarTabs">
+          <ul class="navbar-nav" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-home"
+                type="button"
+                role="tab"
+              >
+                Home
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-main-view"
+                type="button"
+                role="tab"
+              >
+                Main View
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-file"
+                type="button"
+                role="tab"
+              >
+                File
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-layouts"
+                type="button"
+                role="tab"
+              >
+                Layer Selection &amp; Layouts
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-scene"
+                type="button"
+                role="tab"
+              >
+                Scene Actions
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-layer"
+                type="button"
+                role="tab"
+              >
+                Layer Actions
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-node"
+                type="button"
+                role="tab"
+              >
+                Node Actions
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-edge"
+                type="button"
+                role="tab"
+              >
+                Edge Actions
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-data"
+                type="button"
+                role="tab"
+              >
+                View Data
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-fps"
+                type="button"
+                role="tab"
+              >
+                FPS
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#panel-help"
+                type="button"
+                role="tab"
+              >
+                Help
+              </button>
+            </li>
+          </ul>
+          <div class="ms-auto" role="group" aria-label="Undo and redo">
+            <button
+              id="undoButton"
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              title="Undo (Ctrl+Z)"
+              disabled
+            >
+              &#x21b6; Undo
+            </button>
+            <button
+              id="redoButton"
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              title="Redo (Ctrl+Shift+Z)"
+              disabled
+            >
+              &#x21b7; Redo
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Panel panes overlay the canvas; each views/*.R port fills its pane. -->
+    <div class="tab-content" id="panelContent">
+      <div
+        class="tab-pane fade show active"
+        id="panel-home"
+        role="tabpanel"
+      ></div>
+      <!-- Main View is intentionally empty: selecting it just reveals the canvas. -->
+      <div class="tab-pane fade" id="panel-main-view" role="tabpanel"></div>
+      <div class="tab-pane fade" id="panel-file" role="tabpanel"></div>
+      <div class="tab-pane fade" id="panel-layouts" role="tabpanel"></div>
+      <div class="tab-pane fade" id="panel-scene" role="tabpanel"></div>
+      <div class="tab-pane fade" id="panel-layer" role="tabpanel"></div>
+      <div class="tab-pane fade" id="panel-node" role="tabpanel"></div>
+      <div class="tab-pane fade" id="panel-edge" role="tabpanel"></div>
+      <div class="tab-pane fade" id="panel-data" role="tabpanel"></div>
+      <div class="tab-pane fade" id="panel-fps" role="tabpanel"></div>
+      <div class="tab-pane fade" id="panel-help" role="tabpanel"></div>
+    </div>
+
+    <button
+      id="panelDrawerToggle"
+      type="button"
+      class="panel-drawer-toggle"
+      aria-label="Hide panel"
+      style="display: none"
+    ></button>
+
+    <div id="navControlButtonsDiv"></div>
+    <div id="themeDiv"></div>
+    <div id="info">
+      No network loaded yet. Open the <b>File</b> tab to upload a network or
+      load an example.
+    </div>
+    <div id="loader"></div>
     <div id="app"></div>
+    <div id="labelDiv"></div>
+    <div id="descrDiv"></div>
+    <footer>
+      &copy; <span id="footer-year"></span>
+      <a href="https://sites.google.com/site/pavlopoulossite" target="_blank"
+        >Bioinformatics and Integrative Biology Lab</a
+      >
+      |
+      <a href="https://www.fleming.gr" target="_blank"
+        >Biomedical Sciences Research Center "Alexander Fleming"</a
+      >
+    </footer>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
