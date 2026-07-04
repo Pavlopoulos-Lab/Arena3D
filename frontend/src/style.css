@@ -222,9 +222,10 @@ body {
   }
 }
 
-/* Home and Help are full-width reading surfaces, not scene controls. */
-#panel-home,
-#panel-help {
+/* Home and Help are full-width reading surfaces, not scene controls.
+   Selector carries two ids to out-specify the base .tab-pane drawer rule. */
+#panelContent #panel-home,
+#panelContent #panel-help {
   left: 0;
   width: auto;
   background-color: var(--bs-body-bg);
@@ -613,9 +614,137 @@ footer a:hover {
 #logo1 {
   background-image: url(/images/logo.png);
   background-repeat: no-repeat;
-  width: 200px;
-  height: 48px;
-  margin-bottom: 10px;
+  background-size: contain;
+  width: 220px;
+  height: 52px;
+}
+
+/* Home panel ---------------------------------------------------------------- */
+.home-wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-bottom: 4rem;
+}
+
+.home-hero {
+  padding: 0.5rem 0 1.75rem;
+  border-bottom: 1px solid var(--arena-border);
+  margin-bottom: 2rem;
+}
+
+.home-tagline {
+  margin: 0.75rem 0 0;
+  font-size: 1.05rem;
+  color: var(--arena-text-muted);
+  letter-spacing: 0.01em;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.home-figure {
+  margin: 0;
+  border: 1px solid var(--arena-border);
+  border-radius: var(--arena-radius);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.home-figure img {
+  display: block;
+  width: 100%;
+}
+
+.home-intro p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--arena-text);
+  max-width: 62ch;
+}
+
+.home-actions {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.home-action {
+  display: block;
+  padding: 0.85rem 1.05rem;
+  border: 1px solid var(--arena-border-strong);
+  border-radius: var(--arena-radius);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.02);
+  transition:
+    transform 0.15s var(--arena-ease),
+    border-color 0.15s var(--arena-ease),
+    background-color 0.15s var(--arena-ease);
+}
+
+.home-action:hover {
+  transform: translateY(-2px);
+  border-color: var(--arena-accent);
+  background: rgba(var(--arena-accent-rgb), 0.08);
+}
+
+.home-action--primary {
+  border-color: rgba(var(--arena-accent-rgb), 0.55);
+  background: rgba(var(--arena-accent-rgb), 0.12);
+}
+
+.home-action__title {
+  display: block;
+  font-weight: 600;
+  color: var(--arena-text);
+}
+
+.home-action__sub {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--arena-text-muted);
+  margin-top: 0.15rem;
+}
+
+.home-cite {
+  margin-top: 2.75rem;
+  padding: 1.5rem 1.6rem;
+  border: 1px solid var(--arena-border);
+  border-radius: var(--arena-radius);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.home-cite__heading {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--arena-text-muted);
+  margin: 0 0 1rem;
+}
+
+.home-cite p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--arena-text-muted);
+  margin-bottom: 1rem;
+}
+
+.home-cite p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  #panel-home {
+    padding: 1.25rem 1rem;
+  }
+  .home-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
 }
 
 /* Help panel — inner tab bar + content (port of v2 arena3dweb.css help rules). */
