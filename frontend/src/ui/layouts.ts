@@ -102,14 +102,14 @@ function buildLayerCheckboxes(): void {
   container.innerHTML = ''
   ctx.layers.forEach((layer, i) => {
     const row = document.createElement('div')
-    row.className = 'form-check-inline'
+    row.className = 'layer-row'
     row.innerHTML = `
       <input class="form-check-input layer_checkbox" type="checkbox" id="checkbox_${i}" ${layer.isSelected ? 'checked' : ''} />
-      <label class="form-check-label layer_label me-2" for="checkbox_${i}">${layer.name}</label>
-      <input class="form-check-input hideLayer_checkbox" type="checkbox" id="checkbox2_${i}" />
-      <label class="form-check-label me-2" for="checkbox2_${i}">Hide</label>
-      <input class="form-check-input showLayerNodes_checkbox" type="checkbox" id="checkbox3_${i}" />
-      <label class="form-check-label" for="checkbox3_${i}">Labels</label>
+      <label class="form-check-label layer_label layer-row__name" for="checkbox_${i}">${layer.name}</label>
+      <label class="form-check-label layer-row__opt" for="checkbox2_${i}">
+        <input class="form-check-input hideLayer_checkbox" type="checkbox" id="checkbox2_${i}" />Hide</label>
+      <label class="form-check-label layer-row__opt" for="checkbox3_${i}">
+        <input class="form-check-input showLayerNodes_checkbox" type="checkbox" id="checkbox3_${i}" />Labels</label>
     `
     const [sel, hide, labels] = row.querySelectorAll('input')
     sel.addEventListener('change', () => selectLayer(i, sel.checked))

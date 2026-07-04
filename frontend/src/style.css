@@ -240,6 +240,59 @@ body {
   width: min(680px, 96vw);
 }
 
+/* Inside a drawer the old responsive column wrappers would shrink content to a
+   fraction of the (already narrow) drawer — let panel content use full width. */
+#panelContent .tab-pane:not(#panel-home):not(#panel-help) [class*='col-'] {
+  flex: 0 0 100%;
+  max-width: 100%;
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Per-layer selection rows: name on the left, Hide/Labels toggles on the right,
+   never wrapping into an unreadable pile in the narrow drawer. */
+.layer-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.55rem;
+  margin-bottom: 0.3rem;
+  border: 1px solid var(--arena-border);
+  border-radius: var(--arena-radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.15s var(--arena-ease);
+}
+
+.layer-row:hover {
+  border-color: var(--arena-border-strong);
+}
+
+.layer-row__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  margin: 0;
+}
+
+.layer-row__opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex: 0 0 auto;
+  font-size: 0.8rem;
+  color: var(--arena-text-muted);
+  margin: 0;
+  cursor: pointer;
+}
+
+.layer-row__opt .form-check-input {
+  margin: 0;
+}
+
 /* Main View has no panel content: keep it invisible so the canvas shows. */
 #panel-main-view {
   display: none !important;
