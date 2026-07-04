@@ -87,6 +87,7 @@ const ARROW_CODES: Record<string, number> = {
 // on z/x/c axis select (held-key layer/node transforms) or arrow-key pan
 export function keyPressed(event: KeyboardEvent): void {
   if (!ctx.scene?.exists()) return
+  if (event.ctrlKey || event.metaKey) return // Ctrl+Z etc. aren't axis holds
   const key = event.key.toLowerCase()
   if (key === 'z' || key === 'x' || key === 'c') ctx.scene.axisPressed = key
   else if (event.key in ARROW_CODES) {
