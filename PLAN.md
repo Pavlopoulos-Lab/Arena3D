@@ -5,7 +5,7 @@ Source: `REPORT_CODE_REVIEW.md` (commit 5f3a04a). One item = one commit. Check o
 ## High
 
 - [x] **H1. Wire external session handoff** — in `frontend/src/main.ts`, parse `new URLSearchParams(location.search).get('session')`; if present, call `api.resolveExternal(token)` and `loadSession()` after setup. E2E test: POST a session to `/api/external`, open returned URL, assert network loaded.
-- [ ] **H2. Validate session referential integrity** — in `backend/app/services/session.py _validate`: reject node.layer ∉ layer names and edge src/trg ∉ node ids (HTTP 400). Unit tests for both.
+- [x] **H2. Validate session referential integrity** — in `backend/app/services/session.py _validate`: reject node.layer ∉ layer names and edge src/trg ∉ node ids (HTTP 400). Unit tests for both.
 - [ ] **H3. Fix `setChannelVisibility` arrow lookup** — in `frontend/src/actions/edge.ts`, replace positional `children[j + 1]` with lookup by `userData.tag === channel` + ArrowHelper type; toggle all matches, drop the fragile interleave assumption.
 
 ## Medium

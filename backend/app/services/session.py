@@ -47,9 +47,27 @@ def _validate(data: dict[str, Any]) -> None:
     nodes = data["nodes"]
     if any(_empty(n.get("name")) or _empty(n.get("layer")) for n in nodes):
         raise SessionValidationError("JSON nodes must each have a non-empty name and layer.")
+    # Referential integrity: the frontend parents every node to layerGroups[layer]
+    # and resolves edge endpoints against the node registry, so a dangling
+    # reference crashes the scene build. Reject it here with a 400 instead.
+    layer_names = {row["name"] for row in layers}
+    bad_layer = next((n["layer"] for n in nodes if n["layer"] not in layer_names), None)
+    if bad_layer is not None:
+        raise SessionValidationError(
+            f"JSON node references unknown layer '{bad_layer}'."
+        )
+    node_ids = {f"{n['name']}_{n['layer']}" for n in nodes}
     edges = data["edges"]
     if any(_empty(e.get("src")) or _empty(e.get("trg")) for e in edges):
         raise SessionValidationError("JSON edges must each have a non-empty src and trg.")
+    bad_edge = next(
+        (e for e in edges if e["src"] not in node_ids or e["trg"] not in node_ids),
+        None,
+    )
+    if bad_edge is not None:
+        raise SessionValidationError(
+            f"JSON edge references unknown node ({bad_edge['src']} -> {bad_edge['trg']})."
+        )
 
 
 def _handle_channels(edges: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[str]]:

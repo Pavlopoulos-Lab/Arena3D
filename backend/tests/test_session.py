@@ -54,6 +54,20 @@ def test_empty_layer_name_raises() -> None:
         normalize_session(bad)
 
 
+def test_node_referencing_unknown_layer_raises() -> None:
+    bad = _minimal()
+    bad["nodes"] = [{"name": "A", "layer": "L1"}, {"name": "B", "layer": "MISSING"}]
+    with pytest.raises(SessionValidationError):
+        normalize_session(bad)
+
+
+def test_edge_referencing_unknown_node_raises() -> None:
+    bad = _minimal()
+    bad["edges"] = [{"src": "A_L1", "trg": "GHOST_L1"}]
+    with pytest.raises(SessionValidationError):
+        normalize_session(bad)
+
+
 def test_channels_dropped_when_partial() -> None:
     s = _minimal()
     s["edges"] = [
