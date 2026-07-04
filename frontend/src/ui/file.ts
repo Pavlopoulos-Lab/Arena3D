@@ -6,6 +6,7 @@ import { loadNetwork, loadSession } from '../actions/network'
 import { applyNodeAttributes } from '../actions/node'
 import { startLoader, finishLoader } from '../actions/screen'
 import { exportSession } from '../actions/session'
+import { showTab } from './tabs'
 
 const FILE_HTML = `
 <div class="col-md-6 col-lg-4">
@@ -46,6 +47,7 @@ async function onUploadNetwork(file: File): Promise<void> {
     status(
       `Loaded network: ${data.layers.length} layers, ${data.nodes.length} nodes.`
     )
+    showTab('#panel-main-view') // reveal the scene; drawer toggle shows closed
   } catch (err) {
     status(err instanceof Error ? err.message : 'Network upload failed.', true)
   } finally {
@@ -59,6 +61,7 @@ async function onLoadSession(file: File): Promise<void> {
     const session = await api.importSession(file)
     loadSession(session)
     status('Session loaded.')
+    showTab('#panel-main-view') // reveal the scene; drawer toggle shows closed
   } catch (err) {
     status(err instanceof Error ? err.message : 'Session load failed.', true)
   } finally {
