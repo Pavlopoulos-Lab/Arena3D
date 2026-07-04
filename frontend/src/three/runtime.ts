@@ -95,7 +95,7 @@ const winH = typeof window !== 'undefined' ? window.innerHeight : 800
 export const ctx: RuntimeContext = {
   renderer: null,
   camera: null,
-  fps: 30,
+  fps: 60,
 
   xBoundMin: -winW / 2,
   xBoundMax: winW / 2,
