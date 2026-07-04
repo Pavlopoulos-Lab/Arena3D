@@ -223,6 +223,44 @@ body {
   }
 }
 
+/* Collapse handle for the right-side drawer: sits on the seam between the
+   open drawer and the canvas, or on the viewport edge once the drawer is
+   closed, so a panel can be dismissed/reopened without the navbar tabs. */
+.panel-drawer-toggle {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 6; /* above the drawer's z-index 5 */
+  width: 20px;
+  height: 64px;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--arena-text-muted);
+  background-color: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-right: 0;
+  border-radius: var(--arena-radius-sm) 0 0 var(--arena-radius-sm);
+  box-shadow: var(--arena-shadow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition:
+    right 0.28s var(--arena-ease),
+    color 0.15s var(--arena-ease),
+    background-color 0.15s var(--arena-ease);
+}
+
+.panel-drawer-toggle:hover {
+  color: var(--arena-text);
+  background-color: var(--arena-elevated);
+}
+
+.panel-drawer-toggle.is-open {
+  color: var(--arena-accent);
+}
+
 /* Home and Help are full-width reading surfaces, not scene controls.
    Selector carries two ids to out-specify the base .tab-pane drawer rule. */
 #panelContent #panel-home,

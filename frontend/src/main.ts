@@ -17,6 +17,7 @@ import { initEdgePanel } from './ui/edge'
 import { initFpsPanel } from './ui/fps'
 import { initDataPanel } from './ui/data'
 import { initHelpPanel } from './ui/help'
+import { registerDrawerToggle } from './ui/drawer_toggle'
 import { store } from './store'
 import { ctx, Scene } from './three'
 import { history } from './commands/base'
@@ -63,6 +64,7 @@ async function main(): Promise<void> {
   initFpsPanel()
   initDataPanel()
   initHelpPanel()
+  registerDrawerToggle()
   registerGlobalListeners()
   registerThemeListener()
   registerLabelRendering()
