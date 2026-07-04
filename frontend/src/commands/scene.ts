@@ -13,6 +13,7 @@ import {
   COLOR_VECTOR_280,
   snapshotRegistries,
   restoreRegistries,
+  disposeSnapshot,
   type RegistrySnapshot,
 } from '../three'
 
@@ -319,5 +320,12 @@ export class LoadNetworkCommand implements Command {
   undo(): void {
     if (this.prev) restoreRegistries(this.prev)
     this.emitLoaded()
+  }
+
+  dispose(): void {
+    // Only `next` is exclusively ours (built by this command); `prev` may be
+    // shared with earlier history entries. disposeSnapshot no-ops if the
+    // scene is still the live one.
+    if (this.next) disposeSnapshot(this.next)
   }
 }

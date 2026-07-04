@@ -223,6 +223,28 @@ export function snapshotRegistries(): RegistrySnapshot {
   }
 }
 
+// Free GPU resources of a snapshot whose scene graph became unreachable
+// (e.g. a redo entry discarded by a new command). Never call on a snapshot
+// whose scene is still live (ctx.scene) or still reachable from undo history.
+export function disposeSnapshot(snapshot: RegistrySnapshot): void {
+  const scene = snapshot.scene
+  if (!scene || scene === ctx.scene) return
+  scene.THREE_Object.traverse((obj) => {
+    const mesh = obj as Partial<THREE.Mesh> & THREE.Object3D
+    if (mesh.geometry) mesh.geometry.dispose()
+    const materials = Array.isArray(mesh.material)
+      ? mesh.material
+      : mesh.material
+        ? [mesh.material]
+        : []
+    for (const mat of materials) {
+      const tex = (mat as THREE.Material & { map?: THREE.Texture }).map
+      tex?.dispose()
+      mat.dispose()
+    }
+  })
+}
+
 export function restoreRegistries(s: RegistrySnapshot): void {
   ctx.scene = s.scene
   ctx.layers = s.layers
