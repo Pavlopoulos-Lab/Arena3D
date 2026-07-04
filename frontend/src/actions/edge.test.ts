@@ -106,6 +106,32 @@ describe('channels', () => {
     expect(line?.visible).toBe(false)
     expect(ctx.channelVisibility['ch1']).toBe(false)
   })
+
+  it('toggles the right channel when a sibling channel has no arrow', () => {
+    // ch1 has weight 0 -> opacity 0 -> no arrow drawn; ch2 keeps its arrow.
+    // The old positional children[j+1] lookup corrupted ch1's line here.
+    ctx.isDirectionEnabled = true
+    ctx.channelColors = { ch1: '#ff0000', ch2: '#00ff00' }
+    ctx.channelVisibility = { ch1: true, ch2: true }
+    ctx.edgeObjects = [
+      new Edge({
+        id: 0,
+        source: 'A_L1',
+        target: 'B_L2',
+        weights: [0, 1],
+        channels: ['ch1', 'ch2'],
+        colors: ['#ff0000', '#00ff00'],
+        interLayer: true,
+      }),
+    ]
+    setChannelVisibility('ch2', false)
+    const children = ctx.edgeObjects[0].THREE_Object.children
+    for (const c of children) {
+      if (c.userData.tag === 'ch2') expect(c.visible).toBe(false)
+      if (c.userData.tag === 'ch1') expect(c.visible).toBe(true)
+    }
+    ctx.isDirectionEnabled = false
+  })
 })
 
 describe('applyEdgeAttributes', () => {

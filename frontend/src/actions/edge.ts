@@ -76,19 +76,17 @@ export function setChannelColor(channel: string, color: string): void {
 }
 
 // v2 toggleChannelVisibility minus the DOM checkbox (checked = hidden there;
-// this takes `visible` directly).
+// this takes `visible` directly). Both the curve line and its arrow carry
+// userData.tag = channel, so match by tag rather than assuming a fixed
+// line/arrow interleave — arrows are skipped for zero-opacity channels, which
+// broke the old positional children[j+1] lookup.
 export function setChannelVisibility(channel: string, visible: boolean): void {
   for (const edge of ctx.edgeObjects) {
-    const children = edge.THREE_Object.children
-    for (let j = 0; j < children.length; j++) {
-      if (children[j].userData.tag === channel) {
-        children[j].visible = visible
-        if (ctx.isDirectionEnabled) children[j + 1].visible = visible // arrow
-        ctx.channelVisibility[channel] = visible
-        break // only one channel allowed per edge
-      }
+    for (const child of edge.THREE_Object.children) {
+      if (child.userData.tag === channel) child.visible = visible
     }
   }
+  ctx.channelVisibility[channel] = visible
 }
 
 export function unselectAllEdges(): void {
