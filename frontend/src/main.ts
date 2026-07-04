@@ -27,7 +27,7 @@ import { registerLayerDragControls } from './actions/drag_controls'
 import { registerLabelRendering } from './actions/labels'
 import { registerNavControls } from './actions/nav_controls'
 import { setRenderer, resetScreen, animate } from './actions/screen'
-import { registerThemeListener } from './actions/themes'
+import { registerThemeButtons, registerThemeListener } from './actions/themes'
 import { registerGlobalListeners } from './event_listeners'
 
 async function main(): Promise<void> {
@@ -67,6 +67,7 @@ async function main(): Promise<void> {
   registerDrawerToggle()
   registerGlobalListeners()
   registerThemeListener()
+  registerThemeButtons()
   registerLabelRendering()
   registerCanvasControls()
   registerLayerDragControls()

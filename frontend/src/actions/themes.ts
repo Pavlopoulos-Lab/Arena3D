@@ -4,6 +4,8 @@
 // /api/config (v2 CHANNEL_COLORS_LIGHT/DARK).
 
 import { bus } from '../bus'
+import { history } from '../commands/base'
+import { ChangeThemeCommand } from '../commands/scene'
 import { store } from '../store'
 import { ctx } from '../three'
 import { assignChannelColorsFromPalette, redrawIntraLayerEdges } from './edge'
@@ -74,4 +76,40 @@ export function applyTheme(name: string, fromInit = false): void {
 // Called once from main.ts.
 export function registerThemeListener(): void {
   bus.on('theme:changed', ({ theme }) => applyTheme(theme))
+}
+
+// Port of v2 attachThemeButtons: the fixed top-right Light/Dark/Gray bar.
+// Attached on first network load (themes only recolour a live scene), routed
+// through ChangeThemeCommand so theme switches are undoable.
+export function registerThemeButtons(): void {
+  const off = bus.on('network:loaded', () => {
+    attachThemeButtons()
+    off()
+  })
+}
+
+let currentTheme = 'dark' // matches the app's default dark chrome
+
+function attachThemeButtons(): void {
+  const themeDiv = document.getElementById('themeDiv')
+  if (!themeDiv || themeDiv.childElementCount > 0) return
+  for (const name of Object.keys(THEMES)) {
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.id = `${name}ThemeButton`
+    btn.className = 'themeButton'
+    btn.textContent = name.charAt(0).toUpperCase() + name.slice(1)
+    btn.addEventListener('click', () => {
+      history.execute(
+        new ChangeThemeCommand(
+          name,
+          () => currentTheme,
+          (t) => {
+            currentTheme = t
+          }
+        )
+      )
+    })
+    themeDiv.appendChild(btn)
+  }
 }

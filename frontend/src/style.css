@@ -400,6 +400,46 @@ body {
   color: #ffb454;
 }
 
+/* Theme bar (port of v2 #themeDiv/.themeButton): fixed top-right, one button
+   per THEMES preset, each previewing its own scene colors. */
+#themeDiv {
+  position: fixed;
+  top: 64px;
+  right: 10px;
+  z-index: 3;
+  display: flex;
+  gap: 4px;
+}
+
+.themeButton {
+  width: 56px;
+  padding: 3px 0;
+  font-size: 12px;
+  font-weight: bold;
+  border: 1px solid var(--arena-border);
+  border-radius: 6px;
+  transition: border-color 0.15s ease;
+}
+
+.themeButton:hover {
+  border-color: var(--arena-accent);
+}
+
+#lightThemeButton {
+  color: #5c5c5c;
+  background-color: #ffffff;
+}
+
+#darkThemeButton {
+  color: #ffffff;
+  background-color: #000000;
+}
+
+#grayThemeButton {
+  color: #6e2a5a;
+  background-color: #bababa;
+}
+
 #info {
   width: 258px;
   top: 150px; /* below the nav control buttons */
