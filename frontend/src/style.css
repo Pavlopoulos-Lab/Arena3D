@@ -307,17 +307,17 @@ body {
   z-index: 2;
   font-size: 12px;
   color: var(--bs-body-color);
-  pointer-events: none; /* passive hint text — must not block panel clicks */
 }
 
 /* Nav control buttons + Scene/Layers/Nodes control table (port of v2
    arena3dweb.css canvas-control rules; positions adapted to the fixed
-   navbar). */
+   navbar). Higher z-index than #info so the toggle/pause buttons are never
+   clipped by the controls panel below them, regardless of exact heights. */
 #navControlButtonsDiv {
   position: fixed;
   top: 64px;
   left: 10px;
-  z-index: 2;
+  z-index: 3;
 }
 
 .displayCanvasControls {
@@ -376,11 +376,11 @@ body {
   margin-bottom: 0.5rem;
 }
 
-/* #info itself stays click-through (hint text); the controls inside accept
-   clicks. */
-#info table,
-#info button {
-  pointer-events: auto;
+/* Before a network loads, #info is just passive hint text and must not block
+   canvas interaction. Once it holds the controls table it becomes a real
+   panel — including its own scrollbar — so it needs normal pointer events. */
+#info:not(:has(table)) {
+  pointer-events: none;
 }
 
 /* Navigation shortcut cheat-sheet: action left, keys right. */
