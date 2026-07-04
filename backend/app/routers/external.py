@@ -21,7 +21,6 @@ from app.services.session import SessionValidationError, normalize_session
 router = APIRouter()
 
 TTL_SECONDS = 24 * 60 * 60
-_BASE_URL = os.environ.get("ARENA_PUBLIC_URL", "")
 
 
 def _sweep() -> None:
@@ -49,7 +48,9 @@ async def create_external(session: dict[str, Any]) -> ExternalCreateResponse:
     token = secrets.token_urlsafe(16)
     with open(os.path.join(config.TMP_PATH, f"{token}.json"), "w") as fh:
         json.dump(session, fh)
-    return ExternalCreateResponse(token=token, url=f"{_BASE_URL}/?session={token}")
+    # read per request so redeploys / tests can change it without a restart
+    base_url = os.environ.get("ARENA_PUBLIC_URL", "")
+    return ExternalCreateResponse(token=token, url=f"{base_url}/?session={token}")
 
 
 @router.get("/api/external/{token}", response_model=SessionImportResponse)

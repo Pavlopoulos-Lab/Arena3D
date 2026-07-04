@@ -25,7 +25,7 @@ Source: `REPORT_CODE_REVIEW.md` (commit 5f3a04a). One item = one commit. Check o
 - [x] **L3. Don't arm axis keys with Ctrl held** — `canvas_controls.ts keyPressed`: ignore z/x/c when `ctrlKey || metaKey`.
 - [x] **L4. Single source of truth for theme** — write theme changes to `store` (or drop `AppState.currentTheme`); remove module-local duplicate in `themes.ts`.
 - [x] **L5. Fallback for unknown channel color** — `Edge.decideColor`: `ctx.channelColors[...] ?? ctx.edgeDefaultColor`.
-- [ ] **L6. `ARENA_PUBLIC_URL` read per request** — `external.py`: read env inside handler (or document the import-time constraint).
+- [x] **L6. `ARENA_PUBLIC_URL` read per request** — `external.py`: read env inside handler (or document the import-time constraint).
 
 ## UI
 
