@@ -6,7 +6,7 @@
 
 # Arena3D
 
-> Fully interactive, dependency-free 3D visualization of multilayered networks.
+> Interactive 3D visualization of multilayered networks.
 
 ---
 
@@ -15,7 +15,6 @@
 1. [Overview](#overview)
 2. [Key Features](#key-features)
 3. [Getting Started](#getting-started)
-
    * [Online Demo](#online-demo)
    * [Local Installation](#local-installation)
 4. [Example Data](#example-data)
@@ -27,20 +26,20 @@
 
 ## 📝 Overview
 
-Arena3D is a web application for visualizing multilayered graphs in 3D space. It pairs a **FastAPI** backend (Python + python-igraph for layouts, clustering, and topology metrics) with a **Vite / TypeScript / Three.js** frontend. Integrate multiple networks into a single scene, explore intra- and inter-layer connections, and manipulate the view in real time.
+Arena3D is a web application for visualizing multilayered graphs in 3D space. It pairs a **FastAPI** backend (Python + python-igraph for layouts, clustering, and topology metrics) with a **Vite / TypeScript / Three.js** frontend. Use it to integrate multiple networks into a single scene, explore intra- and inter-layer connections, and manipulate the view in real time.
 
 ---
 
 ## 🚀 Key Features
 
-* **Multi-layer integration**: Load and combine multiple network layers with cross-layer edges.
-* **3D Interactivity**: Translate, rotate, and scale the scene or individual layers.
+* **Multilayer integration**: Load and combine multiple network layers with cross-layer edges.
+* **3D interactivity**: Translate, rotate, and scale the scene or individual layers.
 * **Rich layouts & clustering**: Apply and customize 11 layouts (force-directed, circular, grid, …) and 4 clustering algorithms on selected layers.
-* **Dynamic styling**: Adjust node size, color, and edge colors on-the-fly to highlight important paths or topological features; upload node/edge attribute files.
-* **Themes & export**: Choose from premade themes; export/import sessions in JSON.
+* **Dynamic styling**: Adjust node size, color, and edge colors on the fly to highlight important paths or topological features; upload node/edge attribute files.
+* **Themes & export**: Choose from predefined themes; export/import sessions in JSON.
 * **Undo/redo**: Every scene mutation is undoable.
 * **Graph support**: Handle weighted/unweighted, directed/undirected, and multi-channel graphs up to 10,000 edges (online); unlimited locally.
-* **API access**: Open networks directly from external applications via REST endpoint.
+* **API access**: Open networks directly from external applications via the REST API.
 
 ---
 
@@ -60,7 +59,7 @@ cd Arena3D
 docker-compose up          # builds + runs backend (8000) and frontend (5173)
 ```
 
-For a single production image (nginx serving the built frontend + uvicorn):
+For a single production image (nginx serving the built frontend + Uvicorn):
 
 ```bash
 docker build -t arena3d .
@@ -106,14 +105,16 @@ npm run dev                            # http://localhost:5173 (/api proxied to 
 
 ## 📚 Citing Arena3D
 
-* **Arena3D<sup>web</sup>: interactive 3D visualization of multilayered networks**
-  Karatzas E., Baltoumas F.A., Panayiotou N.A., Schneider R., Pavlopoulos G.A.
-  *Nucleic Acids Research*, 2021;49(W1)\:W36–W45.
+The following publications refer to Arena3D under its former name, Arena3Dweb.
+
+* **Arena3D<sup>web</sup>: interactive 3D visualization of multilayered networks**  
+  Karatzas E., Baltoumas F.A., Panayiotou N.A., Schneider R., Pavlopoulos G.A.  
+  *Nucleic Acids Research*, 2021;49(W1):W36-W45.  
   doi: [10.1093/nar/gkab278](https://doi.org/10.1093/nar/gkab278)
 
-* **Arena3D<sup>web</sup>: interactive 3D visualization of multilayered networks supporting multiple directional information channels, clustering analysis and application integration**
-  Kokoli M., Karatzas E., Baltoumas F.A., Schneider R., Pafilis E., Paragkamian S., Doncheva N.T., Jensen L.J., Pavlopoulos G.A.
-  *NAR Genomics and Bioinformatics*, 2022;5(2)\:lqad053.
+* **Arena3D<sup>web</sup>: interactive 3D visualization of multilayered networks supporting multiple directional information channels, clustering analysis and application integration**  
+  Kokoli M., Karatzas E., Baltoumas F.A., Schneider R., Pafilis E., Paragkamian S., Doncheva N.T., Jensen L.J., Pavlopoulos G.A.  
+  *NAR Genomics and Bioinformatics*, 2022;5(2):lqad053.  
   doi: [10.1093/nargab/lqad053](https://doi.org/10.1093/nargab/lqad053)
 
 ---
