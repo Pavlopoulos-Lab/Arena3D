@@ -1,10 +1,10 @@
 <!-- Badges -->
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/pavlopouloslab/arena3dweb.svg)](https://hub.docker.com/r/pavlopouloslab/arena3dweb)
+[![Docker Pulls](https://img.shields.io/docker/pulls/pavlopouloslab/arena3dweb.svg)](https://hub.docker.com/r/pavlopouloslab/arena3d)
 [![Live Demo](https://img.shields.io/badge/demo-online-brightgreen)](https://www.arena3d.org)
-[![GitHub Repo](https://img.shields.io/badge/GitHub-PavlopoulosLab%2FArena3Dweb-blue)](https://github.com/PavlopoulosLab/Arena3Dweb)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-PavlopoulosLab%2FArena3D-blue)](https://github.com/PavlopoulosLab/Arena3D)
 
-# Arena3D<sup>web</sup>
+# Arena3D
 
 > Fully interactive, dependency-free 3D visualization of multilayered networks.
 
@@ -20,14 +20,14 @@
    * [Local Installation](#local-installation)
 4. [Example Data](#example-data)
 5. [Usage](#usage)
-6. [Citing Arena3D<sup>web</sup>](#citing-arena3dweb)
+6. [Citing Arena3D](#citing-arena3d)
 7. [License](#license)
 
 ---
 
 ## 📝 Overview
 
-Arena3D<sup>web</sup> is a web application for visualizing multilayered graphs in 3D space. It pairs a **FastAPI** backend (Python + python-igraph for layouts, clustering, and topology metrics) with a **Vite / TypeScript / Three.js** frontend. Integrate multiple networks into a single scene, explore intra- and inter-layer connections, and manipulate the view in real time.
+Arena3D is a web application for visualizing multilayered graphs in 3D space. It pairs a **FastAPI** backend (Python + python-igraph for layouts, clustering, and topology metrics) with a **Vite / TypeScript / Three.js** frontend. Integrate multiple networks into a single scene, explore intra- and inter-layer connections, and manipulate the view in real time.
 
 ---
 
@@ -55,16 +55,16 @@ Access the live app at: [https://www.arena3d.org](https://www.arena3d.org)
 #### Docker (Recommended)
 
 ```bash
-git clone https://github.com/PavlopoulosLab/Arena3Dweb.git
-cd Arena3Dweb
+git clone https://github.com/PavlopoulosLab/Arena3D.git
+cd Arena3D
 docker-compose up          # builds + runs backend (8000) and frontend (5173)
 ```
 
 For a single production image (nginx serving the built frontend + uvicorn):
 
 ```bash
-docker build -t arena3dweb .
-docker run -p 8080:8080 arena3dweb   # http://localhost:8080
+docker build -t arena3d .
+docker run -p 8080:8080 arena3d   # http://localhost:8080
 ```
 
 #### From Source
@@ -104,7 +104,7 @@ npm run dev                            # http://localhost:5173 (/api proxied to 
 
 ---
 
-## 📚 Citing Arena3D<sup>web</sup>
+## 📚 Citing Arena3D
 
 * **Arena3D<sup>web</sup>: interactive 3D visualization of multilayered networks**
   Karatzas E., Baltoumas F.A., Panayiotou N.A., Schneider R., Pavlopoulos G.A.

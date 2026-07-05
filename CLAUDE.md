@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Arena3Dweb is a web application for interactive 3D visualization of multilayered networks: **FastAPI backend** (Python, `uv`) + **Vite / TypeScript / Three.js frontend** (npm).
+Arena3D is a web application for interactive 3D visualization of multilayered networks: **FastAPI backend** (Python, `uv`) + **Vite / TypeScript / Three.js frontend** (npm).
 
 The app was migrated from R/Shiny to this stack. All R/Shiny source is gone; the migration history lives in:
 - **`SPEC.md`** — architecture decisions, chosen stack, design patterns, API contract, and rationale.

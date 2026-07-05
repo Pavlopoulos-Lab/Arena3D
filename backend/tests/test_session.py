@@ -20,7 +20,7 @@ def _minimal():
 
 
 def test_import_real_api_fixture() -> None:
-    fixture = DATA / "Arena3DwebApp_aspirin.json"
+    fixture = DATA / "Arena3DApp_aspirin.json"
     if not fixture.exists():
         pytest.skip("fixture missing")
     resp = client.post(

@@ -15,7 +15,7 @@ const HOME_HTML = `
     </figure>
     <div class="home-intro">
       <p>
-        Arena3D<sup>web</sup> is the first fully interactive, dependency-free web application for
+        Arena3D is the first fully interactive, dependency-free web application for
         visualizing multi-layered graphs in 3D space. Integrate multiple networks in a single view
         with their intra- and inter-layer connections, apply a wide range of layout algorithms to
         selected layers individually or in combination, and highlight topological features. Layers
@@ -37,7 +37,7 @@ const HOME_HTML = `
   </div>
 
   <section class="home-cite">
-    <h2 class="home-cite__heading">Please cite Arena3D<sup>web</sup></h2>
+    <h2 class="home-cite__heading">Please cite Arena3D</h2>
     <p>
       Kokoli, M., Karatzas, E., Baltoumas, F.A., Schneider, R., Pafilis, E., Paragkamian, S., Doncheva, N.T., Jensen, L.J.
       and Pavlopoulos, G., 2022.

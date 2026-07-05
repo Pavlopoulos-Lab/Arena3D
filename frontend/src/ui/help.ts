@@ -26,7 +26,7 @@ const HELP_HTML = `
     <img src="/images/help/file.png" alt="File Actions"
       style="float:left;width:282px;height:425px;margin:5px;margin-right:20px;">
     <span class="numbering"> 1.</span> The <i> Upload Network </i> option allows the user to upload network data in the
-    Arena3D<sup>web</sup> format. This file consists of 4 mandatory columns with headers <b><i>SourceNode, TargetNode,
+    Arena3D format. This file consists of 4 mandatory columns with headers <b><i>SourceNode, TargetNode,
         SourceLayer and TargetLayer</i></b> and 2 optional columns with the headers <b><i> Weight and Channel</i></b>.
     After the file is uploaded, the weight
     values are
@@ -35,9 +35,9 @@ const HELP_HTML = `
     weight column. The channel column is only used in the case of a multi-edge graphs. The column order in the input
     file is
     irrelevant. <br />In its online version,
-    Arena3D<sup>web</sup> supports networks of up to 5000 edges and 9 channels. For larger networks, one can
+    Arena3D supports networks of up to 5000 edges and 9 channels. For larger networks, one can
     download and run
-    Arena3D<sup>web</sup> locally from <a href="https://github.com/PavlopoulosLab/Arena3Dweb"
+    Arena3D locally from <a href="https://github.com/PavlopoulosLab/Arena3D"
       target="_blank">GitHub</a>, and manually adjust the <b><i>MAX_EDGES</i></b>, the
     <b><i>MAX_LAYERS</i></b> or
     <b><i>MAX_CHANNELS</i></b> variable in the global.R file. <br />
@@ -56,7 +56,7 @@ const HELP_HTML = `
     <span class="numbering">2.</span>).<br />
   </p>
 
-  <p>Example of the Arena3D<sup>web</sup> <i>Upload Network</i> file format.</p>
+  <p>Example of the Arena3D <i>Upload Network</i> file format.</p>
   <pre>SourceNode	SourceLayer	TargetNode	TargetLayer	Weight  Channel
 An	        Group1	        Cn	        Group1          2       1
 An	        Group1	        Bn	        Group1	        10      1
@@ -84,7 +84,7 @@ Kn	        Group4	        Sn	        Group7	        1       1
 Kn	        Group4	        Tn	        Group7	        10      1
   </pre><br />
 
-  <p>Example of the Arena3D<sup>web</sup> <i>Upload NODE attributes</i> file format. All columns are ommitable except
+  <p>Example of the Arena3D <i>Upload NODE attributes</i> file format. All columns are ommitable except
     from Node and Layer ones. Users do not need to mention every node, just the ones of interest.</p>
   <pre>Node	Layer	Color	Size	Url	Description
 An	Group1	#6b6a4c	1		This is a node's description.
@@ -103,7 +103,7 @@ Sn	Group7	#ffd8e8
 Tn	Group7		4
 </pre><br />
 
-  <p>Example of the Arena3D<sup>web</sup> <i>Upload EDGE attributes</i> file format. Optional column: Channel</p>
+  <p>Example of the Arena3D <i>Upload EDGE attributes</i> file format. Optional column: Channel</p>
   <pre>SourceNode	SourceLayer	TargetNode	TargetLayer	Color
 An	        Group1	        Cn	        Group1	        #4EFBE9
 Bn	        Group1	        Fn	        Group2	        #D64EFB
@@ -163,10 +163,10 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
 
 <div id="API_tab" class="tabcontent">
   <p>
-    To open Arena3D<sup>web</sup> from an external application, we offer an API that allows a <b>POST</b> request along
-    with an Arena3D<sup>web</sup> JSON object.
-    The API link is <b><u><i>https://bib.fleming.gr/bib/api/arena3dweb</i></u></b>. Don't forget to set the <b>Header
-      Content-Type</b> to <b>application/json</b>. The JSON object must follow the Arena3D<sup>web</sup> export format
+    To open Arena3D from an external application, we offer an API that allows a <b>POST</b> request along
+    with an Arena3D JSON object.
+    The API link is <b><u><i>https://bib.fleming.gr/bib/api/arena3d</i></u></b>. Don't forget to set the <b>Header
+      Content-Type</b> to <b>application/json</b>. The JSON object must follow the Arena3D export format
     as follows:
   </p>
   <h3>Simple 3-node, 2-edge, 2-layer network example</h3>
@@ -200,7 +200,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
 }
   </pre>
   <p>
-    The server then returns a JSON response with the url that links to the Arena3D<sup>web</sup> application, having the
+    The server then returns a JSON response with the url that links to the Arena3D application, having the
     requested network loaded:
   </p>
   <pre class="last_p">
@@ -212,17 +212,17 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
 </div>
 
 <div id="Cytoscape_tab" class="tabcontent">
-  <h3><a href="https://apps.cytoscape.org/apps/arena3DwebApp" target="_blank">
-      Arena3D<sup>web</sup>App</a> is now available in the <a href="https://apps.cytoscape.org/" target="_blank">
+  <h3><a href="https://apps.cytoscape.org/apps/arena3DApp" target="_blank">
+      Arena3DApp</a> is now available in the <a href="https://apps.cytoscape.org/" target="_blank">
       Cytoscape App Store</a>.</h3>
   <p>
     Users can now load their 2D <a href="https://cytoscape.org/download.html" target="_blank"> Cytoscape </a> network
     instantly
-    in Arena3D<sup>web</sup>.
+    in Arena3D.
     Take this aspirin network example, designed in Cytoscape via the StringApp.
   </p>
   <img src="/images/help/cytoscape_aspirin.png" alt="Cytoscape example" style="float:left;width:1200px;max-width:100%;">
-  <img src="/images/help/arena3dwebapp.png" alt="ArenaApp prompt window" style="float:left;width:500px;max-width:100%;">
+  <img src="/images/help/arena3dapp.png" alt="ArenaApp prompt window" style="float:left;width:500px;max-width:100%;">
   <p>
     The Arena3D<sup>web</sup>App prompt window asks for layer and description information in its dedicated panel.
     The most important setting is choosing which node attribute contains the layer information.
@@ -232,15 +232,15 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
     as well as the directionality, color, thickness, and transparency of the edges.
     The node label font and the network background are also transferred.
     The user can choose which column to use for the node description and URL
-    that can be seen in Arena3D<sup>web</sup> as additional node information (on node right-click).
+    that can be seen in Arena3D as additional node information (on node right-click).
     If there are nodes that do not participate in any named layer,
     they are added to a layer named "unassigned" by default, but the user can choose to not import them in
-    Arena3D<sup>web</sup>.
-    The app generates a JSON file that is automatically sent to Arena3D<sup>web</sup> and gets displayed in the user's
+    Arena3D.
+    The app generates a JSON file that is automatically sent to Arena3D and gets displayed in the user's
     default web browser.
     If users want to share the layered network or open it later, they can export the JSON file from Cytoscape and import
-    it in Arena3D<sup>web</sup>.
-    The generated Arena3D<sup>web</sup> should look something like this:
+    it in Arena3D.
+    The generated Arena3D should look something like this:
   </p>
   <img src="/images/help/arena_cytoscape_aspirin.png" alt="Arena Cytoscape Integration"
     style="float:left;width:1200px;max-width:100%;">
@@ -253,19 +253,19 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
 
   <p>
     <b>Random networks with different topologies mapped in 6 layers respectively: </b> <br />
-    The <a href="/data/figure1_data.tsv" download>example network</a> in the Arena3D<sup>web</sup> format. <br />
+    The <a href="/data/figure1_data.tsv" download>example network</a> in the Arena3D format. <br />
     An <a href="/data/figure1_export.json" download>exported state file</a> of this example. <br />
   </p>
   <hr>
   <p>
     <b>Network example with 4 layers: </b> <br />
-    The <a href="/data/figure2A_data.tsv" download>network file</a> in Arena3D<sup>web</sup> input format. <br />
+    The <a href="/data/figure2A_data.tsv" download>network file</a> in Arena3D input format. <br />
     An <a href="/data/figure2A_export.json" download>exported state file</a> of this example forming a cube in 3D space. <br />
   </p>
   <hr>
   <p>
     <b>Another network example with 4 layers, accompanied by node and edge attribute files: </b> <br />
-    The <a href="/data/figure2B_data.tsv" download>network file</a> in Arena3D<sup>web</sup> input format. <br />
+    The <a href="/data/figure2B_data.tsv" download>network file</a> in Arena3D input format. <br />
     <a href="/data/figure2B_data_node_attributes.tsv" download>Node attributes file</a> for this example.<br />
     <a href="/data/figure2B_data_edge_attributes.tsv" download>Edge attributes file</a> for this example. <br />
     An <a href="/data/figure2B_export.json" download>exported state file</a> of this example. <br />
@@ -275,7 +275,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
     <b>SARS-CoV-2 example: </b> <br />
     A <a href="/data/covid19_data.tsv" download>Covid-19 network</a> based on the work of
     <a href="https://www.nature.com/articles/s41586-020-2286-9" target="_blank">Gordon et al.</a>,
-    in the Arena3D<sup>web</sup> format. <br />
+    in the Arena3D format. <br />
     <a href="/data/covid19_data_node_attributes.tsv" download>Node attributes file</a> for this example.<br />
     <a href="/data/covid19_data_edge_attributes.tsv" download>Edge attributes file</a> for this example.<br />
     An <a href="/data/covid19_export.json" download>exported state file</a> of this example. <br />
@@ -283,7 +283,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
   <hr>
   <p>
     <b>GPCR example: </b> <br />
-    The <a href="/data/GPCRs_data.tsv" download>network file</a> in the Arena3D<sup>web</sup> format. <br />
+    The <a href="/data/GPCRs_data.tsv" download>network file</a> in the Arena3D format. <br />
     <a href="/data/GPCRs_data_node_attributes.tsv" download>Node attributes file</a> for this example.<br />
     <a href="/data/GPCRs_data_edge_attributes.tsv" download>Edge attributes file</a> for this example.<br />
     An <a href="/data/GPCRs_export.json" download>exported state file</a> of this example. <br />
@@ -291,27 +291,27 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
   <hr>
   <p>
     <b>Aspirin network example with 3 data channels: </b> <br />
-    The <a href="/data/aspirin_3channels.tsv" download>network file</a> in the Arena3D<sup>web</sup> format. <br />
+    The <a href="/data/aspirin_3channels.tsv" download>network file</a> in the Arena3D format. <br />
     An <a href="/data/aspirin_3channels_directed.json" download>exported state file</a> of this example. <br />
   </p>
   <hr>
   <p>
     <b><a href="https://imbbc.hcmr.gr/project/prego/" target="_blank"> PREGO </a> 3-channel example
       for 'anaerobic ammonium oxidation' process associations:</b> <br />
-    The <a href="/data/prego.tsv" download>network file</a> in the Arena3D<sup>web</sup> format. <br />
+    The <a href="/data/prego.tsv" download>network file</a> in the Arena3D format. <br />
     An <a href="/data/prego.json" download>exported state file</a> of this example. <br />
   </p>
   <hr>
   <p>
     <b>Cytoscape-Arena3D<sup>web</sup>App aspirin multi-channel interoperability example: </b> <br />
     The <a href="/data/StringApp_aspirin.cys" download>network file</a> in Cytoscape format. <br />
-    An <a href="/data/Arena3DwebApp_aspirin.json" download>exported state file</a> of this example in the
-    Arena3D<sup>web</sup> exported format. <br />
+    An <a href="/data/Arena3DApp_aspirin.json" download>exported state file</a> of this example in the
+    Arena3D exported format. <br />
   </p>
   <hr>
   <p>
     <b>Scripts: </b> <br />
-    A <a href="/data/transpose.py" download> Python script</a> for parsing edgelist data into Arena3D<sup>web</sup>
+    A <a href="/data/transpose.py" download> Python script</a> for parsing edgelist data into Arena3D
     format.<br />
     As an example, this input file:
   </p>
@@ -662,9 +662,9 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
     &#8226; Georgios A. Pavlopoulos, email: pavlopoulos@fleming.gr <br />
   </p>
 
-  <h2> Install Arena3D<sup>web</sup> </h2>
+  <h2> Install Arena3D </h2>
   <p>
-    <a href="https://github.com/pavlopouloslab/arena3dweb" target="_blank">Github </a>
+    <a href="https://github.com/pavlopouloslab/arena3d" target="_blank">Github </a>
     <br />
     <a href="https://hub.docker.com/r/pavlopouloslab/arena3dweb" target="_blank">DockerHub </a>
   </p>
@@ -684,7 +684,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
   </p>
 
   <br />
-  <h2> Cite Arena3D<sup>web</sup> </h2>
+  <h2> Cite Arena3D </h2>
   <p class="last_p">
    - Kokoli, M., Karatzas, E., Baltoumas, F.A., Schneider, R., Pafilis, E., Paragkamian, S., Doncheva, N.T., Jensen, L.J.
     and Pavlopoulos, G., 2022. <br />

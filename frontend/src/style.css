@@ -1,5 +1,5 @@
 /* App-level layout: fullscreen Three.js canvas with panel overlays.
-   Replaces v2 www/arena3dweb.css positioning hacks; per-panel rules land
+   Replaces v2 www/arena3d.css positioning hacks; per-panel rules land
    with their panels. */
 
 /* Design tokens shared by the 2D chrome so it reads as one system with the
@@ -357,7 +357,7 @@ body {
 }
 
 /* Nav control buttons + Scene/Layers/Nodes control table (port of v2
-   arena3dweb.css canvas-control rules; positions adapted to the fixed
+   arena3d.css canvas-control rules; positions adapted to the fixed
    navbar). Higher z-index than #info so the toggle/pause buttons are never
    clipped by the controls panel below them, regardless of exact heights. */
 #navControlButtonsDiv {

@@ -21,7 +21,7 @@ Full rewrite: migrated from R/Shiny to a **FastAPI (Python) backend + Vite / Typ
 
 ## [2.0.0] - 2023-04-13
 
-Initial public release — Arena3Dweb, an **R/Shiny + Three.js** web app for interactive 3D visualization of multilayered networks.
+Initial public release — Arena3D, an **R/Shiny + Three.js** web app for interactive 3D visualization of multilayered networks.
 
 - Interactive 3D rendering of multilayer networks (Three.js via R/Shiny).
 - TSV network upload; layer / node / edge styling.
