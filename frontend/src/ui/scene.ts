@@ -11,6 +11,7 @@ import {
   PredefinedLayoutCommand,
 } from '../commands/scene'
 import { isBloomEnabled, setBloomEnabled } from '../three/postprocessing'
+import { setMinimapVisible } from '../ui/minimap'
 import { applyPredefinedLayout, type PredefinedLayout } from '../actions/layout'
 
 const SCENE_HTML = `
@@ -23,9 +24,13 @@ const SCENE_HTML = `
     <input class="form-check-input" type="checkbox" id="autoRotateScene" />
     <label class="form-check-label" for="autoRotateScene">Enable Scene Auto Rotate</label>
   </div>
-  <div class="form-check mb-3">
+  <div class="form-check mb-2">
     <input class="form-check-input" type="checkbox" id="toggleBloom" />
     <label class="form-check-label" for="toggleBloom">Node Glow (dark backgrounds)</label>
+  </div>
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" id="toggleMinimap" checked />
+    <label class="form-check-label" for="toggleMinimap">Show Navigator (2D)</label>
   </div>
   <label class="form-label">Select Predefined Layout:</label>
   <div class="form-check">
@@ -83,6 +88,10 @@ export function initScenePanel(): void {
       setBloomEnabled((e.target as HTMLInputElement).checked)
     })
   }
+
+  document.getElementById('toggleMinimap')?.addEventListener('change', (e) => {
+    setMinimapVisible((e.target as HTMLInputElement).checked)
+  })
 
   document.getElementById('scene_color')?.addEventListener('change', (e) => {
     history.execute(

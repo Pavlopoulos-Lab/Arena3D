@@ -1076,3 +1076,20 @@ footer a:hover {
 #helpDiv .last_p {
   margin-bottom: 100px;
 }
+
+/* 2D navigator (satellite view): fixed bottom-right thumbnail of the network's
+   current projection. Click/drag it to pan the 3D view. */
+#minimap {
+  position: fixed;
+  right: 10px;
+  bottom: 30px;
+  z-index: 3;
+  background-color: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-radius: 8px;
+  padding: 4px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: crosshair;
+  line-height: 0;
+}
