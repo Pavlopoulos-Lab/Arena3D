@@ -270,6 +270,7 @@ export function translateNodesWithHeldKey(event: {
   }
   redrawIntraLayerEdges()
   ctx.renderInterLayerEdgesFlag = true
+  ctx.renderNodeLabelsFlag = true // labels follow the moved nodes
 }
 
 // v2 layer.js rotateLayersWithHeldKey — z/x/c + drag rotates selected layers.
