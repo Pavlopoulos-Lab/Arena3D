@@ -28,20 +28,24 @@ test('theme buttons attach on load and switch scene theme (undoable)', async ({
 
   await expect(page.locator('#themeDiv .themeButton')).toHaveCount(3)
 
-  await page.locator('#lightThemeButton').click()
+  // dispatchEvent, not click(): once a network loads the WebGL render loop
+  // saturates the main thread on headless CI, so Playwright's actionability
+  // wait (visible/stable/receives-events) times out. Firing the handler
+  // directly on the element sidesteps that and the drawer-overlay hit-test.
+  await page.locator('#lightThemeButton').dispatchEvent('click')
   expect(await page.evaluate(edgeColor())).toBe('#5c5c5c')
   // Regression: floor_color input is the picker-path source of truth, so a
   // theme toggle must update it — otherwise hover-exit repaint reverts layers
   // to the stale (dark) color.
   await expect(page.locator('#floor_color')).toHaveValue('#8aa185')
 
-  await page.locator('#grayThemeButton').click()
+  await page.locator('#grayThemeButton').dispatchEvent('click')
   expect(await page.evaluate(edgeColor())).toBe('#6e2a5a')
 
-  await page.locator('#darkThemeButton').click()
+  await page.locator('#darkThemeButton').dispatchEvent('click')
   expect(await page.evaluate(edgeColor())).toBe('#ffffff')
 
   // Undo walks back dark → gray.
-  await page.locator('#undoButton').click()
+  await page.locator('#undoButton').dispatchEvent('click')
   expect(await page.evaluate(edgeColor())).toBe('#6e2a5a')
 })
