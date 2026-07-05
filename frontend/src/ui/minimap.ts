@@ -80,23 +80,33 @@ let dragBefore: TransformSnapshot | null = null
 const _v = new THREE.Vector3()
 const _inv = new THREE.Matrix4()
 
+function layerVisible(nodeLayerName: string): boolean {
+  const i = ctx.layerGroups[ctx.nodeGroups[nodeLayerName]]
+  return ctx.layers[i]?.isVisible ?? true
+}
+
+// Project every node to pan-local (rotation-only) space, keyed by node index
+// so edges can reuse the points. Nodes on hidden layers become null: they drop
+// out of the fit, the dot loop, and (via the guard) any edge touching them.
+// Refreshes pan.matrixWorld into _inv as a side effect. ponytail: O(nodes)
+// every frame; fine for typical nets, gate behind a dirty-flag if huge.
+function projectNodes(): (Pt | null)[] {
+  ctx.scene!.pan!.updateWorldMatrix(true, false)
+  _inv.copy(ctx.scene!.pan!.matrixWorld).invert()
+  return ctx.nodeObjects.map((n) => {
+    if (!layerVisible(n.nodeLayerName)) return null
+    _v.copy(n.getWorldPosition()).applyMatrix4(_inv)
+    return { x: _v.x, y: _v.y }
+  })
+}
+
 function draw(): void {
   if (!enabled || !hasNetwork || !g || !canvas) return
   const scene = ctx.scene
   if (!scene?.pan || ctx.nodeObjects.length === 0) return
 
-  scene.pan.updateWorldMatrix(true, false)
-  _inv.copy(scene.pan.matrixWorld).invert()
-
-  // Project every node to pan-local (rotation-only) space, keyed by index so
-  // edges can reuse the points. ponytail: O(nodes+edges) redraw every frame;
-  // fine for typical nets, gate behind a dirty-flag if huge nets stutter.
-  const local: Pt[] = []
-  for (const n of ctx.nodeObjects) {
-    _v.copy(n.getWorldPosition()).applyMatrix4(_inv)
-    local.push({ x: _v.x, y: _v.y })
-  }
-  const fit = computeFit(local)
+  const local = projectNodes()
+  const fit = computeFit(local.filter((p): p is Pt => p !== null))
 
   g.clearRect(0, 0, W, H)
 
@@ -116,7 +126,9 @@ function draw(): void {
   g.stroke()
 
   for (let i = 0; i < ctx.nodeObjects.length; i++) {
-    const p = project(local[i].x, local[i].y, fit)
+    const pt = local[i]
+    if (!pt) continue
+    const p = project(pt.x, pt.y, fit)
     g.fillStyle = ctx.nodeObjects[i].getColor()
     g.beginPath()
     g.arc(p.x, p.y, 1.5, 0, Math.PI * 2)
@@ -149,13 +161,8 @@ function drawViewportBox(fit: Fit): void {
 function panToCanvasPoint(px: number, py: number): void {
   const scene = ctx.scene
   if (!scene?.pan) return
-  scene.pan.updateWorldMatrix(true, false)
-  _inv.copy(scene.pan.matrixWorld).invert()
-  const local: Pt[] = ctx.nodeObjects.map((n) => {
-    _v.copy(n.getWorldPosition()).applyMatrix4(_inv)
-    return { x: _v.x, y: _v.y }
-  })
-  const l = unproject(px, py, computeFit(local))
+  const fit = computeFit(projectNodes().filter((p): p is Pt => p !== null))
+  const l = unproject(px, py, fit)
   const s = scene.getScale()
   scene.setPosition('x', -s * l.x)
   scene.setPosition('y', -s * l.y)
