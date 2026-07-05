@@ -55,17 +55,36 @@ let transformDragged = false
 // Scene.zoom) and easeZoomStep lerps toward it each frame. Users with
 // prefers-reduced-motion get the old instant zoom.
 let zoomTarget: number | null = null
+// World point (pan-space) under the cursor to keep fixed while zooming.
+let zoomAnchorX = 0
+let zoomAnchorY = 0
 const reducedMotion = (): boolean =>
   typeof window !== 'undefined' &&
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+// Shift pan so the anchor stays under the cursor as scale goes from -> to.
+// Ortho camera + full-window frustum means world units == centered pixels,
+// and the pan node scales about its own origin, so anchoring is pure math.
+function anchorZoom(from: number, to: number): void {
+  const ratio = to / from
+  for (const axis of ['x', 'y'] as const) {
+    const anchor = axis === 'x' ? zoomAnchorX : zoomAnchorY
+    const pos = ctx.scene!.getPosition(axis)
+    ctx.scene!.setPosition(axis, anchor + (pos - anchor) * ratio)
+  }
+}
+
 // on mouse wheel scroll
 export function sceneZoom(event: WheelEvent): void {
   if (!ctx.scene?.exists()) return
   event.preventDefault() // keep the page from scrolling (v2 initializeCanvasDiv)
+  zoomAnchorX = (event.offsetX ?? ctx.xBoundMax) - ctx.xBoundMax
+  zoomAnchorY = ctx.yBoundMax - (event.offsetY ?? ctx.yBoundMax)
   if (reducedMotion()) {
+    const from = ctx.scene.getScale()
     ctx.scene.zoom(event.deltaY)
+    anchorZoom(from, ctx.scene.getScale())
     return
   }
   const current = zoomTarget ?? ctx.scene.getScale()
@@ -76,13 +95,12 @@ export function sceneZoom(event: WheelEvent): void {
 export function easeZoomStep(): void {
   if (zoomTarget === null || !ctx.scene?.exists()) return
   const scale = ctx.scene.getScale()
-  const next = scale + (zoomTarget - scale) * 0.25
-  if (Math.abs(next - zoomTarget) < 0.001) {
-    ctx.scene.setScale(zoomTarget)
-    zoomTarget = null
-  } else {
-    ctx.scene.setScale(next)
-  }
+  let next = scale + (zoomTarget - scale) * 0.25
+  const done = Math.abs(next - zoomTarget) < 0.001
+  if (done) next = zoomTarget
+  anchorZoom(scale, next)
+  ctx.scene.setScale(next)
+  if (done) zoomTarget = null
 }
 
 export function resetZoomTarget(): void {
