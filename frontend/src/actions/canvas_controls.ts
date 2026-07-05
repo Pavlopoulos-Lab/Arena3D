@@ -8,6 +8,12 @@ import * as THREE from 'three'
 import { bus } from '../bus'
 import { ctx } from '../three'
 import { registerAnimateHook } from './screen'
+import { history } from '../commands/base'
+import {
+  captureTransforms,
+  TransformCommand,
+  type TransformSnapshot,
+} from '../commands/scene'
 import { redrawIntraLayerEdges, unselectAllEdges } from './edge'
 import {
   checkHoverOverLayer,
@@ -38,6 +44,12 @@ let shiftY: number | null = null
 let lasso: THREE.Line | null = null
 
 type CanvasMouseEvent = MouseEvent & { layerX: number; layerY: number }
+
+// Mouse drags (pan, orbit, held-key node/layer transforms) register one undo
+// entry per drag: snapshot on press, command pushed on release if a transform
+// branch actually ran (lasso/selection drags don't count).
+let dragBefore: TransformSnapshot | null = null
+let transformDragged = false
 
 // Smooth wheel zoom: the wheel sets a target scale (same 0.2–2 bounds as
 // Scene.zoom) and easeZoomStep lerps toward it each frame. Users with
@@ -103,6 +115,10 @@ export function axisRelease(): void {
 // mouse: 0 left, 1 middle, 2 right click
 export function clickDown(event: CanvasMouseEvent): void {
   if (!ctx.scene?.exists()) return
+  if (event.button === 0 || event.button === 1) {
+    dragBefore = captureTransforms()
+    transformDragged = false
+  }
   if (event.button === 0) {
     ctx.scene.leftClickPressed = true
     ctx.scene.middleClickPressed = false
@@ -150,18 +166,27 @@ export function clickDrag(event: CanvasMouseEvent): void {
           event.layerX - ctx.xBoundMax,
           ctx.yBoundMax - event.layerY
         )
-      } else if (ctx.scene.axisPressed !== '' && getSelectedNodes().length > 0)
+      } else if (
+        ctx.scene.axisPressed !== '' &&
+        getSelectedNodes().length > 0
+      ) {
         translateNodesWithHeldKey(event)
-      else if (ctx.scene.axisPressed !== '') rotateLayersWithHeldKey(event)
-      else if (
+        transformDragged = true
+      } else if (ctx.scene.axisPressed !== '') {
+        rotateLayersWithHeldKey(event)
+        transformDragged = true
+      } else if (
         ctx.lastHoveredLayerIndex === null &&
         ctx.lastHoveredNodeIndex === null
-      )
+      ) {
         ctx.scene.translatePanWithMouse(x, y)
+        transformDragged = true
+      }
     } else if (ctx.scene.middleClickPressed) {
       ctx.scene.dragging = true
       event.preventDefault()
       ctx.scene.orbitSphereWithMouse(x, y)
+      transformDragged = true
     }
 
     ctx.mousePreviousX = x
@@ -186,6 +211,13 @@ export function processPendingHover(): void {
 export function clickUp(event: MouseEvent): void {
   if (!ctx.scene?.exists()) return
   ctx.scene.dragging = false
+  if (dragBefore && transformDragged) {
+    history.execute(
+      new TransformCommand('Drag scene', dragBefore, captureTransforms())
+    )
+  }
+  dragBefore = null
+  transformDragged = false
   if (event.button === 0) {
     ctx.scene.leftClickPressed = false
     removeContextMenu() // v2 removed the right-click options list here

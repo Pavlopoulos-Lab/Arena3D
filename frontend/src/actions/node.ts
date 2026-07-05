@@ -154,7 +154,14 @@ export function selectNodesByName(search: string): void {
   updateSelectedNodesStore()
 }
 
+let currentNodeShape: NodeGeometryType = 'sphere'
+
+export function getNodeShape(): NodeGeometryType {
+  return currentNodeShape
+}
+
 export function setNodeShape(shape: NodeGeometryType): void {
+  currentNodeShape = shape
   for (const node of ctx.nodeObjects) node.setGeometry(shape)
 }
 

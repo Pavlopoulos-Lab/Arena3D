@@ -7,6 +7,7 @@
 import type { MeshBasicMaterial } from 'three'
 import { store } from '../store'
 import { ctx, SELECTED_LAYER_DEFAULT_COLOR } from '../three'
+import { LAYER_DEFAULT_COLOR } from '../three/constants'
 import type { ColorPrioritySource } from '../three'
 import { findIndexByUuid } from '../utils'
 import { decideNodeLabelFlags } from './node'
@@ -37,9 +38,20 @@ export function getSelectedLayers(): number[] {
   return ctx.layers.filter((l) => l.isSelected).map((l) => l.id)
 }
 
+// Last floor-picker color applied. Tracked so ChangeFloorColorCommand can
+// recover the previous value on undo — the DOM color input already holds the
+// new value by the time its 'change' event fires, so it can't be read back.
+let lastFloorColor = LAYER_DEFAULT_COLOR
+
+export function getLastFloorColor(): string {
+  return lastFloorColor
+}
+
 // `pickerColor` overrides the DOM color input (themes.ts passes the theme's
 // floor color; the input itself only exists once Phase 13 builds the UI).
 export function repaintLayers(pickerColor?: string): void {
+  if (ctx.layerColorPrioritySource === 'picker' && pickerColor)
+    lastFloorColor = pickerColor
   for (const layer of ctx.layers) {
     if (layer.isSelected) layer.setColor(SELECTED_LAYER_DEFAULT_COLOR)
     else if (ctx.layerColorPrioritySource === 'default')

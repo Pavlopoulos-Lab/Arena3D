@@ -5,11 +5,13 @@ import { showNodeLabels, resizeNodeLabels } from '../actions/labels'
 import {
   selectAllNodes,
   selectNodesByName,
-  setNodeShape,
+  getNodeShape,
   setNodeColorPriority,
   setNodeSelectedColorPriority,
 } from '../actions/node'
 import type { NodeGeometryType } from '../three/Node'
+import { history } from '../commands/base'
+import { ChangeNodeGeometryCommand } from '../commands/scene'
 
 const NODE_HTML = `
 <div class="col-md-6 col-lg-4">
@@ -105,7 +107,12 @@ export function initNodePanel(): void {
     'input[name="nodeGeometryRadio"]'
   )) {
     radio.addEventListener('change', () => {
-      setNodeShape(radio.value as NodeGeometryType)
+      history.execute(
+        new ChangeNodeGeometryCommand(
+          radio.value as NodeGeometryType,
+          getNodeShape()
+        )
+      )
     })
   }
 

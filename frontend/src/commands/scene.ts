@@ -5,9 +5,19 @@
 // the API and computing final positions/scales is the job of the Phase 11
 // actions, which construct these commands with the results.
 
+import { Color } from 'three'
 import { bus } from '../bus'
 import type { Command } from './base'
-import { redrawIntraLayerEdges, redrawInterLayerEdges } from '../actions/edge'
+import {
+  redrawIntraLayerEdges,
+  redrawInterLayerEdges,
+  setChannelColor,
+} from '../actions/edge'
+import { setRendererColor } from '../actions/screen'
+import { repaintLayers, getLastFloorColor } from '../actions/layer'
+import { createLabels } from '../actions/labels'
+import { setNodeShape } from '../actions/node'
+import type { NodeGeometryType } from '../three/Node'
 import {
   ctx,
   COLOR_VECTOR_280,
@@ -309,16 +319,18 @@ export class LoadNetworkCommand implements Command {
   execute(): void {
     if (this.next === null) {
       this.prev = snapshotRegistries()
-      this.build()
+      this.build() // build() rebuilds the label divs itself
       this.next = snapshotRegistries()
     } else {
       restoreRegistries(this.next)
+      createLabels() // restore only swaps the 3D registries — relabel the DOM
     }
     this.emitLoaded()
   }
 
   undo(): void {
     if (this.prev) restoreRegistries(this.prev)
+    createLabels() // clears the label divs when rewinding to the empty scene
     this.emitLoaded()
   }
 
@@ -327,5 +339,261 @@ export class LoadNetworkCommand implements Command {
     // shared with earlier history entries. disposeSnapshot no-ops if the
     // scene is still the live one.
     if (this.next) disposeSnapshot(this.next)
+  }
+}
+
+// --- DOM sync helpers (undo/redo must reflect back into the panels) --------
+
+function syncRadio(name: string, value: string | null): void {
+  if (typeof document === 'undefined') return
+  for (const radio of document.querySelectorAll<HTMLInputElement>(
+    `input[name="${name}"]`
+  ))
+    radio.checked = radio.value === value
+}
+
+function checkedRadio(name: string): string | null {
+  if (typeof document === 'undefined') return null
+  return (
+    document.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)
+      ?.value ?? null
+  )
+}
+
+function syncInput(id: string, value: string): void {
+  if (typeof document === 'undefined') return
+  const el = document.getElementById(id) as HTMLInputElement | null
+  if (el) el.value = value
+}
+
+// --- Whole-scene transform snapshot (nav controls, predefined layouts) -----
+
+type Quat = [number, number, number, number]
+
+export interface TransformSnapshot {
+  scene: { pan: Vec3; quaternion: Quat; scale: number } | null
+  // `labelPos` is the layer's label sphere (layer.sphere) position — scaleLayers
+  // moves it along with the node meshes, so it must be restored too.
+  layers: {
+    position: Vec3
+    quaternion: Quat
+    scale: number
+    labelPos: Vec3 | null
+  }[]
+  nodes: { position: Vec3; scale: number }[]
+}
+
+export function captureTransforms(): TransformSnapshot {
+  const s = ctx.scene?.exists() ? ctx.scene : null
+  return {
+    scene: s
+      ? {
+          pan: {
+            x: s.getPosition('x'),
+            y: s.getPosition('y'),
+            z: s.getPosition('z'),
+          },
+          quaternion: s.getQuaternion().toArray(),
+          scale: s.getScale(),
+        }
+      : null,
+    layers: ctx.layers.map((l) => ({
+      position: l.plane.position.clone(),
+      quaternion: l.plane.quaternion.toArray(),
+      scale: l.getScale(),
+      labelPos: l.sphere ? l.sphere.position.clone() : null,
+    })),
+    nodes: ctx.nodeObjects.map((n) => ({
+      position: {
+        x: n.getPosition('x'),
+        y: n.getPosition('y'),
+        z: n.getPosition('z'),
+      },
+      scale: n.getScale(),
+    })),
+  }
+}
+
+function applyTransforms(t: TransformSnapshot): void {
+  if (t.scene && ctx.scene?.exists()) {
+    ctx.scene.setPosition('x', t.scene.pan.x)
+    ctx.scene.setPosition('y', t.scene.pan.y)
+    ctx.scene.setPosition('z', t.scene.pan.z)
+    ctx.scene.getQuaternion().fromArray(t.scene.quaternion)
+    ctx.scene.setScale(t.scene.scale)
+  }
+  t.layers.forEach((l, i) => {
+    const layer = ctx.layers[i]
+    if (!layer) return
+    layer.plane.position.set(l.position.x, l.position.y, l.position.z)
+    layer.plane.quaternion.fromArray(l.quaternion)
+    layer.setScale(l.scale)
+    if (l.labelPos && layer.sphere)
+      layer.sphere.position.set(l.labelPos.x, l.labelPos.y, l.labelPos.z)
+  })
+  t.nodes.forEach((n, i) => {
+    const node = ctx.nodeObjects[i]
+    if (!node) return
+    node.setPosition('x', n.position.x)
+    node.setPosition('y', n.position.y)
+    node.setPosition('z', n.position.z)
+    node.setScale(n.scale)
+  })
+  redrawIntraLayerEdges()
+  ctx.renderInterLayerEdgesFlag = true
+  ctx.renderLayerLabelsFlag = true
+  ctx.renderNodeLabelsFlag = true
+}
+
+// Generic before/after transform command. The mutation has already run when
+// the command is pushed (hold-to-repeat buttons, sliders), so execute() is a
+// re-apply of `after` — idempotent on first push, the redo path afterwards.
+export class TransformCommand implements Command {
+  // `onApply` runs after undo/redo to re-sync DOM the snapshot doesn't cover
+  // (e.g. the scale sliders + their value labels).
+  constructor(
+    public description: string,
+    private readonly before: TransformSnapshot,
+    private readonly after: TransformSnapshot,
+    private readonly onApply?: () => void
+  ) {}
+
+  execute(): void {
+    applyTransforms(this.after)
+    this.onApply?.()
+  }
+  undo(): void {
+    applyTransforms(this.before)
+    this.onApply?.()
+  }
+}
+
+export class PredefinedLayoutCommand implements Command {
+  description: string
+  private readonly before = captureTransforms()
+  private readonly oldRadio = checkedRadio('predefined_layout')
+
+  constructor(
+    private readonly layout: string,
+    private readonly applyFn: () => void
+  ) {
+    this.description = `Apply ${layout} layout`
+  }
+
+  execute(): void {
+    this.applyFn()
+    syncRadio('predefined_layout', this.layout)
+  }
+
+  undo(): void {
+    applyTransforms(this.before)
+    syncRadio('predefined_layout', this.oldRadio)
+  }
+}
+
+export class ChangeBackgroundColorCommand implements Command {
+  description: string
+  private readonly oldColor: string
+
+  constructor(private readonly newColor: string) {
+    this.oldColor = `#${ctx.renderer!.getClearColor(new Color()).getHexString()}`
+    this.description = `Change background color to ${newColor}`
+  }
+
+  private apply(color: string): void {
+    setRendererColor(color)
+    syncInput('scene_color', color)
+  }
+
+  execute(): void {
+    this.apply(this.newColor)
+  }
+  undo(): void {
+    this.apply(this.oldColor)
+  }
+}
+
+export class ChangeFloorColorCommand implements Command {
+  description: string
+  private readonly oldColors = ctx.layers.map((l) => l.color)
+  private readonly oldPriority = ctx.layerColorPrioritySource
+  private readonly oldRadio = checkedRadio('layerColorPriorityRadio')
+  // The DOM color input already holds newColor when its 'change' event fires,
+  // so the previous picker value is read from the tracked last-applied color.
+  private readonly oldPicker = getLastFloorColor()
+
+  constructor(private readonly newColor: string) {
+    this.description = `Change floor color to ${newColor}`
+  }
+
+  execute(): void {
+    // v2 repaintLayersFromPicker: picking a color switches priority to picker.
+    ctx.layerColorPrioritySource = 'picker'
+    syncInput('floor_color', this.newColor)
+    syncRadio('layerColorPriorityRadio', 'picker')
+    repaintLayers(this.newColor)
+  }
+
+  undo(): void {
+    ctx.layerColorPrioritySource = this.oldPriority
+    syncInput('floor_color', this.oldPicker)
+    syncRadio('layerColorPriorityRadio', this.oldRadio)
+    if (this.oldPriority === 'picker') {
+      // Re-apply the previous picker color through repaintLayers so the tracked
+      // last-floor-color rewinds too (keeps a following undo consistent).
+      repaintLayers(this.oldPicker)
+    } else {
+      ctx.layers.forEach((l, i) => {
+        if (this.oldColors[i] !== undefined) l.setColor(this.oldColors[i])
+      })
+    }
+  }
+}
+
+export class ChangeNodeGeometryCommand implements Command {
+  description: string
+
+  constructor(
+    private readonly newShape: NodeGeometryType,
+    private readonly oldShape: NodeGeometryType
+  ) {
+    this.description = `Change node geometry to ${newShape}`
+  }
+
+  private apply(shape: NodeGeometryType): void {
+    setNodeShape(shape)
+    syncRadio('nodeGeometryRadio', shape)
+  }
+
+  execute(): void {
+    this.apply(this.newShape)
+  }
+  undo(): void {
+    this.apply(this.oldShape)
+  }
+}
+
+export class ChangeChannelColorCommand implements Command {
+  description: string
+  private readonly oldColor: string
+
+  constructor(
+    private readonly channel: string,
+    private readonly newColor: string
+  ) {
+    this.oldColor = ctx.channelColors[channel] ?? '#cfcfcf'
+    this.description = `Change ${channel} channel color to ${newColor}`
+  }
+
+  private apply(color: string): void {
+    setChannelColor(this.channel, color)
+    syncInput(`color${this.channel}`, color)
+  }
+
+  execute(): void {
+    this.apply(this.newColor)
+  }
+  undo(): void {
+    this.apply(this.oldColor)
   }
 }

@@ -171,3 +171,44 @@ describe('LoadNetworkCommand', () => {
     expect(ctx.nodeObjects).toHaveLength(1)
   })
 })
+
+describe('TransformCommand', () => {
+  it('restores node/layer transforms on undo', async () => {
+    const { captureTransforms, TransformCommand } = await import('./scene')
+    const before = captureTransforms()
+    ctx.nodeObjects[0].setPosition('y', 42)
+    ctx.layers[0].plane.position.set(1, 2, 3)
+    const c = new TransformCommand('move', before, captureTransforms())
+    c.undo()
+    expect(ctx.nodeObjects[0].getPosition('y')).toBe(0)
+    expect(ctx.layers[0].plane.position.x).toBe(0)
+    c.execute() // redo
+    expect(ctx.nodeObjects[0].getPosition('y')).toBe(42)
+    expect(ctx.layers[0].plane.position.z).toBe(3)
+  })
+})
+
+describe('ChangeChannelColorCommand', () => {
+  it('sets and restores the channel color', async () => {
+    const { ChangeChannelColorCommand } = await import('./scene')
+    ctx.channelColors = { ppi: '#cfcfcf' }
+    const c = new ChangeChannelColorCommand('ppi', '#ff0000')
+    c.execute()
+    expect(ctx.channelColors['ppi']).toBe('#ff0000')
+    c.undo()
+    expect(ctx.channelColors['ppi']).toBe('#cfcfcf')
+  })
+})
+
+describe('ChangeFloorColorCommand', () => {
+  it('rewinds picker color to previous, not the just-set value', async () => {
+    const { ChangeFloorColorCommand } = await import('./scene')
+    ctx.layerColorPrioritySource = 'picker'
+    new ChangeFloorColorCommand('#111111').execute() // establishes prior picker
+    const c = new ChangeFloorColorCommand('#ff0000')
+    c.execute()
+    expect(ctx.layers[0].color.toLowerCase()).toBe('#ff0000')
+    c.undo()
+    expect(ctx.layers[0].color.toLowerCase()).toBe('#111111')
+  })
+})

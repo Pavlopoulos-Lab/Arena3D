@@ -8,8 +8,9 @@ import {
   showWireFrames,
   setFloorOpacity,
   setLayerColorPriority,
-  repaintLayers,
 } from '../actions/layer'
+import { history } from '../commands/base'
+import { ChangeFloorColorCommand } from '../commands/scene'
 
 const LAYER_HTML = `
 <div class="col-md-6 col-lg-4">
@@ -101,12 +102,9 @@ export function initLayerPanel(): void {
   }
 
   // v2 repaintLayersFromPicker: picking a color switches priority to picker.
-  document.getElementById('floor_color')?.addEventListener('change', () => {
-    const picker = document.getElementById(
-      'layerPriority_picker'
-    ) as HTMLInputElement
-    picker.checked = true
-    setLayerColorPriority('picker')
-    repaintLayers()
+  document.getElementById('floor_color')?.addEventListener('change', (e) => {
+    history.execute(
+      new ChangeFloorColorCommand((e.target as HTMLInputElement).value)
+    )
   })
 }

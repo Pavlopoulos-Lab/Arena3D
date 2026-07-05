@@ -5,6 +5,8 @@
 
 import { ctx } from '../three'
 import { bus } from '../bus'
+import { history } from '../commands/base'
+import { ChangeChannelColorCommand } from '../commands/scene'
 import { store } from '../store'
 import {
   toggleDirection,
@@ -17,7 +19,6 @@ import {
   setInterChannelCurvature,
   setEdgeSelectedColorPriority,
   setEdgeFileColorPriority,
-  setChannelColor,
   setChannelVisibility,
 } from '../actions/edge'
 
@@ -94,7 +95,9 @@ function buildChannelEditList(): void {
     `
     const picker = row.querySelector<HTMLInputElement>('.channel_colorPicker')!
     const hide = row.querySelector<HTMLInputElement>('.channel_checkbox')!
-    picker.addEventListener('change', () => setChannelColor(ch, picker.value))
+    picker.addEventListener('change', () =>
+      history.execute(new ChangeChannelColorCommand(ch, picker.value))
+    )
     hide.addEventListener('change', () =>
       setChannelVisibility(ch, !hide.checked)
     )

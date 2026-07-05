@@ -9,6 +9,12 @@ import * as THREE from 'three'
 import { bus } from '../bus'
 import { ctx } from '../three'
 import { findIndexByUuid } from '../utils'
+import { history } from '../commands/base'
+import {
+  captureTransforms,
+  TransformCommand,
+  type TransformSnapshot,
+} from '../commands/scene'
 
 const _plane = new THREE.Plane()
 const _pointer = new THREE.Vector2()
@@ -21,6 +27,9 @@ const _raycaster = new THREE.Raycaster()
 let selected: THREE.Object3D | null = null
 let hovered: THREE.Object3D | null = null
 let surface: DragSurface | null = null
+// One undo entry per layer drag: snapshot on grab, pushed on release.
+let dragBefore: TransformSnapshot | null = null
+let dragMoved = false
 
 // Structural subset of HTMLCanvasElement, so tests can drive a fake surface.
 export interface DragSurface {
@@ -64,6 +73,8 @@ export function onPointerDown(event: PointerLikeEvent): void {
   _raycaster.setFromCamera(_pointer, ctx.camera)
 
   selected = ctx.layers[idx].plane
+  dragBefore = captureTransforms()
+  dragMoved = false
   _plane.setFromNormalAndCoplanarPoint(
     ctx.camera.getWorldDirection(_plane.normal),
     _worldPosition.setFromMatrixPosition(selected.matrixWorld)
@@ -96,6 +107,7 @@ export function onPointerMove(event: PointerLikeEvent): void {
       selected.position.copy(
         _intersection.sub(_offset).applyMatrix4(_inverseMatrix)
       )
+      dragMoved = true
     }
     return
   }
@@ -128,6 +140,12 @@ export function onPointerCancel(): void {
     // redraw what the drag displaced (v2 routed this through Shiny syncs)
     ctx.renderInterLayerEdgesFlag = true
     if (layerIndex !== -1) bus.emit('layer:moved', { layerIndex })
+    if (dragBefore && dragMoved)
+      history.execute(
+        new TransformCommand('Drag layer', dragBefore, captureTransforms())
+      )
+    dragBefore = null
+    dragMoved = false
   }
   surface.style.cursor = hovered ? 'pointer' : 'auto'
 }

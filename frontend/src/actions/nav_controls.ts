@@ -9,21 +9,45 @@ import { ctx } from '../three'
 import { redrawIntraLayerEdges, toggleInterLayerEdgesRendering } from './edge'
 import { getSelectedLayers, initialSpreadLayers } from './layer'
 import { getSelectedNodes } from './node'
+import { history } from '../commands/base'
+import {
+  captureTransforms,
+  TransformCommand,
+  type TransformSnapshot,
+} from '../commands/scene'
 
 type Axis = 'X' | 'Y' | 'Z'
 
 const REPEAT_MS = 70
 
 let repeatId: ReturnType<typeof setInterval> | undefined
+// Hold-to-repeat interactions register one undo entry per hold: snapshot on
+// press, command pushed on release (only if a tick actually ran).
+let repeatBefore: TransformSnapshot | null = null
+let repeatMoved = false
 
 function stopRepeat(): void {
   clearInterval(repeatId)
   repeatId = undefined
+  if (repeatBefore && repeatMoved)
+    history.execute(
+      new TransformCommand(
+        'Nav control move',
+        repeatBefore,
+        captureTransforms()
+      )
+    )
+  repeatBefore = null
+  repeatMoved = false
 }
 
 function startRepeat(fn: () => void): void {
   stopRepeat()
-  repeatId = setInterval(fn, REPEAT_MS)
+  repeatBefore = captureTransforms()
+  repeatId = setInterval(() => {
+    repeatMoved = true
+    fn()
+  }, REPEAT_MS)
 }
 
 function sliderValue(id: string): number {
@@ -52,8 +76,12 @@ function rotateScene(direction: number, axis: Axis): void {
 
 export function recenterNetwork(): void {
   if (ctx.scene?.exists()) {
+    const before = captureTransforms()
     ctx.scene.recenter()
     raiseMovedFlags()
+    history.execute(
+      new TransformCommand('Recenter network', before, captureTransforms())
+    )
   }
 }
 
@@ -89,8 +117,12 @@ function moveLayers(direction: number, axis: Axis): void {
 }
 
 function spreadLayers(direction: number): void {
+  const before = captureTransforms()
   initialSpreadLayers(direction)
   raiseMovedFlags()
+  history.execute(
+    new TransformCommand('Spread layers', before, captureTransforms())
+  )
 }
 
 function scaleLayers(): void {
@@ -120,6 +152,7 @@ function scaleLayers(): void {
 function spreadNodes(multiplier: number): void {
   const selected = getSelectedNodes()
   if (selected.length === 0) return alert('Please select at least one node.')
+  const before = captureTransforms()
   for (const i of selected) {
     const node = ctx.nodeObjects[i]
     node.setPosition('y', node.getPosition('y') * multiplier)
@@ -127,6 +160,9 @@ function spreadNodes(multiplier: number): void {
   }
   redrawIntraLayerEdges()
   raiseMovedFlags()
+  history.execute(
+    new TransformCommand('Spread nodes', before, captureTransforms())
+  )
 }
 
 function moveNodes(direction: number, axis: Axis): void {
@@ -350,10 +386,61 @@ function attachNavControls(): void {
     }
   }
 
-  const scaleL = document.getElementById('layerScaleSlider')!
-  scaleL.addEventListener('input', scaleLayers)
-  const scaleN = document.getElementById('nodeScaleSlider')!
-  scaleN.addEventListener('input', scaleNodes)
+  // Live-scale on input; one undo entry per drag, finalized on 'change'.
+  // `sync` re-applies the restored scale to the slider + its value label on
+  // undo/redo (the transform snapshot only covers the 3D objects).
+  const wireScaleSlider = (
+    el: HTMLElement,
+    run: () => void,
+    description: string,
+    sync: () => void
+  ): void => {
+    let before: TransformSnapshot | null = null
+    el.addEventListener('input', () => {
+      before ??= captureTransforms()
+      run()
+    })
+    el.addEventListener('change', () => {
+      if (before) {
+        history.execute(
+          new TransformCommand(description, before, captureTransforms(), sync)
+        )
+        before = null
+      }
+    })
+  }
+  const setSlider = (sliderId: string, tdId: string, value: number): void => {
+    const s = document.getElementById(sliderId) as HTMLInputElement | null
+    if (s) s.value = String(value)
+    const td = document.getElementById(tdId)
+    if (td) td.textContent = `x${value}`
+  }
+  wireScaleSlider(
+    document.getElementById('layerScaleSlider')!,
+    scaleLayers,
+    'Scale layers',
+    () => {
+      const sel = getSelectedLayers()
+      setSlider(
+        'layerScaleSlider',
+        'sliderValue4',
+        sel.length ? ctx.layers[sel[0]].getScale() : 1
+      )
+    }
+  )
+  wireScaleSlider(
+    document.getElementById('nodeScaleSlider')!,
+    scaleNodes,
+    'Scale nodes',
+    () => {
+      const sel = getSelectedNodes()
+      setSlider(
+        'nodeScaleSlider',
+        'sliderValue6',
+        sel.length ? ctx.nodeObjects[sel[0]].getScale() : 1
+      )
+    }
+  )
   for (const [sliderId, tdId, fmt] of [
     ['sceneRotateSlider', 'sliderValue1', 'Angle: %v˚'],
     ['layerRotateSlider', 'sliderValue2', 'Angle: %v˚'],

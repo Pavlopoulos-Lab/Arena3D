@@ -4,7 +4,12 @@
 
 import { MathUtils } from 'three'
 import { ctx } from '../three'
-import { registerAnimateHook, setRendererColor } from '../actions/screen'
+import { registerAnimateHook } from '../actions/screen'
+import { history } from '../commands/base'
+import {
+  ChangeBackgroundColorCommand,
+  PredefinedLayoutCommand,
+} from '../commands/scene'
 import { isBloomEnabled, setBloomEnabled } from '../three/postprocessing'
 import { applyPredefinedLayout, type PredefinedLayout } from '../actions/layout'
 
@@ -80,7 +85,9 @@ export function initScenePanel(): void {
   }
 
   document.getElementById('scene_color')?.addEventListener('change', (e) => {
-    setRendererColor((e.target as HTMLInputElement).value)
+    history.execute(
+      new ChangeBackgroundColorCommand((e.target as HTMLInputElement).value)
+    )
   })
 
   // v2 observeEvent(input$predefined_layout, ignoreInit = T): applied on
@@ -89,7 +96,11 @@ export function initScenePanel(): void {
     'input[name="predefined_layout"]'
   )) {
     radio.addEventListener('change', () => {
-      applyPredefinedLayout(radio.value as PredefinedLayout)
+      history.execute(
+        new PredefinedLayoutCommand(radio.value, () =>
+          applyPredefinedLayout(radio.value as PredefinedLayout)
+        )
+      )
     })
   }
 }
