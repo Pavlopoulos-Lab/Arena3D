@@ -56,6 +56,19 @@ describe('layer drag', () => {
     expect(ctx.renderNodeLabelsFlag).toBe(true)
   })
 
+  it('drags a plane sitting behind the ortho ray origin (zoomed-in regression)', () => {
+    // Zooming in pushes a tilted layer's world z past the ortho ray origin
+    // (~camera z=100). THREE.Ray.intersectPlane rejects t<0, which used to
+    // silently freeze the drag even though hover still highlighted the plane.
+    ctx.layers[0].plane.position.z = 300 // behind the origin
+    ctx.scene!.THREE_Object.updateMatrixWorld(true)
+    ctx.lastHoveredLayerIndex = 0
+    onPointerDown({ clientX: 400, clientY: 400 })
+    ctx.scene!.leftClickPressed = true
+    onPointerMove({ clientX: 500, clientY: 400, pointerType: 'mouse' })
+    expect(ctx.layers[0].plane.position.x).toBeCloseTo(100)
+  })
+
   it('does not engage while a node is hovered (v2 gate)', () => {
     ctx.lastHoveredLayerIndex = 0
     ctx.lastHoveredNodeIndex = 3

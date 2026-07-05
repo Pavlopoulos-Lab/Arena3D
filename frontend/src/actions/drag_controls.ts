@@ -59,6 +59,19 @@ function layerPlanes(): THREE.Object3D[] {
   return ctx.layers.map(({ plane }) => plane)
 }
 
+// Orthographic `setFromCamera` puts the ray origin at the mid-depth plane
+// (NDC z=0, world z ~= camera z). A layer tilted + zoom-scaled far enough sits
+// BEHIND that origin, and THREE.Ray.intersectPlane rejects t<0, so layer drag
+// silently stopped working once zoomed in. The screen-facing drag plane is
+// crossed by the cursor ray exactly once — take that point regardless of sign.
+function rayPlanePoint(target: THREE.Vector3): THREE.Vector3 | null {
+  const denom = _plane.normal.dot(_raycaster.ray.direction)
+  if (denom === 0) return null
+  const t =
+    -(_raycaster.ray.origin.dot(_plane.normal) + _plane.constant) / denom
+  return _raycaster.ray.at(t, target)
+}
+
 export function onPointerDown(event: PointerLikeEvent): void {
   if (!surface || !ctx.camera) return
   // Don't re-raycast here: the pointer-down ray kept landing on other
@@ -79,7 +92,7 @@ export function onPointerDown(event: PointerLikeEvent): void {
     ctx.camera.getWorldDirection(_plane.normal),
     _worldPosition.setFromMatrixPosition(selected.matrixWorld)
   )
-  if (_raycaster.ray.intersectPlane(_plane, _intersection)) {
+  if (rayPlanePoint(_intersection)) {
     _inverseMatrix.copy(selected.parent!.matrixWorld).invert()
     _offset
       .copy(_intersection)
@@ -100,7 +113,7 @@ export function onPointerMove(event: PointerLikeEvent): void {
     ctx.scene?.leftClickPressed &&
     findIndexByUuid(layerPlanes(), selected.uuid) !== -1
   ) {
-    if (_raycaster.ray.intersectPlane(_plane, _intersection)) {
+    if (rayPlanePoint(_intersection)) {
       ctx.renderLayerLabelsFlag = true
       ctx.renderNodeLabelsFlag = true
       ctx.renderInterLayerEdgesFlag = true // edges follow the dragged layer
