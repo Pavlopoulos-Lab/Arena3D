@@ -54,8 +54,10 @@ test('minimap shows on load and redraws on rotation', async ({ page }) => {
     { timeout: 5_000 }
   )
 
-  // Toggle via the Scene panel hides it.
-  await page.getByRole('tab', { name: 'Scene Actions' }).click()
-  await page.locator('#toggleMinimap').uncheck()
+  // Toggle via the Scene panel hides it. force: the post-load render loop keeps
+  // repainting DOM overlays, so drawer controls never settle to Playwright's
+  // "stable" bounding box on slow CI — skip the actionability wait.
+  await page.getByRole('tab', { name: 'Scene Actions' }).click({ force: true })
+  await page.locator('#toggleMinimap').uncheck({ force: true })
   await expect(minimap).toBeHidden()
 })

@@ -43,13 +43,17 @@ test('load example → layout → clustered layout → export', async ({ page })
   const before = await page.evaluate(readNodes())
 
   // --- Apply layout (all layers, Fruchterman-Reingold) --------------------
-  await page.getByRole('tab', { name: 'Layer Selection & Layouts' }).click()
-  await page.locator('#subgraph_allLayers').check()
-  await page.locator('#selectAllLayersCheckbox').check()
+  // force: after load, the render loop keeps repainting DOM overlays so drawer
+  // controls never settle to a "stable" box on slow CI — skip the wait.
+  await page
+    .getByRole('tab', { name: 'Layer Selection & Layouts' })
+    .click({ force: true })
+  await page.locator('#subgraph_allLayers').check({ force: true })
+  await page.locator('#selectAllLayersCheckbox').check({ force: true })
   await page
     .locator('#layoutAlgorithmChoice')
     .selectOption('Fruchterman-Reingold')
-  await page.locator('#runLayout').click()
+  await page.locator('#runLayout').click({ force: true })
   // The #layouts_status text is identical after every run, so wait on the
   // actual scene change (a moved node) rather than the status string.
   const beforeJson = JSON.stringify(before.map((n) => n.pos))
@@ -77,7 +81,7 @@ test('load example → layout → clustered layout → export', async ({ page })
 
   // --- Apply clustered layout (Louvain) -----------------------------------
   await page.locator('#clusteringAlgorithmChoice').selectOption('Louvain')
-  await page.locator('#runLayout').click()
+  await page.locator('#runLayout').click({ force: true })
   // Wait for clustering to assign ids (status text is unchanged between runs).
   await page.waitForFunction(
     () => {
@@ -93,9 +97,9 @@ test('load example → layout → clustered layout → export', async ({ page })
   )
 
   // --- Export session ------------------------------------------------------
-  await page.getByRole('tab', { name: 'File' }).click()
+  await page.getByRole('tab', { name: 'File' }).click({ force: true })
   const downloadPromise = page.waitForEvent('download')
-  await page.getByRole('button', { name: 'Save Session' }).click()
+  await page.getByRole('button', { name: 'Save Session' }).click({ force: true })
   const download = await downloadPromise
   expect(download.suggestedFilename()).toMatch(/\.json$/)
 })
