@@ -23,6 +23,12 @@ services:
     command: sh -c "npm install && npm run dev -- --host"
     environment:
       - VITE_PROXY_TARGET=http://backend:8000
+      # Fix for Vite's "Blocked request" host-check error when this dev
+      # server is reverse-proxied under a public domain — see vite.config.ts.
+      - VITE_ALLOWED_HOSTS=pavlopoulos-lab-services.org
+      # Sub-path deployment fix: matches the Apache ProxyPass prefix
+      # (/arena3/) so generated asset URLs resolve through the proxy.
+      - VITE_BASE_PATH=/arena3/
     ports:
       - "5173:5173"
     depends_on:

@@ -23,7 +23,7 @@ const HELP_HTML = `
   <p>This is the action panel that allows the user to upload network data as well as export the network in its current
     state.</p> <br />
   <p>
-    <img src="/images/help/file.png" alt="File Actions"
+    <img src="${import.meta.env.BASE_URL}images/help/file.png" alt="File Actions"
       style="float:left;width:282px;height:425px;margin:5px;margin-right:20px;">
     <span class="numbering"> 1.</span> The <i> Upload Network </i> option allows the user to upload network data in the
     Arena3D format. This file consists of 4 mandatory columns with headers <b><i>SourceNode, TargetNode,
@@ -221,8 +221,8 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
     in Arena3D.
     Take this aspirin network example, designed in Cytoscape via the StringApp.
   </p>
-  <img src="/images/help/cytoscape_aspirin.png" alt="Cytoscape example" style="float:left;width:1200px;max-width:100%;">
-  <img src="/images/help/arena3dapp.png" alt="ArenaApp prompt window" style="float:left;width:500px;max-width:100%;">
+  <img src="${import.meta.env.BASE_URL}images/help/cytoscape_aspirin.png" alt="Cytoscape example" style="float:left;width:1200px;max-width:100%;">
+  <img src="${import.meta.env.BASE_URL}images/help/arena3dapp.png" alt="ArenaApp prompt window" style="float:left;width:500px;max-width:100%;">
   <p>
     The Arena3D<sup>web</sup>App prompt window asks for layer and description information in its dedicated panel.
     The most important setting is choosing which node attribute contains the layer information.
@@ -242,7 +242,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
     it in Arena3D.
     The generated Arena3D should look something like this:
   </p>
-  <img src="/images/help/arena_cytoscape_aspirin.png" alt="Arena Cytoscape Integration"
+  <img src="${import.meta.env.BASE_URL}images/help/arena_cytoscape_aspirin.png" alt="Arena Cytoscape Integration"
     style="float:left;width:1200px;max-width:100%;">
   <p class="last_p"></p>
 </div>
@@ -253,65 +253,65 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
 
   <p>
     <b>Random networks with different topologies mapped in 6 layers respectively: </b> <br />
-    The <a href="/data/figure1_data.tsv" download>example network</a> in the Arena3D format. <br />
-    An <a href="/data/figure1_export.json" download>exported state file</a> of this example. <br />
+    The <a href="${import.meta.env.BASE_URL}data/figure1_data.tsv" download>example network</a> in the Arena3D format. <br />
+    An <a href="${import.meta.env.BASE_URL}data/figure1_export.json" download>exported state file</a> of this example. <br />
   </p>
   <hr>
   <p>
     <b>Network example with 4 layers: </b> <br />
-    The <a href="/data/figure2A_data.tsv" download>network file</a> in Arena3D input format. <br />
-    An <a href="/data/figure2A_export.json" download>exported state file</a> of this example forming a cube in 3D space. <br />
+    The <a href="${import.meta.env.BASE_URL}data/figure2A_data.tsv" download>network file</a> in Arena3D input format. <br />
+    An <a href="${import.meta.env.BASE_URL}data/figure2A_export.json" download>exported state file</a> of this example forming a cube in 3D space. <br />
   </p>
   <hr>
   <p>
     <b>Another network example with 4 layers, accompanied by node and edge attribute files: </b> <br />
-    The <a href="/data/figure2B_data.tsv" download>network file</a> in Arena3D input format. <br />
-    <a href="/data/figure2B_data_node_attributes.tsv" download>Node attributes file</a> for this example.<br />
-    <a href="/data/figure2B_data_edge_attributes.tsv" download>Edge attributes file</a> for this example. <br />
-    An <a href="/data/figure2B_export.json" download>exported state file</a> of this example. <br />
+    The <a href="${import.meta.env.BASE_URL}data/figure2B_data.tsv" download>network file</a> in Arena3D input format. <br />
+    <a href="${import.meta.env.BASE_URL}data/figure2B_data_node_attributes.tsv" download>Node attributes file</a> for this example.<br />
+    <a href="${import.meta.env.BASE_URL}data/figure2B_data_edge_attributes.tsv" download>Edge attributes file</a> for this example. <br />
+    An <a href="${import.meta.env.BASE_URL}data/figure2B_export.json" download>exported state file</a> of this example. <br />
   </p>
   <hr>
   <p>
     <b>SARS-CoV-2 example: </b> <br />
-    A <a href="/data/covid19_data.tsv" download>Covid-19 network</a> based on the work of
+    A <a href="${import.meta.env.BASE_URL}data/covid19_data.tsv" download>Covid-19 network</a> based on the work of
     <a href="https://www.nature.com/articles/s41586-020-2286-9" target="_blank">Gordon et al.</a>,
     in the Arena3D format. <br />
-    <a href="/data/covid19_data_node_attributes.tsv" download>Node attributes file</a> for this example.<br />
-    <a href="/data/covid19_data_edge_attributes.tsv" download>Edge attributes file</a> for this example.<br />
-    An <a href="/data/covid19_export.json" download>exported state file</a> of this example. <br />
+    <a href="${import.meta.env.BASE_URL}data/covid19_data_node_attributes.tsv" download>Node attributes file</a> for this example.<br />
+    <a href="${import.meta.env.BASE_URL}data/covid19_data_edge_attributes.tsv" download>Edge attributes file</a> for this example.<br />
+    An <a href="${import.meta.env.BASE_URL}data/covid19_export.json" download>exported state file</a> of this example. <br />
   </p>
   <hr>
   <p>
     <b>GPCR example: </b> <br />
-    The <a href="/data/GPCRs_data.tsv" download>network file</a> in the Arena3D format. <br />
-    <a href="/data/GPCRs_data_node_attributes.tsv" download>Node attributes file</a> for this example.<br />
-    <a href="/data/GPCRs_data_edge_attributes.tsv" download>Edge attributes file</a> for this example.<br />
-    An <a href="/data/GPCRs_export.json" download>exported state file</a> of this example. <br />
+    The <a href="${import.meta.env.BASE_URL}data/GPCRs_data.tsv" download>network file</a> in the Arena3D format. <br />
+    <a href="${import.meta.env.BASE_URL}data/GPCRs_data_node_attributes.tsv" download>Node attributes file</a> for this example.<br />
+    <a href="${import.meta.env.BASE_URL}data/GPCRs_data_edge_attributes.tsv" download>Edge attributes file</a> for this example.<br />
+    An <a href="${import.meta.env.BASE_URL}data/GPCRs_export.json" download>exported state file</a> of this example. <br />
   </p>
   <hr>
   <p>
     <b>Aspirin network example with 3 data channels: </b> <br />
-    The <a href="/data/aspirin_3channels.tsv" download>network file</a> in the Arena3D format. <br />
-    An <a href="/data/aspirin_3channels_directed.json" download>exported state file</a> of this example. <br />
+    The <a href="${import.meta.env.BASE_URL}data/aspirin_3channels.tsv" download>network file</a> in the Arena3D format. <br />
+    An <a href="${import.meta.env.BASE_URL}data/aspirin_3channels_directed.json" download>exported state file</a> of this example. <br />
   </p>
   <hr>
   <p>
     <b><a href="https://imbbc.hcmr.gr/project/prego/" target="_blank"> PREGO </a> 3-channel example
       for 'anaerobic ammonium oxidation' process associations:</b> <br />
-    The <a href="/data/prego.tsv" download>network file</a> in the Arena3D format. <br />
-    An <a href="/data/prego.json" download>exported state file</a> of this example. <br />
+    The <a href="${import.meta.env.BASE_URL}data/prego.tsv" download>network file</a> in the Arena3D format. <br />
+    An <a href="${import.meta.env.BASE_URL}data/prego.json" download>exported state file</a> of this example. <br />
   </p>
   <hr>
   <p>
     <b>Cytoscape-Arena3D<sup>web</sup>App aspirin multi-channel interoperability example: </b> <br />
-    The <a href="/data/StringApp_aspirin.cys" download>network file</a> in Cytoscape format. <br />
-    An <a href="/data/Arena3DApp_aspirin.json" download>exported state file</a> of this example in the
+    The <a href="${import.meta.env.BASE_URL}data/StringApp_aspirin.cys" download>network file</a> in Cytoscape format. <br />
+    An <a href="${import.meta.env.BASE_URL}data/Arena3DApp_aspirin.json" download>exported state file</a> of this example in the
     Arena3D exported format. <br />
   </p>
   <hr>
   <p>
     <b>Scripts: </b> <br />
-    A <a href="/data/transpose.py" download> Python script</a> for parsing edgelist data into Arena3D
+    A <a href="${import.meta.env.BASE_URL}data/transpose.py" download> Python script</a> for parsing edgelist data into Arena3D
     format.<br />
     As an example, this input file:
   </p>
@@ -340,7 +340,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
   <p> This is the main panel for network transformations in 3D space. The actions are divided into 3 subsections,
     namely, Scene, Layers and Nodes.</p><br />
   <p class="last_p">
-    <img src="/images/help/navigation_panel.png" alt="Navigation Panel"
+    <img src="${import.meta.env.BASE_URL}images/help/navigation_panel.png" alt="Navigation Panel"
       style="float:left;width:280px;height:1152px;max-width:100%;margin:5px;margin-right:20px;">
     <b>General</b> <br />
     <span class="numbering"> 1.</span> The <i> Navigation Controls </i> button is used to hide/show the navigation
@@ -398,7 +398,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
     apply layout and clustering algorithms and node scaling based on network metrics, on subgraphs of the network.</p>
   <br />
   <p>
-    <img src="/images/help/layouts.png" alt="Layouts"
+    <img src="${import.meta.env.BASE_URL}images/help/layouts.png" alt="Layouts"
       style="float:left;width:360px;height:518px;max-width:100%;margin:5px;margin-right:20px;">
     <span class="numbering"> 1. </span> This consists of a group of 3 exclusive options for subgraph calculations, upon
       which, layout algorithms (<span class="numbering">3, 5</span>), clustering algorithms (<span
@@ -455,7 +455,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
       Harel.</li>
   </ul>
 
-  <img src="/images/help/layouts_figure.png" alt="Layouts Figure" style="float:left;height:75%;max-width:100%;">
+  <img src="${import.meta.env.BASE_URL}images/help/layouts_figure.png" alt="Layouts Figure" style="float:left;height:75%;max-width:100%;">
 
   <p>Below, we briefly desribe the available clustering algorithms (<span class="numbering">4</span>).</p><br />
   <ul>
@@ -476,7 +476,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
       propagated to the unlabeled points throughout the course of the algorithm. </li>
   </ul>
 
-  <img src="/images/help/clustering.png" alt="Clustering" style="float:left;max-width:100%;">
+  <img src="${import.meta.env.BASE_URL}images/help/clustering.png" alt="Clustering" style="float:left;max-width:100%;">
 
   <p>Below, we briefly desribe the available network metrics for node scaling (<span class="numbering">6</span>).</p>
   <br />
@@ -497,7 +497,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
   <h2>Scene Actions</h2>
   <p> In this tab, the user has 2 scene-related options.</p><br />
   <p class="last_p">
-    <img src="/images/help/scene1_1.PNG" alt="Scene"
+    <img src="${import.meta.env.BASE_URL}images/help/scene1_1.PNG" alt="Scene"
       style="float:left;width:335px;height:333px;max-width:100%;margin:5px;margin-right:20px;">
     <span class="numbering"> 1. </span> A checkbox that toggles the visibility of the scene coordinates system. <br />
     <span class="numbering"> 2. </span> A checkbox that enables scene auto rotate. (The user must enable it and then
@@ -512,16 +512,16 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
   </p>
 
   <div class="scene-actions">
-    <img src="/images/help/predefined_layouts.png" alt="Predefined Layouts" style="float:left;height:35%;max-width:100%;">
+    <img src="${import.meta.env.BASE_URL}images/help/predefined_layouts.png" alt="Predefined Layouts" style="float:left;height:35%;max-width:100%;">
   </div>
 
-  <img src="/images/help/vr.png" alt="VR" style="height: 50%;max-width:100%;">
+  <img src="${import.meta.env.BASE_URL}images/help/vr.png" alt="VR" style="height: 50%;max-width:100%;">
 
   <p>
     A dedicated theme bar is also offered on the top-right corner of the UI, allowing the user to choose among a
     Light, a Dark and a Gray mode.
   </p>
-  <img src="/images/help/themes.png" alt="Themes" style="margin-bottom:50px;height:45%;max-width:100%;">
+  <img src="${import.meta.env.BASE_URL}images/help/themes.png" alt="Themes" style="margin-bottom:50px;height:45%;max-width:100%;">
   <p class="last_p"></p>
 </div>
 
@@ -530,7 +530,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
   <h2>Layers</h2>
   <p>This control panel incorporates layer-related actions.</p> <br />
   <p class="last_p">
-    <img src="/images/help/layers.png" alt="Layers"
+    <img src="${import.meta.env.BASE_URL}images/help/layers.png" alt="Layers"
       style="float:left;width:317px;height:434px;max-width:100%;margin:5px;margin-right:20px;">
     <span class="numbering"> 1. </span> This checkbox allows the user to show or hide all layer labels.<br />
     <span class="numbering"> 2. </span> This checkbox gives the option of showing the labels of selected layers only.
@@ -552,7 +552,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
   <h2>Nodes</h2>
   <p>This control panel incorporates node-related actions.</p> <br />
   <p>
-    <img src="/images/help/nodes.png" alt="Nodes"
+    <img src="${import.meta.env.BASE_URL}images/help/nodes.png" alt="Nodes"
       style="float:left;width:580px;height:358px;max-width:100%;margin:5px;margin-right:20px;">
     <span class="numbering"> 1. </span> This options allows the user to select/deselect all nodes. Selected nodes can
     then be translated in 3D space via the <i>Navigation Controls</i>, and via the <i>Layer Selection & Layouts</i>
@@ -575,7 +575,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
   </p>
   <br />
   <br />
-  <img src="/images/help/mainview.png" alt="Main View"
+  <img src="${import.meta.env.BASE_URL}images/help/mainview.png" alt="Main View"
     style="float:left;width:726px;height:555px;max-width:100%;margin:5px;margin-right:20px;">
   <ul class="last_p">
     <li>
@@ -598,7 +598,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
   <h2>Edges</h2>
   <p>This control panel incorporates edge-related actions.</p> <br />
   <p class="last_p">
-    <img src="/images/help/edges.png" alt="Edges"
+    <img src="${import.meta.env.BASE_URL}images/help/edges.png" alt="Edges"
       style="float:left;width:320px;height:auto;max-width:100%;margin:5px;margin-right:20px;">
     <span class="numbering"> 1. </span> This option highlights the selected edges.<br />
     <span class="numbering"> 2. </span> This option toggles gives priority to the edge color that it is set on file. If
@@ -632,9 +632,9 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
     This is visible only if option
     (<span class="numbering">2</span>) is not enabled.<br />
     <br />
-    <img src="/images/help/directed_graph.png" alt="Directed Graph"
+    <img src="${import.meta.env.BASE_URL}images/help/directed_graph.png" alt="Directed Graph"
       style="float:left;height:45%;max-width:100%;margin:5px;margin-right:20px;">
-    <img src="/images/help/channels.png" alt="Channels" style="float:left;height:50%;max-width:100%;margin:5px;margin-right:20px;">
+    <img src="${import.meta.env.BASE_URL}images/help/channels.png" alt="Channels" style="float:left;height:50%;max-width:100%;margin:5px;margin-right:20px;">
     <br />
   <p class="last_p"></p>
 </div>
@@ -643,7 +643,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
 
   <h2>FPS</h2>
   <p class="last_p"> The option for frames per second. The user is allowed to choose between 3 options: <br /><br />
-    <img src="/images/help/fps2.PNG" alt="FPS"
+    <img src="${import.meta.env.BASE_URL}images/help/fps2.PNG" alt="FPS"
       style="float:left;width:284px;height:158px;max-width:100%;margin:5px;margin-right:20px;">
     &bull; 15FPS, for larger, more processing-heavy networks. <br />
     &bull; 30FPS, the default option. <br />

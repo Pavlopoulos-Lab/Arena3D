@@ -76,7 +76,14 @@ async function onLoadSession(file: File): Promise<void> {
 
 async function onLoadExample(): Promise<void> {
   try {
-    const res = await fetch('/example_network.tsv')
+    // Sub-path deployment fix: this is a hardcoded root-absolute fetch, so
+    // Vite's `base` rewriting (which only covers Vite-generated asset/HTML
+    // URLs) doesn't apply here — prefix it manually via BASE_URL so it still
+    // resolves under a reverse-proxied sub-path (e.g. /arena3/). Without the
+    // res.ok check, a 404 here would silently POST the error page's body to
+    // /api/network as if it were the TSV.
+    const res = await fetch(`${import.meta.env.BASE_URL}example_network.tsv`)
+    if (!res.ok) throw new Error(`Failed to fetch example network: ${res.status}`)
     const file = new File([await res.blob()], 'example_network.tsv', {
       type: 'text/tab-separated-values',
     })

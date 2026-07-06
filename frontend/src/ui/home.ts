@@ -11,7 +11,7 @@ const HOME_HTML = `
 
   <div class="home-grid">
     <figure class="home-figure">
-      <img src="/images/help/mainview2.png" alt="A multilayered network rendered across stacked 3D layers" class="img-fluid" />
+      <img src="${import.meta.env.BASE_URL}images/help/mainview2.png" alt="A multilayered network rendered across stacked 3D layers" class="img-fluid" />
     </figure>
     <div class="home-intro">
       <p>
