@@ -2,8 +2,9 @@
 
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+from app import config
 from app.models.network import EdgeModel, NodeModel
 
 Scope = Literal["perLayer", "allLayers", "nodesPerLayers"]
@@ -15,8 +16,12 @@ class ClusteringOptions(BaseModel):
 
 
 class LayoutRequest(BaseModel):
-    nodes: list[NodeModel]
-    edges: list[EdgeModel]
+    # Unauthenticated DoS fix: this endpoint is reachable directly (not just via
+    # the TSV-upload flow), so the MAX_EDGES/MAX_NODES cap must be enforced here
+    # too, or a caller can force an O(V*E) layout algorithm over an arbitrarily
+    # large graph.
+    nodes: list[NodeModel] = Field(max_length=config.MAX_NODES)
+    edges: list[EdgeModel] = Field(max_length=config.MAX_EDGES)
     algorithm: str
     scope: Scope = "perLayer"
     selected_layers: list[str]

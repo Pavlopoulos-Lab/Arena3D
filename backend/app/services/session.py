@@ -49,6 +49,12 @@ def _validate(data: dict[str, Any]) -> None:
             f"The network must contain no more than {config.MAX_LAYERS} layers."
         )
     nodes = data["nodes"]
+    # DoS fix: unlike the TSV upload path (parser.py), JSON session import and
+    # the /api/external hand-off had no node/edge count limit at all.
+    if len(nodes) > config.MAX_NODES:
+        raise SessionValidationError(
+            f"The network must contain no more than {config.MAX_NODES} nodes."
+        )
     if any(_empty(n.get("name")) or _empty(n.get("layer")) for n in nodes):
         raise SessionValidationError("JSON nodes must each have a non-empty name and layer.")
     # Referential integrity: the frontend parents every node to layerGroups[layer]
@@ -60,6 +66,11 @@ def _validate(data: dict[str, Any]) -> None:
         raise SessionValidationError(f"JSON node references unknown layer '{bad_layer}'.")
     node_ids = {f"{n['name']}_{n['layer']}" for n in nodes}
     edges = data["edges"]
+    # Same DoS fix as the node-count check above, for edges.
+    if len(edges) > config.MAX_EDGES:
+        raise SessionValidationError(
+            f"The network must contain no more than {config.MAX_EDGES} edges."
+        )
     if any(_empty(e.get("src")) or _empty(e.get("trg")) for e in edges):
         raise SessionValidationError("JSON edges must each have a non-empty src and trg.")
     bad_edge = next(

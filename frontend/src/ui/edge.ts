@@ -21,6 +21,7 @@ import {
   setEdgeFileColorPriority,
   setChannelVisibility,
 } from '../actions/edge'
+import { escapeHtml } from '../utils'
 
 const EDGE_HTML = `
 <div class="col-md-6 col-lg-4">
@@ -73,6 +74,9 @@ function show(id: string, visible: boolean): void {
 }
 
 // v2 attachChannelEditList: per channel a color picker + a Hide checkbox.
+// XSS fix: `ch` is a user-controlled channel name (TSV Channel column) —
+// escapeHtml() it before interpolating into innerHTML, including inside the
+// id/value attributes below.
 function buildChannelEditList(): void {
   const container = document.getElementById('channelColorPicker')
   if (!container) return
@@ -88,10 +92,10 @@ function buildChannelEditList(): void {
     const row = document.createElement('div')
     row.className = 'channel_subcontainer d-flex align-items-center gap-2 mb-2'
     row.innerHTML = `
-      <span class="channelLabel">${ch}:</span>
-      <input type="color" class="colorPicker channel_colorPicker" id="color${ch}" value="${ctx.channelColors[ch] ?? '#cfcfcf'}" />
-      <input class="form-check-input channel_checkbox" type="checkbox" id="checkbox${ch}" />
-      <label class="channelCheckboxLabel" for="checkbox${ch}">Hide</label>
+      <span class="channelLabel">${escapeHtml(ch)}:</span>
+      <input type="color" class="colorPicker channel_colorPicker" id="color${escapeHtml(ch)}" value="${ctx.channelColors[ch] ?? '#cfcfcf'}" />
+      <input class="form-check-input channel_checkbox" type="checkbox" id="checkbox${escapeHtml(ch)}" />
+      <label class="channelCheckboxLabel" for="checkbox${escapeHtml(ch)}">Hide</label>
     `
     const picker = row.querySelector<HTMLInputElement>('.channel_colorPicker')!
     const hide = row.querySelector<HTMLInputElement>('.channel_checkbox')!

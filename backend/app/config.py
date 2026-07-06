@@ -3,6 +3,8 @@
 RColorBrewer palettes are inlined as hex (Set3 / Set1), matching v2 output exactly.
 """
 
+import os
+
 # Input validation
 MANDATORY_NETWORK_COLUMNS = ["SourceNode", "SourceLayer", "TargetNode", "TargetLayer"]
 OPTIONAL_NETWORK_COLUMNS = ["Channel", "Weight"]
@@ -10,9 +12,19 @@ MANDATORY_JSON_OBJECTS = ["layers", "nodes", "edges"]
 OPTIONAL_JSON_OBJECTS = ["scene", "universalLabelColor", "direction", "edgeOpacityByWeight"]
 MANDATORY_JSON_NODE_COLUMNS = ["name", "layer"]
 MANDATORY_JSON_EDGE_COLUMNS = ["src", "trg"]
-MAX_EDGES = 10_000
+# DoS fix: MAX_EDGES/MAX_NODES used to be enforced only by the TSV-upload
+# parser, leaving /api/layout, /api/topology, /api/session/import and
+# /api/external free to accept unbounded graphs. Env-overridable so
+# deployments can size limits to their hardware without a code change
+# (docker-compose.yml sets these for local dev/prod).
+MAX_EDGES = int(os.environ.get("ARENA_MAX_EDGES", "10000"))
+MAX_NODES = int(os.environ.get("ARENA_MAX_NODES", "20000"))
 MAX_CHANNELS = 9
 MAX_LAYERS = 18
+# DoS fix: caps request-body size for TSV/JSON uploads (bare uvicorn has no
+# built-in limit; nginx's client_max_body_size only covers the prod Docker
+# image, not local/dev deployments).
+MAX_UPLOAD_BYTES = int(os.environ.get("ARENA_MAX_UPLOAD_BYTES", str(20 * 1024 * 1024)))
 
 # Topology scaling
 DEFAULT_MAP_VALUE = 0.3
