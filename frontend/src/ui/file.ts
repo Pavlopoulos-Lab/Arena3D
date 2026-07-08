@@ -82,10 +82,10 @@ async function onLoadExample(): Promise<void> {
     // resolves under a reverse-proxied sub-path (e.g. /arena3/). Without the
     // res.ok check, a 404 here would silently POST the error page's body to
     // /api/network as if it were the TSV.
-    const res = await fetch(`${import.meta.env.BASE_URL}example_network.tsv`)
+    const res = await fetch(`${import.meta.env.BASE_URL}data/figure2A_data.tsv`)
     if (!res.ok)
       throw new Error(`Failed to fetch example network: ${res.status}`)
-    const file = new File([await res.blob()], 'example_network.tsv', {
+    const file = new File([await res.blob()], 'figure2A_data.tsv', {
       type: 'text/tab-separated-values',
     })
     await onUploadNetwork(file)

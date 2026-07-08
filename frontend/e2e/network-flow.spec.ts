@@ -52,7 +52,7 @@ test('load example → layout → clustered layout → export', async ({ page })
       (window as unknown as { __arena: { ctx: { nodeObjects: unknown[] } } })
         .__arena.ctx.nodeObjects.length
   )
-  expect(nodeCount).toBe(11)
+  expect(nodeCount).toBe(255)
 
   const before = await page.evaluate(readNodes())
 

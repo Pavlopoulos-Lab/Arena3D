@@ -88,7 +88,7 @@ npm run dev                            # http://localhost:5173 (/api proxied to 
 
 ## 📂 Example Data
 
-* A bundled example network (`frontend/public/example_network.tsv`) loads via the **Load Example** button in the File panel.
+* One of the bundled example networks (`frontend/public/data/figure2A_data.tsv`) loads via the **Load Example** button in the File panel.
 * Backend test fixtures live in `backend/tests/fixtures/` (TSV networks + JSON sessions).
 
 ---
