@@ -9,6 +9,7 @@ export function escapeHtml(v: string | number): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
 }
 
 export function exists<T>(array: T[], element: T): boolean {
