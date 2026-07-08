@@ -72,8 +72,8 @@ export function setRendererColor(hexColor: string): void {
 
 // Publication image export: render the scene into an offscreen renderer with
 // an orthographic frustum fitted to the visible layers/nodes, at a fixed
-// long-edge resolution, then download as PNG. Labels are DOM overlays and are
-// not part of the WebGL canvas, so they are not included.
+// long-edge resolution, composite the visible DOM-overlay labels on top,
+// then download as PNG.
 const EXPORT_LONG_EDGE = 4096 // safe max renderbuffer size on all GPUs
 
 export function exportSceneImage(): boolean {
@@ -116,7 +116,16 @@ export function exportSceneImage(): boolean {
   renderer.setClearColor(ctx.renderer.getClearColor(new THREE.Color()), 1)
   renderer.render(ctx.scene.THREE_Object, camera)
 
-  renderer.domElement.toBlob((blob) => {
+  // Composite onto a 2D canvas so the DOM-overlay labels can be drawn on top.
+  const out = document.createElement('canvas')
+  out.width = renderer.domElement.width
+  out.height = renderer.domElement.height
+  const g = out.getContext('2d')
+  if (!g) return false
+  g.drawImage(renderer.domElement, 0, 0)
+  drawExportLabels(g, camera, scale)
+
+  out.toBlob((blob) => {
     if (blob) {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -129,6 +138,61 @@ export function exportSceneImage(): boolean {
     renderer.forceContextLoss()
   }, 'image/png')
   return true
+}
+
+// Draw the currently visible label divs (#labelDiv, kept in sync by the
+// animate loop) into the export canvas. Read from the DOM rather than
+// labels.ts — importing labels here would recreate the screen -> labels ->
+// node -> screen cycle the animate hooks exist to avoid. Positions come from
+// the same world coords the divs use; offsets/fonts scale with the export.
+function drawExportLabels(
+  g: CanvasRenderingContext2D,
+  camera: THREE.OrthographicCamera,
+  scale: number
+): void {
+  const container = document.getElementById('labelDiv')
+  if (!container) return
+  g.textBaseline = 'top'
+
+  const drawText = (
+    div: HTMLDivElement,
+    worldX: number,
+    worldY: number,
+    offsetX: number,
+    offsetY: number
+  ): void => {
+    const cs = getComputedStyle(div)
+    g.font = `${parseFloat(cs.fontSize) * scale}px ${cs.fontFamily}`
+    g.fillStyle = cs.color
+    g.fillText(
+      div.textContent ?? '',
+      (worldX - camera.left + offsetX) * scale,
+      (camera.top - worldY + offsetY) * scale
+    )
+  }
+
+  // div order matches ctx registries: createLabels appends one div per
+  // nodeObjects entry, then one per layer.
+  container.querySelectorAll<HTMLDivElement>('.labels').forEach((div, i) => {
+    const node = ctx.nodeObjects[i]
+    if (!node || div.style.display === 'none') return
+    // same +7/-10 px nudge renderNodeLabels applies on screen
+    drawText(
+      div,
+      node.getWorldPosition('x'),
+      node.getWorldPosition('y'),
+      7,
+      -10
+    )
+  })
+  container
+    .querySelectorAll<HTMLDivElement>('.layer-labels')
+    .forEach((div, i) => {
+      const layer = ctx.layers[i]
+      if (!layer || div.style.display === 'none') return
+      const world = layer.sphere.getWorldPosition(RAYVECTOR)
+      drawText(div, world.x, world.y, 0, 0)
+    })
 }
 
 // Loading spinner (v2 handler_startLoader/finishLoader): show #loader and dim
