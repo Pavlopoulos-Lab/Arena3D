@@ -26,9 +26,20 @@ const FILE_HTML = `
     <label for="edge_attributes_file" class="form-label">Upload EDGE attributes:</label>
     <input class="form-control" type="file" id="edge_attributes_file" accept=".tsv,.txt" />
   </div>
-  <button id="save_network_object" class="btn btn-primary me-2">Save Session</button>
-  <button id="exampleButton" class="btn btn-secondary">Load Example</button>
-  <button id="export_scene_image" class="btn btn-primary me-2">Export Image</button>
+  <div class="file-actions">
+    <button id="save_network_object" class="btn btn-primary file-action">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 2.2h8.4L13.2 4.6v9.2a1 1 0 0 1-1 1H2.8a1 1 0 0 1-1-1V3.2a1 1 0 0 1 1-1Z"/><path d="M4.6 2.2v3.6h5.4V2.2"/><path d="M4.9 9.4h6.2v4.4H4.9Z"/></svg>
+      <span>Save Session</span>
+    </button>
+    <button id="export_scene_image" class="btn btn-outline-primary file-action">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.2" y="2.8" width="11.6" height="9.2" rx="1.1"/><path d="M2.5 9.6 5.7 6.9a1 1 0 0 1 1.3 0l2 1.8 1.4-1.3a1 1 0 0 1 1.3 0l1.6 1.5"/><circle cx="6" cy="5.6" r="0.9" fill="currentColor" stroke="none"/><path d="M5.6 14h4.8"/></svg>
+      <span>Export Image</span>
+    </button>
+    <button id="exampleButton" class="btn btn-outline-secondary file-action">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.3 2.4h3.4"/><path d="M6.8 2.4v3.1L3.6 11a1.3 1.3 0 0 0 1.1 2h6.6a1.3 1.3 0 0 0 1.1-2L9.2 5.5V2.4"/><path d="M5.1 9.4h5.8"/></svg>
+      <span>Load Example</span>
+    </button>
+  </div>
   <div id="file_status" class="mt-3 small text-danger"></div>
 </div>
 `

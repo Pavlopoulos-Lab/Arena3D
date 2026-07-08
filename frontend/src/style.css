@@ -77,8 +77,9 @@ body {
   box-shadow: inset 0 0 0 1px rgba(var(--arena-accent-rgb), 0.4);
 }
 
-/* Undo / redo group */
-#navBar .btn-outline-secondary {
+/* Muted ghost button — undo/redo group, and any secondary/utility action
+   elsewhere (e.g. File panel) that shouldn't compete with a primary CTA. */
+.btn-outline-secondary {
   --bs-btn-color: var(--arena-text-muted);
   --bs-btn-border-color: var(--arena-border-strong);
   --bs-btn-hover-bg: rgba(255, 255, 255, 0.06);
@@ -115,6 +116,30 @@ body {
 
 .btn:not(:disabled):active {
   transform: translateY(0) scale(0.985);
+}
+
+/* File panel action row: one solid primary CTA (Save) plus two ghost actions,
+   so three buttons don't compete as equals the way three btn-primarys did. */
+.file-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 1.1rem;
+}
+
+.file-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.55rem 1rem;
+}
+
+.file-action svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
 }
 
 .form-control,
