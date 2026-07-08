@@ -238,7 +238,12 @@ export function clickUp(event: MouseEvent): void {
   transformDragged = false
   if (event.button === 0) {
     ctx.scene.leftClickPressed = false
-    removeContextMenu() // v2 removed the right-click options list here
+    // Only a real left-click on the canvas dismisses the menu. mouseleave also
+    // routes here (to release drag state), but firing removeContextMenu on it
+    // killed the just-opened menu the instant the mouse moved off the canvas
+    // toward it — so the options were never reachable.
+    if (event.type === 'mouseup')
+      removeContextMenu() // v2 removed the right-click options list here
     if (lasso) {
       // select exactly the nodes the lasso rectangle covered
       ctx.nodeObjects.forEach((node, i) => {
