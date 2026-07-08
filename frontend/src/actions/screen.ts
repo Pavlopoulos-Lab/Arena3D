@@ -28,6 +28,9 @@ export function resetScreen(): void {
   setWindowBounds()
   setCamera()
   resizeRenderer()
+  // Bounds changed — label divs are positioned off xBoundMax/yBoundMax.
+  ctx.renderLayerLabelsFlag = true
+  ctx.renderNodeLabelsFlag = true
 }
 
 export function setWindowBounds(): void {
