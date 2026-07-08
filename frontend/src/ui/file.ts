@@ -4,7 +4,7 @@ import { api } from '../api/client'
 import { applyEdgeAttributes } from '../actions/edge'
 import { loadNetwork, loadSession } from '../actions/network'
 import { applyNodeAttributes } from '../actions/node'
-import { startLoader, finishLoader } from '../actions/screen'
+import { startLoader, finishLoader, exportSceneImage } from '../actions/screen'
 import { exportSession } from '../actions/session'
 import { showTab } from './tabs'
 
@@ -28,6 +28,7 @@ const FILE_HTML = `
   </div>
   <button id="save_network_object" class="btn btn-primary me-2">Save Session</button>
   <button id="exampleButton" class="btn btn-secondary">Load Example</button>
+  <button id="export_scene_image" class="btn btn-primary me-2">Export Image</button>
   <div id="file_status" class="mt-3 small text-danger"></div>
 </div>
 `
@@ -178,6 +179,13 @@ export function initFilePanel(): void {
       void exportSession().catch((err: unknown) =>
         status(err instanceof Error ? err.message : 'Save failed.', true)
       )
+    })
+
+  document
+    .getElementById('export_scene_image')
+    ?.addEventListener('click', () => {
+      if (exportSceneImage()) status('Image exported.')
+      else status('Nothing to export — load a network first.', true)
     })
 
   document.getElementById('exampleButton')?.addEventListener('click', () => {

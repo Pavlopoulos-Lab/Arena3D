@@ -70,6 +70,67 @@ export function setRendererColor(hexColor: string): void {
   }
 }
 
+// Publication image export: render the scene into an offscreen renderer with
+// an orthographic frustum fitted to the visible layers/nodes, at a fixed
+// long-edge resolution, then download as PNG. Labels are DOM overlays and are
+// not part of the WebGL canvas, so they are not included.
+const EXPORT_LONG_EDGE = 4096 // safe max renderbuffer size on all GPUs
+
+export function exportSceneImage(): boolean {
+  if (!ctx.scene?.exists() || !ctx.renderer || !ctx.camera) return false
+
+  ctx.scene.THREE_Object.updateMatrixWorld(true)
+  const box = new THREE.Box3()
+  const meshBox = new THREE.Box3()
+  for (const layer of ctx.layers) {
+    if (!layer.isVisible) continue
+    // traverseVisible skips individually hidden nodes (channel toggles etc.)
+    layer.plane.traverseVisible((obj) => {
+      if (obj instanceof THREE.Mesh || obj instanceof THREE.Line) {
+        meshBox.setFromObject(obj)
+        box.union(meshBox)
+      }
+    })
+  }
+  if (box.isEmpty()) return false
+
+  // Camera sits at (0,0,100) looking down -z with no roll, so world x/y map
+  // straight onto the frustum sides. 5% margin around the fitted box.
+  const size = box.getSize(new THREE.Vector3())
+  const pad = 0.05 * Math.max(size.x, size.y)
+  const camera = ctx.camera.clone()
+  camera.left = box.min.x - pad
+  camera.right = box.max.x + pad
+  camera.top = box.max.y + pad
+  camera.bottom = box.min.y - pad
+  camera.updateProjectionMatrix()
+
+  const w = camera.right - camera.left
+  const h = camera.top - camera.bottom
+  const scale = EXPORT_LONG_EDGE / Math.max(w, h)
+  const renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    preserveDrawingBuffer: true,
+  })
+  renderer.setSize(Math.round(w * scale), Math.round(h * scale), false)
+  renderer.setClearColor(ctx.renderer.getClearColor(new THREE.Color()), 1)
+  renderer.render(ctx.scene.THREE_Object, camera)
+
+  renderer.domElement.toBlob((blob) => {
+    if (blob) {
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'arena3d_scene.png'
+      a.click()
+      URL.revokeObjectURL(url)
+    }
+    renderer.dispose()
+    renderer.forceContextLoss()
+  }, 'image/png')
+  return true
+}
+
 // Loading spinner (v2 handler_startLoader/finishLoader): show #loader and dim
 // the canvas while a backend call is in flight.
 export function startLoader(): void {
