@@ -7,6 +7,7 @@ Blocking failures raise NetworkValidationError → HTTP 400 in the router.
 
 from io import StringIO
 
+import numpy as np
 import pandas as pd
 
 from app import config
@@ -43,8 +44,12 @@ def _validate(df: pd.DataFrame) -> None:
             "Every edge must have a non-empty SourceNode, SourceLayer, "
             "TargetNode and TargetLayer."
         )
-    if "Weight" in df.columns and not pd.to_numeric(df["Weight"], errors="coerce").notna().all():
-        raise NetworkValidationError("Make sure all input weights are numeric values.")
+    if "Weight" in df.columns and not np.isfinite(
+        pd.to_numeric(df["Weight"], errors="coerce")
+    ).all():
+        # non-numeric coerces to NaN; inf is rejected too (it would map to a NaN
+        # scaled_weight, which the finite-only EdgeModel then refuses -> 500)
+        raise NetworkValidationError("Make sure all input weights are finite numeric values.")
     if "Channel" in df.columns and (df["Channel"].fillna("").astype(str).str.strip() == "").any():
         raise NetworkValidationError(
             "At least one edge has no channel name. "

@@ -60,6 +60,12 @@ def test_non_numeric_weight_400() -> None:
     assert _post(tsv).status_code == 400
 
 
+def test_infinite_weight_400() -> None:
+    # #4: inf weight would map to a NaN scaled_weight — reject at parse time
+    tsv = f"{HDR}\tWeight\nA\tL1\tB\tL2\tinf\n"
+    assert _post(tsv).status_code == 400
+
+
 def test_empty_channel_400() -> None:
     tsv = f"{HDR}\tChannel\nA\tL1\tB\tL2\t\n"
     assert _post(tsv).status_code == 400
