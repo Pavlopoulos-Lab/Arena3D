@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.0.0] - 2026-07-06
+## [3.0.0] - 2026-07-08
 
 Full rewrite: migrated from R/Shiny to a **FastAPI (Python) backend + Vite / TypeScript / Three.js frontend**. Algorithms (layouts, clustering, topology) ported 1:1 via python-igraph.
 
@@ -9,6 +9,7 @@ Full rewrite: migrated from R/Shiny to a **FastAPI (Python) backend + Vite / Typ
 - **Satellite view** — minimap overview of the scene (hidden layers excluded).
 - **Command-pattern undo/redo** — granular history for scene mutations.
 - **Token-shared sessions** — hand off a session to another app via `?session=` URL (`POST /api/external`).
+- **Export Image** — button to export the scene as PNG.
 - Reproducible node scatter (seeded), 60 FPS render loop as default, redesigned UI (side-drawer panels).
 
 ### Changed
