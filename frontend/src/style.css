@@ -495,6 +495,14 @@ body {
   pointer-events: none;
 }
 
+/* Node/layer labels are display-only overlays; let the mouse fall through to
+   the canvas (lasso, layer drag). Scoped to the divs, not #labelDiv — the
+   right-click node menu also mounts there and needs clicks. */
+.labels,
+.layer-labels {
+  pointer-events: none;
+}
+
 /* Navigation shortcut cheat-sheet: action left, keys right. */
 #navShortcuts {
   list-style: none;
