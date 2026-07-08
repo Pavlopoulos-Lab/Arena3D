@@ -44,3 +44,7 @@ This is distinct from H1: H1 is in-request memory/CPU (transient, one request); 
 - Move token storage off the same volume as logs/app, and/or to a size-bounded store, so exhaustion can't cascade.
 
 Note the same content-length caveat documented in `main.py` applies here: a **chunked** (no Content-Length) request bypasses the middleware and is buffered fully before the per-endpoint check, so pairing the storage cap with a proxy-level body/rate limit is worthwhile.
+
+---
+
+**✅ FIXED (2026-07-08).** `external.py`: TTL cut from 24 h → 1 h; added `MAX_TOKENS = 1000` enforced by `_enforce_cap()`, which runs before every write and **evicts the oldest** sessions (not reject — so an attacker can't deny the feature by keeping the store full). Combined with the per-request `MAX_UPLOAD_BYTES` cap, `tmp/` is now hard-bounded to `MAX_TOKENS * MAX_UPLOAD_BYTES` regardless of request volume. New regression test `test_external_storage_capped` (posts 20 with cap 5, asserts ≤ 5 files remain); full suite 67 passed. Single-use delete-on-resolve was **not** taken — it would 404 a legitimate page refresh; TTL + count cap bound disk without that UX cost. Proxy `limit_req` and the chunked-transfer note remain deployment-side recommendations.

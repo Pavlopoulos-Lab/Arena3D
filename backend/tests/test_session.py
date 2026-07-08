@@ -112,6 +112,20 @@ def test_external_create_and_resolve(tmp_path, monkeypatch) -> None:
     assert resolved.json()["layers"][0]["name"] == "L1"
 
 
+def test_external_storage_capped(tmp_path, monkeypatch) -> None:
+    # DoS guard (H2): stored sessions never exceed MAX_TOKENS — oldest are
+    # evicted so an attacker can't fill disk with unbounded token files.
+    monkeypatch.setattr("app.config.TMP_PATH", str(tmp_path) + "/")
+    monkeypatch.setattr("app.routers.external.config.TMP_PATH", str(tmp_path) + "/")
+    monkeypatch.setattr("app.routers.external.MAX_TOKENS", 5)
+
+    for _ in range(20):
+        assert client.post("/api/external", json=_minimal()).status_code == 200
+
+    files = list(tmp_path.glob("*.json"))
+    assert len(files) <= 5
+
+
 def test_external_missing_token_404(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr("app.routers.external.config.TMP_PATH", str(tmp_path) + "/")
     assert client.get("/api/external/doesnotexist").status_code == 404

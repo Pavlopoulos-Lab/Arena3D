@@ -20,23 +20,58 @@ from app.services.session import SessionValidationError, normalize_session
 
 router = APIRouter()
 
-TTL_SECONDS = 24 * 60 * 60
+# Handoff tokens are consumed within minutes of creation, so a short TTL keeps
+# steady-state storage tiny. MAX_TOKENS is the hard disk-fill DoS guard (H2):
+# combined with the per-request MAX_UPLOAD_BYTES cap it bounds tmp/ to at most
+# MAX_TOKENS * MAX_UPLOAD_BYTES regardless of request volume.
+TTL_SECONDS = 60 * 60
+MAX_TOKENS = 1000
+
+
+def _session_files() -> list[str]:
+    if not os.path.isdir(config.TMP_PATH):
+        return []
+    return [
+        os.path.join(config.TMP_PATH, n)
+        for n in os.listdir(config.TMP_PATH)
+        if n.endswith(".json")
+    ]
 
 
 def _sweep() -> None:
     """Delete stored sessions older than the TTL (ports the tmp cleanup intent)."""
-    if not os.path.isdir(config.TMP_PATH):
-        return
     cutoff = time.time() - TTL_SECONDS
-    for name in os.listdir(config.TMP_PATH):
-        if not name.endswith(".json"):
-            continue
-        path = os.path.join(config.TMP_PATH, name)
+    for path in _session_files():
         # A concurrent sweep/resolve may remove or stat the file between the
         # listdir and here; skip rather than 500 the request.
         try:
             if os.path.getmtime(path) < cutoff:
                 os.remove(path)
+        except OSError:
+            continue
+
+
+def _enforce_cap() -> None:
+    """DoS guard (H2): before a new write, evict oldest sessions so at most
+    MAX_TOKENS-1 remain. Evict (not reject) so an attacker can't deny the
+    feature to legitimate callers by keeping the store full.
+
+    ponytail: TOCTOU under concurrent creates can briefly exceed the cap by the
+    concurrency count; the bound is MAX_TOKENS + in-flight, which is fine.
+    """
+    paths = _session_files()
+    if len(paths) < MAX_TOKENS:
+        return
+    dated: list[tuple[float, str]] = []
+    for path in paths:
+        try:
+            dated.append((os.path.getmtime(path), path))
+        except OSError:
+            continue
+    dated.sort()  # oldest first
+    for _, path in dated[: len(dated) - MAX_TOKENS + 1]:
+        try:
+            os.remove(path)
         except OSError:
             continue
 
@@ -52,6 +87,7 @@ async def create_external(session: dict[str, Any]) -> ExternalCreateResponse:
         raise HTTPException(status_code=400, detail=str(e)) from e
     os.makedirs(config.TMP_PATH, exist_ok=True)
     _sweep()
+    _enforce_cap()
     token = secrets.token_urlsafe(16)
     with open(os.path.join(config.TMP_PATH, f"{token}.json"), "w") as fh:
         json.dump(session, fh)
