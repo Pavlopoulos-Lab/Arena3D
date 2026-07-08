@@ -41,12 +41,12 @@ def _validate(df: pd.DataFrame) -> None:
     mandatory = df[config.MANDATORY_NETWORK_COLUMNS].apply(lambda c: c.str.strip())
     if mandatory.isna().to_numpy().any() or (mandatory == "").to_numpy().any():
         raise NetworkValidationError(
-            "Every edge must have a non-empty SourceNode, SourceLayer, "
-            "TargetNode and TargetLayer."
+            "Every edge must have a non-empty SourceNode, SourceLayer, TargetNode and TargetLayer."
         )
-    if "Weight" in df.columns and not np.isfinite(
-        pd.to_numeric(df["Weight"], errors="coerce")
-    ).all():
+    if (
+        "Weight" in df.columns
+        and not np.isfinite(pd.to_numeric(df["Weight"], errors="coerce")).all()
+    ):
         # non-numeric coerces to NaN; inf is rejected too (it would map to a NaN
         # scaled_weight, which the finite-only EdgeModel then refuses -> 500)
         raise NetworkValidationError("Make sure all input weights are finite numeric values.")

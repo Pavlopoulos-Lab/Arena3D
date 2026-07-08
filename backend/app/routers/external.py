@@ -32,9 +32,7 @@ def _session_files() -> list[str]:
     if not os.path.isdir(config.TMP_PATH):
         return []
     return [
-        os.path.join(config.TMP_PATH, n)
-        for n in os.listdir(config.TMP_PATH)
-        if n.endswith(".json")
+        os.path.join(config.TMP_PATH, n) for n in os.listdir(config.TMP_PATH) if n.endswith(".json")
     ]
 
 
