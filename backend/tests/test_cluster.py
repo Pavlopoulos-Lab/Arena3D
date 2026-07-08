@@ -1,9 +1,14 @@
+import igraph as ig
 import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
 from app.models.layout import ClusteringOptions, LayoutRequest
-from app.services.clustering import CLUSTERING
+from app.services.clustering import (
+    CLUSTERING,
+    MAX_ALL_PAIRS_MEMBERS,
+    _local_group_coords,
+)
 from app.services.layouts import compute_layout
 
 client = TestClient(app)
@@ -96,6 +101,24 @@ def test_unknown_clustering_400() -> None:
         },
     )
     assert resp.status_code == 400
+
+
+def test_large_community_uses_hub_not_all_pairs() -> None:
+    # DoS guard (H1): a community above MAX_ALL_PAIRS_MEMBERS must not build the
+    # O(n^2) all-pairs padding. Verify it still lays out every member (and drops
+    # the virtual hub — exactly n coords, no stray hub key).
+    n = MAX_ALL_PAIRS_MEMBERS + 100
+    members = [f"m{i}" for i in range(n)]
+    graph = ig.Graph(n=n, edges=[(0, 1), (1, 2)])
+    graph.vs["name"] = members
+    graph.es["weight"] = [1.0, 1.0]
+    membership = [0] * n
+
+    coords = _local_group_coords(
+        graph, membership, 0, members, lambda g: g.layout_circle(), tiny_w=0.01
+    )
+    assert set(coords) == set(members)  # all members placed, no hub artifact
+    assert len(coords) == n
 
 
 def test_endpoint_returns_clusters() -> None:
