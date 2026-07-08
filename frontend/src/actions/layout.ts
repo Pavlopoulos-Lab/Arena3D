@@ -79,6 +79,7 @@ export function applyPredefinedLayout(name: PredefinedLayout): void {
   // replaces the v2 Shiny syncs: displaced layers need edge + label redraw
   ctx.renderInterLayerEdgesFlag = true
   ctx.renderLayerLabelsFlag = true
+  ctx.renderNodeLabelsFlag = true
 }
 
 function resetSceneAndLayerPositions(): void {
