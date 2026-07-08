@@ -94,6 +94,19 @@ export function exportSceneImage(): boolean {
   }
   if (box.isEmpty()) return false
 
+  // Grow the box so visible labels fit too. Label divs render at 1 CSS px per
+  // world unit in the main view, so offsetWidth/Height are world sizes.
+  const zMid = (box.min.z + box.max.z) / 2
+  const corner = new THREE.Vector3()
+  forEachVisibleLabel((div, worldX, worldY, offsetX, offsetY) => {
+    const left = worldX + offsetX
+    const top = worldY - offsetY
+    box.expandByPoint(corner.set(left, top, zMid))
+    box.expandByPoint(
+      corner.set(left + div.offsetWidth, top - div.offsetHeight, zMid)
+    )
+  })
+
   // Camera sits at (0,0,100) looking down -z with no roll, so world x/y map
   // straight onto the frustum sides. 5% margin around the fitted box.
   const size = box.getSize(new THREE.Vector3())
@@ -150,17 +163,8 @@ function drawExportLabels(
   camera: THREE.OrthographicCamera,
   scale: number
 ): void {
-  const container = document.getElementById('labelDiv')
-  if (!container) return
   g.textBaseline = 'top'
-
-  const drawText = (
-    div: HTMLDivElement,
-    worldX: number,
-    worldY: number,
-    offsetX: number,
-    offsetY: number
-  ): void => {
+  forEachVisibleLabel((div, worldX, worldY, offsetX, offsetY) => {
     const cs = getComputedStyle(div)
     g.font = `${parseFloat(cs.fontSize) * scale}px ${cs.fontFamily}`
     g.fillStyle = cs.color
@@ -169,21 +173,30 @@ function drawExportLabels(
       (worldX - camera.left + offsetX) * scale,
       (camera.top - worldY + offsetY) * scale
     )
-  }
+  })
+}
+
+// Iterate the currently visible label divs with their world-space anchor and
+// screen-px nudge (same +7/-10 renderNodeLabels applies; layers anchor at
+// their sphere). Shared by the fit box and the label drawing above.
+function forEachVisibleLabel(
+  cb: (
+    div: HTMLDivElement,
+    worldX: number,
+    worldY: number,
+    offsetX: number,
+    offsetY: number
+  ) => void
+): void {
+  const container = document.getElementById('labelDiv')
+  if (!container) return
 
   // div order matches ctx registries: createLabels appends one div per
   // nodeObjects entry, then one per layer.
   container.querySelectorAll<HTMLDivElement>('.labels').forEach((div, i) => {
     const node = ctx.nodeObjects[i]
     if (!node || div.style.display === 'none') return
-    // same +7/-10 px nudge renderNodeLabels applies on screen
-    drawText(
-      div,
-      node.getWorldPosition('x'),
-      node.getWorldPosition('y'),
-      7,
-      -10
-    )
+    cb(div, node.getWorldPosition('x'), node.getWorldPosition('y'), 7, -10)
   })
   container
     .querySelectorAll<HTMLDivElement>('.layer-labels')
@@ -191,7 +204,7 @@ function drawExportLabels(
       const layer = ctx.layers[i]
       if (!layer || div.style.display === 'none') return
       const world = layer.sphere.getWorldPosition(RAYVECTOR)
-      drawText(div, world.x, world.y, 0, 0)
+      cb(div, world.x, world.y, 0, 0)
     })
 }
 
