@@ -47,6 +47,21 @@ def test_missing_mandatory_object_raises() -> None:
         normalize_session({"layers": [{"name": "L1"}], "nodes": []})
 
 
+@pytest.mark.parametrize(
+    "bad",
+    [
+        {"layers": ["x"], "nodes": [], "edges": []},
+        {"layers": "abc", "nodes": [], "edges": []},
+        {"layers": [{"name": "L"}], "nodes": ["n"], "edges": []},
+        {"layers": [{"name": "L"}], "nodes": [], "edges": ["e"]},
+    ],
+)
+def test_non_object_list_members_raise(bad) -> None:
+    # #2: non-dict members used to 500 with AttributeError instead of a 400
+    with pytest.raises(SessionValidationError):
+        normalize_session(bad)
+
+
 def test_empty_layer_name_raises() -> None:
     bad = _minimal()
     bad["layers"] = [{"name": ""}]
