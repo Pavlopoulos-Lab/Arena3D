@@ -37,7 +37,7 @@ const HELP_HTML = `
     irrelevant. <br />In its online version,
     Arena3D supports networks of up to 5000 edges and 9 channels. For larger networks, one can
     download and run
-    Arena3D locally from <a href="https://github.com/PavlopoulosLab/Arena3D"
+    Arena3D locally from <a href="https://github.com/pavlopoulos-lab/arena3d"
       target="_blank">GitHub</a>, and manually adjust the <b><i>MAX_EDGES</i></b>, the
     <b><i>MAX_LAYERS</i></b> or
     <b><i>MAX_CHANNELS</i></b> variable in the global.R file. <br />
@@ -664,7 +664,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
 
   <h2> Install Arena3D </h2>
   <p>
-    <a href="https://github.com/pavlopouloslab/arena3d" target="_blank">Github </a>
+    <a href="https://github.com/pavlopoulos-lab/arena3d" target="_blank">Github </a>
     <br />
     <a href="https://hub.docker.com/r/pavlopouloslab/arena3dweb" target="_blank">DockerHub </a>
   </p>

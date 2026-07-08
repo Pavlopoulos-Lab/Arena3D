@@ -2,7 +2,7 @@
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/pavlopouloslab/arena3dweb.svg)](https://hub.docker.com/r/pavlopouloslab/arena3d)
 [![Live Demo](https://img.shields.io/badge/demo-online-brightgreen)](https://www.arena3d.org)
-[![GitHub Repo](https://img.shields.io/badge/GitHub-PavlopoulosLab%2FArena3D-blue)](https://github.com/PavlopoulosLab/Arena3D)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-PavlopoulosLab%2FArena3D-blue)](https://github.com/pavlopoulos-lab/arena3d)
 
 # Arena3D
 
@@ -54,7 +54,7 @@ Access the live app at: [https://www.arena3d.org](https://www.arena3d.org)
 #### Docker (Recommended)
 
 ```bash
-git clone https://github.com/PavlopoulosLab/Arena3D.git
+git clone https://github.com/pavlopoulos-lab/arena3d.git
 cd Arena3D
 docker-compose up          # builds + runs backend (8000) and frontend (5173)
 ```
