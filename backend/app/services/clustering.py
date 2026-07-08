@@ -12,6 +12,15 @@ import igraph as ig
 
 REPELLING_FORCE = 3.0
 
+# DoS guard: the local layout pads a community with a tiny edge between every
+# pair of members to keep disconnected members spread out. That is O(n^2) edges
+# — for a large community (node/edge caps don't bound community size) it builds
+# hundreds of millions of tuples and can OOM the worker on a single crafted
+# /api/layout request. Above this size we pad with an O(n) virtual hub instead,
+# which still keeps members connected without the quadratic cost. Below it the
+# exact all-pairs behavior (v2 output) is preserved.
+MAX_ALL_PAIRS_MEMBERS = 1000
+
 CLUSTERING: dict[str, Callable[[ig.Graph], ig.VertexClustering]] = {
     "Louvain": lambda gr: gr.community_multilevel(),
     "Walktrap": lambda gr: gr.community_walktrap().as_clustering(),
@@ -113,19 +122,27 @@ def _local_group_coords(
             edge_pairs.append((index[u], index[v]))
             weights.append(e["weight"])
 
-    # tiny edges between every pair of members
-    for i in range(len(members)):
-        for j in range(i + 1, len(members)):
-            edge_pairs.append((i, j))
+    n = len(members)
+    if n <= MAX_ALL_PAIRS_MEMBERS:
+        # tiny edges between every pair of members (exact v2 padding)
+        for i in range(n):
+            for j in range(i + 1, n):
+                edge_pairs.append((i, j))
+                weights.append(tiny_w)
+        vertex_count = n
+    else:
+        # DoS fallback: connect every member to one virtual hub (index n).
+        # O(n) edges, keeps members from collapsing; the hub is dropped below.
+        for i in range(n):
+            edge_pairs.append((i, n))
             weights.append(tiny_w)
+        vertex_count = n + 1
 
-    lg = ig.Graph(n=len(members), edges=edge_pairs)
-    lg.vs["name"] = members
+    lg = ig.Graph(n=vertex_count, edges=edge_pairs)
     if edge_pairs:
         lg.es["weight"] = weights
         lg.simplify(multiple=True, loops=False, combine_edges={"weight": "max"})
 
     coords = local_layout(lg)
-    return {
-        lg.vs[i]["name"]: (float(coords[i][0]), float(coords[i][1])) for i in range(lg.vcount())
-    }
+    # iterate real members only — this naturally drops the virtual hub (index n)
+    return {members[i]: (float(coords[i][0]), float(coords[i][1])) for i in range(n)}

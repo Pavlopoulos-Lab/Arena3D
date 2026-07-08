@@ -189,9 +189,11 @@ export const api = {
     post<{ token: string; url: string }>('/api/external', session),
   // Backend returns a normalized SessionImportResponse, same shape as import.
   resolveExternal: async (token: string): Promise<SessionData> => {
-    const res = await fetch(`/api/external/${token}`)
-    if (!res.ok)
-      throw new Error(`GET /api/external/${token} failed: ${res.status}`)
+    // token comes from the ?session= query param — encode it so a stray
+    // '/' or '?' can't build a malformed URL / wrong path
+    const path = `/api/external/${encodeURIComponent(token)}`
+    const res = await fetch(path)
+    if (!res.ok) throw new Error(`GET ${path} failed: ${res.status}`)
     return res.json() as Promise<SessionData>
   },
 }

@@ -60,6 +60,12 @@ def test_non_numeric_weight_400() -> None:
     assert _post(tsv).status_code == 400
 
 
+def test_infinite_weight_400() -> None:
+    # #4: inf weight would map to a NaN scaled_weight — reject at parse time
+    tsv = f"{HDR}\tWeight\nA\tL1\tB\tL2\tinf\n"
+    assert _post(tsv).status_code == 400
+
+
 def test_empty_channel_400() -> None:
     tsv = f"{HDR}\tChannel\nA\tL1\tB\tL2\t\n"
     assert _post(tsv).status_code == 400
@@ -74,6 +80,19 @@ def test_whitespace_trimmed() -> None:
     tsv = f"{HDR}\n A \tL1\tB\tL2\n"
     node_ids = [n["id"] for n in _post(tsv).json()["nodes"]]
     assert "A_L1" in node_ids
+
+
+def test_empty_file_400() -> None:
+    # #1a: empty upload must be a clean 400, not a pandas EmptyDataError 500
+    assert _post("").status_code == 400
+
+
+def test_empty_mandatory_cell_400() -> None:
+    # #1b: a blank SourceLayer became NaN and 500'd EdgeModel construction
+    tsv = f"{HDR}\nA\t\tB\tL2\n"
+    resp = _post(tsv)
+    assert resp.status_code == 400
+    assert "non-empty" in resp.json()["detail"]
 
 
 def test_too_many_layers_rejected() -> None:

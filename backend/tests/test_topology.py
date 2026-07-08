@@ -1,3 +1,5 @@
+import math
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -107,6 +109,19 @@ def test_single_edge_layer_is_scored() -> None:
         )
     )
     assert set(scales) == {"A_L1", "B_L1"}
+
+
+@pytest.mark.parametrize("bad", [-1.0, 0.0, float("inf"), float("nan")])
+def test_nonpositive_or_nonfinite_weight_clamped_not_500(bad: float) -> None:
+    # #3/#4: negative/zero crashed igraph betweenness (500) and inf/nan poisoned
+    # responses; build_graph now clamps to a positive floor so metrics compute
+    # and every scale stays finite.
+    nodes, edges = _star_net()
+    for e in edges:
+        e["scaled_weight"] = bad
+    scales, raw = compute_topology(_req(metric="Betweenness Centrality"))
+    assert set(scales) == {"H_L1", "A_L1", "B_L1", "C_L1"}
+    assert all(math.isfinite(v) for v in {**scales, **raw}.values())
 
 
 def test_unknown_metric_400() -> None:

@@ -4,9 +4,17 @@ Handles channel filtering, the three subgraph scopes (perLayer / allLayers /
 nodesPerLayers) and the v2 simplify rules (sum parallel-edge weights, keep loops).
 """
 
+import math
+
 import igraph as ig
 
 from app.models.network import EdgeModel
+
+# igraph's weighted betweenness (topology) 500s on non-positive weights, and
+# inf/nan weights propagate garbage into responses. The TSV path always scales
+# into [0.1, 1.0], but direct /api/layout|topology callers can send arbitrary
+# scaled_weight — clamp anything not strictly-positive-finite to this floor.
+MIN_EDGE_WEIGHT = 1e-9
 
 
 def filter_edges(
@@ -60,7 +68,9 @@ def build_graph(
 
     index = {name: i for i, name in enumerate(names)}
     edge_list = [(index[e.src], index[e.trg]) for e in edges]
-    weights = [e.scaled_weight for e in edges]
+    weights = [
+        w if (w := e.scaled_weight) > 0 and math.isfinite(w) else MIN_EDGE_WEIGHT for e in edges
+    ]
 
     graph = ig.Graph(n=len(names), edges=edge_list)
     graph.vs["name"] = names

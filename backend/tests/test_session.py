@@ -47,6 +47,21 @@ def test_missing_mandatory_object_raises() -> None:
         normalize_session({"layers": [{"name": "L1"}], "nodes": []})
 
 
+@pytest.mark.parametrize(
+    "bad",
+    [
+        {"layers": ["x"], "nodes": [], "edges": []},
+        {"layers": "abc", "nodes": [], "edges": []},
+        {"layers": [{"name": "L"}], "nodes": ["n"], "edges": []},
+        {"layers": [{"name": "L"}], "nodes": [], "edges": ["e"]},
+    ],
+)
+def test_non_object_list_members_raise(bad) -> None:
+    # #2: non-dict members used to 500 with AttributeError instead of a 400
+    with pytest.raises(SessionValidationError):
+        normalize_session(bad)
+
+
 def test_empty_layer_name_raises() -> None:
     bad = _minimal()
     bad["layers"] = [{"name": ""}]
@@ -110,6 +125,20 @@ def test_external_create_and_resolve(tmp_path, monkeypatch) -> None:
     resolved = client.get(f"/api/external/{token}")
     assert resolved.status_code == 200
     assert resolved.json()["layers"][0]["name"] == "L1"
+
+
+def test_external_storage_capped(tmp_path, monkeypatch) -> None:
+    # DoS guard (H2): stored sessions never exceed MAX_TOKENS — oldest are
+    # evicted so an attacker can't fill disk with unbounded token files.
+    monkeypatch.setattr("app.config.TMP_PATH", str(tmp_path) + "/")
+    monkeypatch.setattr("app.routers.external.config.TMP_PATH", str(tmp_path) + "/")
+    monkeypatch.setattr("app.routers.external.MAX_TOKENS", 5)
+
+    for _ in range(20):
+        assert client.post("/api/external", json=_minimal()).status_code == 200
+
+    files = list(tmp_path.glob("*.json"))
+    assert len(files) <= 5
 
 
 def test_external_missing_token_404(tmp_path, monkeypatch) -> None:

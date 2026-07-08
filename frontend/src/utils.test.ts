@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  escapeHtml,
   exists,
   getUniqueValues,
   getCaseInsensitiveIndices,
@@ -40,5 +41,11 @@ describe('utils', () => {
 
   it('toRadians converts degrees', () => {
     expect(toRadians(180)).toBeCloseTo(Math.PI)
+  })
+
+  it('escapeHtml escapes all five HTML metacharacters incl. single quote', () => {
+    expect(escapeHtml(`<a href='x'>&"</a>`)).toBe(
+      '&lt;a href=&#39;x&#39;&gt;&amp;&quot;&lt;/a&gt;'
+    )
   })
 })

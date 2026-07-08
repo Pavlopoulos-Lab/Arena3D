@@ -37,6 +37,13 @@ def _validate(data: dict[str, Any]) -> None:
         raise SessionValidationError(
             "Your JSON file must contain at least these objects: layers, nodes, edges"
         )
+    # Each must be a list of objects — otherwise the .get()/subscript calls below
+    # raise AttributeError/TypeError and 500 instead of a clean 400. Reachable
+    # from /api/session/import and /api/external (arbitrary caller JSON).
+    for key in config.MANDATORY_JSON_OBJECTS:
+        value = data[key]
+        if not isinstance(value, list) or not all(isinstance(x, dict) for x in value):
+            raise SessionValidationError(f"JSON '{key}' must be a list of objects.")
     layers = data["layers"]
     if not layers or any(_empty(row.get("name")) for row in layers):
         raise SessionValidationError("JSON layers must each have a non-empty name.")

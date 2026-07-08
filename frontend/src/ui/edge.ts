@@ -93,7 +93,7 @@ function buildChannelEditList(): void {
     row.className = 'channel_subcontainer d-flex align-items-center gap-2 mb-2'
     row.innerHTML = `
       <span class="channelLabel">${escapeHtml(ch)}:</span>
-      <input type="color" class="colorPicker channel_colorPicker" id="color${escapeHtml(ch)}" value="${ctx.channelColors[ch] ?? '#cfcfcf'}" />
+      <input type="color" class="colorPicker channel_colorPicker" id="color${escapeHtml(ch)}" value="${escapeHtml(ctx.channelColors[ch] ?? '#cfcfcf')}" />
       <input class="form-check-input channel_checkbox" type="checkbox" id="checkbox${escapeHtml(ch)}" />
       <label class="channelCheckboxLabel" for="checkbox${escapeHtml(ch)}">Hide</label>
     `
