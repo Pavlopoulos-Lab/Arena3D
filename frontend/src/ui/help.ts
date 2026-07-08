@@ -165,7 +165,8 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
   <p>
     To open Arena3D from an external application, we offer an API that allows a <b>POST</b> request along
     with an Arena3D JSON object.
-    The API link is <b><u><i>https://bib.fleming.gr/bib/api/arena3d</i></u></b>. Don't forget to set the <b>Header
+    The API endpoint is <b><u><i>/api/external</i></u></b> on the Arena3D server
+    (e.g. <b><u><i>https://arena3d.org/api/external</i></u></b>). Don't forget to set the <b>Header
       Content-Type</b> to <b>application/json</b>. The JSON object must follow the Arena3D export format
     as follows:
   </p>
@@ -200,12 +201,14 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
 }
   </pre>
   <p>
-    The server then returns a JSON response with the url that links to the Arena3D application, having the
-    requested network loaded:
+    The server then returns a JSON response with a <b>token</b> and the <b>url</b> that links to the Arena3D
+    application, having the requested network loaded. Just open the returned <b>url</b> &mdash; the token is
+    generated server-side, so there is no need to construct the link yourself:
   </p>
   <pre class="last_p">
 {
-    "url": "https://bib.fleming.gr:8084/app/arena3d?f=081436639JURotmRGQeFJ.json"
+    "token": "081436639JURotmRGQeFJ",
+    "url": "https://arena3d.org/?session=081436639JURotmRGQeFJ"
 }
   </pre>
   <br />
