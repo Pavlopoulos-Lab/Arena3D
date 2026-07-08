@@ -76,6 +76,19 @@ def test_whitespace_trimmed() -> None:
     assert "A_L1" in node_ids
 
 
+def test_empty_file_400() -> None:
+    # #1a: empty upload must be a clean 400, not a pandas EmptyDataError 500
+    assert _post("").status_code == 400
+
+
+def test_empty_mandatory_cell_400() -> None:
+    # #1b: a blank SourceLayer became NaN and 500'd EdgeModel construction
+    tsv = f"{HDR}\nA\t\tB\tL2\n"
+    resp = _post(tsv)
+    assert resp.status_code == 400
+    assert "non-empty" in resp.json()["detail"]
+
+
 def test_too_many_layers_rejected() -> None:
     rows = "\n".join(f"A\tL{i}\tB\tL{i + 1}" for i in range(0, 40, 2))
     tsv = f"{HDR}\n" + rows + "\n"

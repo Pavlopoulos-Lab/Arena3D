@@ -35,6 +35,14 @@ def _validate(df: pd.DataFrame) -> None:
             "Your network file must contain at least these four columns: "
             "SourceNode, SourceLayer, TargetNode, TargetLayer"
         )
+    # Reject rows with an empty/whitespace mandatory cell — a blank becomes NaN
+    # and would crash EdgeModel construction with a 500 instead of a clean 400.
+    mandatory = df[config.MANDATORY_NETWORK_COLUMNS].apply(lambda c: c.str.strip())
+    if mandatory.isna().to_numpy().any() or (mandatory == "").to_numpy().any():
+        raise NetworkValidationError(
+            "Every edge must have a non-empty SourceNode, SourceLayer, "
+            "TargetNode and TargetLayer."
+        )
     if "Weight" in df.columns and not pd.to_numeric(df["Weight"], errors="coerce").notna().all():
         raise NetworkValidationError("Make sure all input weights are numeric values.")
     if "Channel" in df.columns and (df["Channel"].fillna("").astype(str).str.strip() == "").any():
@@ -46,7 +54,10 @@ def _validate(df: pd.DataFrame) -> None:
 
 def parse_network_tsv(text: str) -> NetworkModel:
     """Parse a raw TSV string into a validated NetworkModel."""
-    df = pd.read_csv(StringIO(text), sep="\t", dtype=str)
+    try:
+        df = pd.read_csv(StringIO(text), sep="\t", dtype=str)
+    except pd.errors.EmptyDataError as e:
+        raise NetworkValidationError("The network file is empty or has no columns.") from e
     _validate(df)
 
     # subset legit columns (mandatory + optional Channel/Weight, in fixed order)
