@@ -1,5 +1,16 @@
 // General utilities — port of v2 www/js/general.js. Pure, framework-free.
 
+// XSS fix: escapes HTML metacharacters so user-controlled strings
+// (layer/channel names from uploaded network files) can't break out of an
+// innerHTML template. Shared by ui/data.ts, ui/edge.ts, ui/layouts.ts.
+export function escapeHtml(v: string | number): string {
+  return String(v)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
 export function exists<T>(array: T[], element: T): boolean {
   return array.some((l) => l == element)
 }

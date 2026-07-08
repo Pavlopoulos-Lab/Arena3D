@@ -43,6 +43,13 @@ def _sweep() -> None:
 
 @router.post("/api/external", response_model=ExternalCreateResponse)
 async def create_external(session: dict[str, Any]) -> ExternalCreateResponse:
+    # DoS fix: validate (incl. MAX_NODES/MAX_EDGES) before anything touches
+    # disk — this endpoint used to write any payload straight to disk
+    # unvalidated, letting a caller fill server storage with oversized sessions.
+    try:
+        normalize_session(session)
+    except SessionValidationError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
     os.makedirs(config.TMP_PATH, exist_ok=True)
     _sweep()
     token = secrets.token_urlsafe(16)

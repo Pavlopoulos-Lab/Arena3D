@@ -225,6 +225,14 @@ function showDescription(descr: string): void {
   descrDiv.style.display = 'inline-block'
 }
 
+// XSS fix: only http(s)/mailto — blocks javascript:/data: payloads smuggled
+// in via an uploaded node-attributes file's Url column. noopener/noreferrer
+// so the opened tab can't reach back into this window via window.opener.
+function openNodeLink(url: string): void {
+  if (!/^(https?:|mailto:)/i.test(url.trim())) return
+  window.open(url, '_blank', 'noopener,noreferrer')
+}
+
 export function executeCommand(nodeIndex: number, option: string): void {
   const node = ctx.nodeObjects[nodeIndex]
   if (option === '-') return
@@ -232,7 +240,7 @@ export function executeCommand(nodeIndex: number, option: string): void {
   if (option === 'Select Neighbors') selectNeighbors(nodeIndex)
   else if (option === 'Select MultiLayer Path') selectMultiLayerPath(nodeIndex)
   else if (option === 'Select Downstream Path') selectDownstreamPath(nodeIndex)
-  else if (option === 'Link') window.open(node.url)
+  else if (option === 'Link') openNodeLink(node.url)
   else if (option === 'Description') showDescription(node.descr)
 
   finishCommand()

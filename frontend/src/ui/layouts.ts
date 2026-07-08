@@ -13,6 +13,7 @@ import {
   setLayerVisibility,
   setLayerNodeLabels,
 } from '../actions/layer'
+import { escapeHtml } from '../utils'
 import type { Scope } from '../api/client'
 
 // v2 views/layouts.R option lists (Davidson-Harel / GEM / Edge Betweenness
@@ -96,6 +97,8 @@ function status(msg: string, isError = false): void {
 
 // v2 attachLayerCheckboxes: per layer a select checkbox (labelled with the
 // layer name) plus Hide and Labels checkboxes.
+// XSS fix: layer.name comes straight from an uploaded TSV/session file, so it
+// must go through escapeHtml() before landing in the innerHTML template below.
 function buildLayerCheckboxes(): void {
   const container = document.getElementById('checkboxdiv')
   if (!container) return
@@ -105,7 +108,7 @@ function buildLayerCheckboxes(): void {
     row.className = 'layer-row'
     row.innerHTML = `
       <input class="form-check-input layer_checkbox" type="checkbox" id="checkbox_${i}" ${layer.isSelected ? 'checked' : ''} />
-      <label class="form-check-label layer_label layer-row__name" for="checkbox_${i}">${layer.name}</label>
+      <label class="form-check-label layer_label layer-row__name" for="checkbox_${i}">${escapeHtml(layer.name)}</label>
       <label class="form-check-label layer-row__opt" for="checkbox2_${i}">
         <input class="form-check-input hideLayer_checkbox" type="checkbox" id="checkbox2_${i}" />Hide</label>
       <label class="form-check-label layer-row__opt" for="checkbox3_${i}">
@@ -123,6 +126,8 @@ function buildLayerCheckboxes(): void {
 
 // v2 attachChannelLayoutList, minus the collapse toggle — all channels
 // checked by default; checked ones are sent as selected_channels.
+// XSS fix: channel names are user-controlled (TSV Channel column) — same
+// escapeHtml() treatment as buildLayerCheckboxes above.
 function buildChannelList(): void {
   const container = document.getElementById('channelColorLayoutDiv')
   if (!container) return
@@ -137,8 +142,8 @@ function buildChannelList(): void {
     const row = document.createElement('div')
     row.className = 'form-check'
     row.innerHTML = `
-      <input class="form-check-input channel_checkbox" type="checkbox" id="checkbox_layout${ch}" checked />
-      <label class="form-check-label" for="checkbox_layout${ch}">${ch}</label>
+      <input class="form-check-input channel_checkbox" type="checkbox" id="checkbox_layout${escapeHtml(ch)}" checked />
+      <label class="form-check-label" for="checkbox_layout${escapeHtml(ch)}">${escapeHtml(ch)}</label>
     `
     container.appendChild(row)
   }

@@ -10,6 +10,7 @@ import { Tab } from 'bootstrap'
 import { bus } from '../bus'
 import { store } from '../store'
 import { ctx } from '../three'
+import { escapeHtml } from '../utils'
 
 const TABS = [
   { id: 'network', label: 'Network Data' },
@@ -44,13 +45,6 @@ const DATA_HTML = `
 </div>
 `
 
-function esc(v: string | number): string {
-  return String(v)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-}
-
 function toCsv(columns: string[], rows: (string | number)[][]): string {
   const q = (v: string | number) => {
     const s = String(v)
@@ -78,9 +72,12 @@ function renderTable(
     <button class="btn btn-sm btn-secondary mb-2" id="dataCsv-${tabId}">Download CSV</button>
     <div style="max-height: 70vh; overflow: auto;">
       <table class="table table-dark table-striped table-sm">
-        <thead><tr>${columns.map((c) => `<th>${esc(c)}</th>`).join('')}</tr></thead>
+        <thead><tr>${columns.map((c) => `<th>${escapeHtml(c)}</th>`).join('')}</tr></thead>
         <tbody>${rows
-          .map((r) => `<tr>${r.map((v) => `<td>${esc(v)}</td>`).join('')}</tr>`)
+          .map(
+            (r) =>
+              `<tr>${r.map((v) => `<td>${escapeHtml(v)}</td>`).join('')}</tr>`
+          )
           .join('')}</tbody>
       </table>
     </div>`
