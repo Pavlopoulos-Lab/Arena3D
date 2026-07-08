@@ -74,7 +74,10 @@ function renderTable(
       <table class="table table-dark table-striped table-sm">
         <thead><tr>${columns.map((c) => `<th>${escapeHtml(c)}</th>`).join('')}</tr></thead>
         <tbody>${rows
-          .map((r) => `<tr>${r.map((v) => `<td>${escapeHtml(v)}</td>`).join('')}</tr>`)
+          .map(
+            (r) =>
+              `<tr>${r.map((v) => `<td>${escapeHtml(v)}</td>`).join('')}</tr>`
+          )
           .join('')}</tbody>
       </table>
     </div>`
