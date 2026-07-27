@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.0.0] - 2026-07-08
+## [3.0.0] - 2026-07-27
 
 Full rewrite: migrated from R/Shiny to a **FastAPI (Python) backend + Vite / TypeScript / Three.js frontend**. Algorithms (layouts, clustering, topology) ported 1:1 via python-igraph.
 
