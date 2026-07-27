@@ -1,12 +1,12 @@
 <!-- Badges -->
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/pavlopouloslab/arena3dweb.svg)](https://hub.docker.com/r/pavlopouloslab/arena3dweb)
-[![Shiny App](https://img.shields.io/badge/Shiny-online-brightgreen)](https://www.arena3d.org)
-[![GitHub Repo](https://img.shields.io/badge/GitHub-PavlopoulosLab%2FArena3Dweb-blue)](https://github.com/PavlopoulosLab/Arena3Dweb)
+[![Docker Pulls](https://img.shields.io/docker/pulls/pavlopouloslab/arena3dweb.svg)](https://hub.docker.com/r/pavlopouloslab/arena3d)
+[![Live Demo](https://img.shields.io/badge/demo-online-brightgreen)](https://www.arena3d.org)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-PavlopoulosLab%2FArena3D-blue)](https://github.com/pavlopoulos-lab/arena3d)
 
-# Arena3D<sup>web</sup>
+# Arena3D
 
-> Fully interactive, dependency-free 3D visualization of multilayered networks.
+> Interactive 3D visualization of multilayered networks.
 
 ---
 
@@ -15,31 +15,31 @@
 1. [Overview](#overview)
 2. [Key Features](#key-features)
 3. [Getting Started](#getting-started)
-
    * [Online Demo](#online-demo)
    * [Local Installation](#local-installation)
 4. [Example Data](#example-data)
 5. [Usage](#usage)
-6. [Citing Arena3D<sup>web</sup>](#citing-arena3dweb)
+6. [Citing Arena3D](#citing-arena3d)
 7. [License](#license)
 
 ---
 
 ## 📝 Overview
 
-Arena3D<sup>web</sup> is a web application built with R/Shiny and JavaScript for visualizing multilayered graphs in 3D space, without external dependencies. Integrate multiple networks into a single scene, explore intra- and inter-layer connections, and manipulate the view in real time, including VR mode.
+Arena3D is a web application for visualizing multilayered graphs in 3D space. It pairs a **FastAPI** backend (Python + python-igraph for layouts, clustering, and topology metrics) with a **Vite / TypeScript / Three.js** frontend. Use it to integrate multiple networks into a single scene, explore intra- and inter-layer connections, and manipulate the view in real time.
 
 ---
 
 ## 🚀 Key Features
 
-* **Multi-layer integration**: Load and combine multiple network layers with cross-layer edges.
-* **3D Interactivity**: Translate, rotate, and scale the scene or individual layers; VR mode supported.
-* **Rich layouts & clustering**: Apply and customize layouts (force-directed, circular, grid) and clustering algorithms on selected layers.
-* **Dynamic styling**: Adjust node size, color, and edge colors on-the-fly to highlight important paths or topological features.
-* **Themes & export**: Choose from three premade themes; export/import sessions in JSON; download high-resolution snapshots.
+* **Multilayer integration**: Load and combine multiple network layers with cross-layer edges.
+* **3D interactivity**: Translate, rotate, and scale the scene or individual layers.
+* **Rich layouts & clustering**: Apply and customize 11 layouts (force-directed, circular, grid, …) and 4 clustering algorithms on selected layers.
+* **Dynamic styling**: Adjust node size, color, and edge colors on the fly to highlight important paths or topological features; upload node/edge attribute files.
+* **Themes & export**: Choose from predefined themes; export/import sessions in JSON.
+* **Undo/redo**: Every scene mutation is undoable.
 * **Graph support**: Handle weighted/unweighted, directed/undirected, and multi-channel graphs up to 10,000 edges (online); unlimited locally.
-* **API access**: Open networks directly from external applications via REST endpoint.
+* **API access**: Open networks directly from external applications via the REST API.
 
 ---
 
@@ -54,44 +54,42 @@ Access the live app at: [https://www.arena3d.org](https://www.arena3d.org)
 #### Docker (Recommended)
 
 ```bash
-# Pull the Docker image
-docker pull pavlopouloslab/arena3dweb
-# Run the container (port 3838)
-docker run -p 3838:3838 pavlopouloslab/arena3dweb
+git clone https://github.com/pavlopoulos-lab/arena3d.git
+cd Arena3D
+docker-compose up          # builds + runs backend (8000) and frontend (5173)
+```
+
+For a single production image (nginx serving the built frontend + Uvicorn):
+
+```bash
+docker build -t arena3d .
+docker run -p 8080:8080 arena3d   # http://localhost:8080
 ```
 
 #### From Source
 
-1. Clone the repo:
+**Backend** (Python, managed with [`uv`](https://docs.astral.sh/uv/)):
 
-   ```bash
-   ```
+```bash
+cd backend
+uv sync
+uv run uvicorn app.main:app --reload   # http://localhost:8000
+```
 
-git clone [https://github.com/PavlopoulosLab/Arena3Dweb.git](https://github.com/PavlopoulosLab/Arena3Dweb.git)
-cd Arena3Dweb
+**Frontend** (Node + npm):
 
-````
-2. Install R (>=4.0) and RStudio.
-3. Install required R packages:
-   ```r
-install.packages(c(
-  "shiny", "shinyjs", "shinythemes",
-  "igraph", "RColorBrewer",
-  "jsonlite", "tidyr"
-))
-````
-
-4. Open **Arena3Dweb.Rproj** in RStudio.
-5. Open **server.R**, select **Run External**, then click **Run App**.
+```bash
+cd frontend
+npm install
+npm run dev                            # http://localhost:5173 (/api proxied to :8000)
+```
 
 ---
 
 ## 📂 Example Data
 
-Find downloadable example files in the `www/data/` folder:
-
-* **TSV** files for "Upload Network" format
-* **JSON** files for "Load Session" format
+* One of the bundled example networks (`frontend/public/data/figure2A_data.tsv`) loads via the **Load Example** button in the File panel.
+* Backend test fixtures live in `backend/tests/fixtures/` (TSV networks + JSON sessions).
 
 ---
 
@@ -99,22 +97,24 @@ Find downloadable example files in the `www/data/` folder:
 
 1. **Upload** network files or load a saved session.
 2. **Select** layers to apply layouts or clustering.
-3. **Interact** with the 3D scene: pan, zoom, rotate, enter VR.
-4. **Customize** node/edge styling and themes.
-5. **Export** snapshots or session JSON for later reuse.
+3. **Interact** with the 3D scene: pan, zoom, rotate, drag layers.
+4. **Customize** node/edge styling and themes; undo/redo any change.
+5. **Export** session JSON for later reuse.
 
 ---
 
-## 📚 Citing Arena3D<sup>web</sup>
+## 📚 Citing Arena3D
 
-* **Arena3D<sup>web</sup>: interactive 3D visualization of multilayered networks**
-  Karatzas E., Baltoumas F.A., Panayiotou N.A., Schneider R., Pavlopoulos G.A.
-  *Nucleic Acids Research*, 2021;49(W1)\:W36–W45.
+The following publications refer to Arena3D under its former name, Arena3Dweb.
+
+* **Arena3D<sup>web</sup>: interactive 3D visualization of multilayered networks**  
+  Karatzas E., Baltoumas F.A., Panayiotou N.A., Schneider R., Pavlopoulos G.A.  
+  *Nucleic Acids Research*, 2021;49(W1):W36-W45.  
   doi: [10.1093/nar/gkab278](https://doi.org/10.1093/nar/gkab278)
 
-* **Arena3D<sup>web</sup>: interactive 3D visualization of multilayered networks supporting multiple directional information channels, clustering analysis and application integration**
-  Kokoli M., Karatzas E., Baltoumas F.A., Schneider R., Pafilis E., Paragkamian S., Doncheva N.T., Jensen L.J., Pavlopoulos G.A.
-  *NAR Genomics and Bioinformatics*, 2022;5(2)\:lqad053.
+* **Arena3D<sup>web</sup>: interactive 3D visualization of multilayered networks supporting multiple directional information channels, clustering analysis and application integration**  
+  Kokoli M., Karatzas E., Baltoumas F.A., Schneider R., Pafilis E., Paragkamian S., Doncheva N.T., Jensen L.J., Pavlopoulos G.A.  
+  *NAR Genomics and Bioinformatics*, 2022;5(2):lqad053.  
   doi: [10.1093/nargab/lqad053](https://doi.org/10.1093/nargab/lqad053)
 
 ---

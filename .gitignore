@@ -38,3 +38,18 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 Arena3Dweb.Rproj
+
+# Python
+backend/.venv/
+__pycache__/
+*.pyc
+.mypy_cache/
+.ruff_cache/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Editors
+.DS_Store
+.playwright-cli/

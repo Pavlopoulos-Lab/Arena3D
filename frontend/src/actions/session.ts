@@ -1,0 +1,104 @@
+// Session export — port of v2 convertSessionToJSON (functions/input.R) fed by
+// rshiny_update.js. Assembles the export dict from live ctx state; the backend
+// (/api/session/export) just packages it with a download header. Import lives
+// in network.ts (buildFromSession). File-panel upload/download wiring is
+// Phase 13.
+
+import { Color } from 'three'
+import { api, type SessionData } from '../api/client'
+import { store } from '../store'
+import { ctx } from '../three'
+
+// v2 collected scene/layers/nodes/edges through the Shiny bridge; here we read
+// the Three.js objects directly. Values are numbers (v2 stringified them via
+// JSON; the importer coerces with Number(), so either is fine).
+export function collectSession(): SessionData {
+  const color = ctx.renderer
+    ? `#${ctx.renderer.getClearColor(new Color()).getHexString()}`
+    : '#000000'
+
+  return {
+    scene: {
+      position_x: ctx.scene?.getPosition('x') ?? 0,
+      position_y: ctx.scene?.getPosition('y') ?? 0,
+      scale: ctx.scene?.getScale() ?? 1,
+      color,
+      rotation_x: ctx.scene?.getRotation('x') ?? 0,
+      rotation_y: ctx.scene?.getRotation('y') ?? 0,
+      rotation_z: ctx.scene?.getRotation('z') ?? 0,
+    },
+    layers: ctx.layers.map((l) => ({
+      name: l.getName(),
+      position_x: l.getPosition('x'),
+      position_y: l.getPosition('y'),
+      position_z: l.getPosition('z'),
+      last_layer_scale: l.getScale(),
+      rotation_x: l.getRotation('x'),
+      rotation_y: l.getRotation('y'),
+      rotation_z: l.getRotation('z'),
+      floor_current_color: l.getColor(),
+      geometry_parameters_width: l.getWidth(),
+      generate_coordinates: false,
+    })),
+    nodes: ctx.nodeObjects.map((n) => ({
+      name: n.getName(),
+      layer: n.getLayer(),
+      position_x: n.getPosition('x'),
+      position_y: n.getPosition('y'),
+      position_z: n.getPosition('z'),
+      scale: n.getScale(),
+      color: n.getColor(),
+      url: n.url,
+      descr: n.descr,
+    })),
+    edges: collectEdges(),
+    universalLabelColor: ctx.labelColor,
+    direction: ctx.isDirectionEnabled,
+    edgeOpacityByWeight: ctx.edgeWidthByWeight,
+    scramble_nodes: false,
+  }
+}
+
+// v2 updateEdgesRShiny + updateEdgeColorsRShiny: one export row per channel
+// (or a single channel-less row), color resolved with forExport=true.
+function collectEdges(): SessionData['edges'] {
+  const rows: SessionData['edges'] = []
+  for (const edge of ctx.edgeObjects) {
+    if (edge.channels.length > 0) {
+      edge.channels.forEach((channel, j) => {
+        rows.push({
+          src: edge.source,
+          trg: edge.target,
+          opacity: edge.weights[j],
+          color: edge.decideColor(j, true),
+          channel,
+        })
+      })
+    } else {
+      rows.push({
+        src: edge.source,
+        trg: edge.target,
+        opacity: edge.weights[0],
+        color: edge.decideColor(0, true),
+      })
+    }
+  }
+  return rows
+}
+
+// Named as v2's download: POST the assembled session, trigger a file save.
+export async function exportSession(filename = 'network.json'): Promise<void> {
+  if (!store.get().network) throw new Error('No network to export.')
+  const blob = await api.exportSession(collectSession())
+  triggerDownload(blob, filename)
+}
+
+function triggerDownload(blob: Blob, filename: string): void {
+  if (typeof document === 'undefined') return
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}

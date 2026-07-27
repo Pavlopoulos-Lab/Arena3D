@@ -1,23 +1,20 @@
-FROM r-base
-#Description of the image
-LABEL description="Arena3Dweb docker image"
-LABEL maintainer="Fotis Baltoumas<baltoumas@fleming.gr>"
-LABEL version="2.0"
-#set the timezone
-ENV TZ Europe/Athens
-#copy the Rprofile.site file and containing the shiny port and CRAN repo url
-COPY Rprofile.site /usr/lib/R/etc/
+# Production image: nginx serves static Vite build, proxies /api to uvicorn.
+FROM node:22-slim AS frontend-build
+WORKDIR /build
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
 
-# install required R packages
-RUN R -e 'install.packages(c("shiny","shinyjs","shinythemes","igraph","RColorBrewer","jsonlite","tidyr"))'
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends nginx && rm -rf /var/lib/apt/lists/*
+COPY backend/pyproject.toml backend/uv.lock ./
+RUN uv sync --frozen --no-group dev
+COPY backend/app ./app
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY --from=frontend-build /build/dist /usr/share/nginx/html
 
-# copy the Arena3Dweb directory to the VM 
-COPY ./Arena3Dweb/ /root/Arena3DWeb/
-
-RUN R -e 'install.packages(c("DT", "fst"))'
-
-#expose the shiny port
-EXPOSE 3838
-
-#set the default command to run, ie "R"
-CMD ["R", "-e", "shiny::runApp('/root/Arena3DWeb/')"]
+EXPOSE 8080
+# ponytail: sh -c instead of a supervisor; two processes, container dies if nginx dies
+CMD ["sh", "-c", "uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 & exec nginx -g 'daemon off;'"]

@@ -1,0 +1,1128 @@
+/* App-level layout: fullscreen Three.js canvas with panel overlays.
+   Replaces v2 www/arena3d.css positioning hacks; per-panel rules land
+   with their panels. */
+
+/* Design tokens shared by the 2D chrome so it reads as one system with the
+   dark canvas. One cool "instrument" palette; a single blue accent. */
+:root {
+  --arena-accent: #5b9bff;
+  --arena-accent-hover: #7db0ff;
+  --arena-accent-rgb: 91, 155, 255;
+  --arena-bg: #0a0d13;
+  --arena-surface: rgba(18, 23, 32, 0.86);
+  --arena-surface-solid: #12171f;
+  --arena-elevated: rgba(28, 34, 45, 0.92);
+  --arena-border: rgba(255, 255, 255, 0.09);
+  --arena-border-strong: rgba(255, 255, 255, 0.16);
+  --arena-text: #e2e8f2;
+  --arena-text-muted: #94a1b5;
+  --arena-radius: 10px;
+  --arena-radius-sm: 7px;
+  --arena-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --arena-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Retint Bootstrap's dark theme so every .btn / .form-control / .nav / .table
+   inherits the palette instead of being restyled one component at a time. */
+[data-bs-theme='dark'] {
+  --bs-body-bg: #0a0d13;
+  --bs-body-color: #e2e8f2;
+  --bs-secondary-color: #94a1b5;
+  --bs-tertiary-bg: rgba(18, 23, 32, 0.86);
+  --bs-border-color: rgba(255, 255, 255, 0.12);
+  --bs-primary: #5b9bff;
+  --bs-primary-rgb: 91, 155, 255;
+  --bs-link-color: #7db0ff;
+  --bs-link-color-rgb: 125, 176, 255;
+  --bs-link-hover-color: #a3c6ff;
+  --bs-body-font-family:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+body {
+  font-family: var(--bs-body-font-family);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Frosted navbar so the canvas glows through without hurting legibility. */
+#navBar {
+  background-color: var(--arena-surface) !important;
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid var(--arena-border);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  min-height: 56px;
+}
+
+#navBar .navbar-nav .nav-link {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--arena-text-muted);
+  padding: 0.4rem 0.72rem;
+  border-radius: var(--arena-radius-sm);
+  transition:
+    color 0.15s var(--arena-ease),
+    background-color 0.15s var(--arena-ease);
+}
+
+#navBar .navbar-nav .nav-link:hover {
+  color: var(--arena-text);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+#navBar .navbar-nav .nav-link.active {
+  color: #fff;
+  background-color: rgba(var(--arena-accent-rgb), 0.16);
+  box-shadow: inset 0 0 0 1px rgba(var(--arena-accent-rgb), 0.4);
+}
+
+/* Muted ghost button — undo/redo group, and any secondary/utility action
+   elsewhere (e.g. File panel) that shouldn't compete with a primary CTA. */
+.btn-outline-secondary {
+  --bs-btn-color: var(--arena-text-muted);
+  --bs-btn-border-color: var(--arena-border-strong);
+  --bs-btn-hover-bg: rgba(255, 255, 255, 0.06);
+  --bs-btn-hover-border-color: var(--arena-accent);
+  --bs-btn-hover-color: var(--arena-text);
+  font-weight: 500;
+}
+
+/* Shared component polish -------------------------------------------------- */
+.btn {
+  --bs-btn-font-weight: 500;
+  border-radius: var(--arena-radius-sm);
+  transition:
+    transform 0.12s var(--arena-ease),
+    filter 0.15s var(--arena-ease),
+    background-color 0.15s var(--arena-ease),
+    box-shadow 0.15s var(--arena-ease);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--arena-accent);
+  --bs-btn-border-color: var(--arena-accent);
+  --bs-btn-hover-bg: var(--arena-accent-hover);
+  --bs-btn-hover-border-color: var(--arena-accent-hover);
+  --bs-btn-active-bg: #4a88ec;
+  --bs-btn-color: #06101f;
+  --bs-btn-hover-color: #06101f;
+  box-shadow: 0 4px 14px rgba(var(--arena-accent-rgb), 0.28);
+}
+
+.btn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.btn:not(:disabled):active {
+  transform: translateY(0) scale(0.985);
+}
+
+/* File panel action row: one solid primary CTA (Save) plus two ghost actions,
+   so three buttons don't compete as equals the way three btn-primarys did. */
+.file-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 1.1rem;
+}
+
+.file-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.55rem 1rem;
+}
+
+.file-action svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.form-control,
+.form-select {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: var(--arena-border-strong);
+  border-radius: var(--arena-radius-sm);
+  color: var(--arena-text);
+  transition:
+    border-color 0.15s var(--arena-ease),
+    box-shadow 0.15s var(--arena-ease);
+}
+
+/* The native dropdown popup (option list) renders with the OS default light
+   background, so inheriting only the light --arena-text made options
+   unreadable (light-on-light). Force an opaque dark background + light text. */
+.form-select option,
+.form-select optgroup {
+  background-color: var(--arena-surface-solid);
+  color: var(--arena-text);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: var(--arena-accent);
+  box-shadow: 0 0 0 3px rgba(var(--arena-accent-rgb), 0.22);
+}
+
+.form-control::file-selector-button {
+  background-color: rgba(var(--arena-accent-rgb), 0.14);
+  color: var(--arena-text);
+  border: 0;
+  border-right: 1px solid var(--arena-border);
+}
+
+.form-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--arena-text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.form-check-input:checked {
+  background-color: var(--arena-accent);
+  border-color: var(--arena-accent);
+}
+
+.form-check-input:focus {
+  border-color: var(--arena-accent);
+  box-shadow: 0 0 0 3px rgba(var(--arena-accent-rgb), 0.22);
+}
+
+.form-range::-webkit-slider-thumb {
+  background: var(--arena-accent);
+}
+.form-range::-moz-range-thumb {
+  background: var(--arena-accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--arena-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Action panels open as a right-side drawer so the 3D scene stays visible;
+   only Home and Help take the full view (they are reading, not operating on
+   the scene). Main View's pane is display:none, so the canvas shows through. */
+#panelContent .tab-pane {
+  position: fixed;
+  top: 56px; /* navbar height */
+  right: 0;
+  bottom: 0;
+  width: min(440px, 94vw);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  z-index: 5; /* above the #info / nav-control overlays (z-index 2) */
+  background-color: var(--arena-surface);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border-left: 1px solid var(--arena-border);
+  box-shadow: var(--arena-shadow);
+  /* extra bottom padding clears the fixed footer bar */
+  padding: 1.4rem 1.35rem calc(3rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Slide the drawer in when it becomes the active pane. */
+#panelContent .tab-pane.show {
+  animation: drawer-in 0.28s var(--arena-ease);
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Collapse handle for the right-side drawer: sits on the seam between the
+   open drawer and the canvas, or on the viewport edge once the drawer is
+   closed, so a panel can be dismissed/reopened without the navbar tabs. */
+.panel-drawer-toggle {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 6; /* above the drawer's z-index 5 */
+  width: 20px;
+  height: 64px;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--arena-text-muted);
+  background-color: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-right: 0;
+  border-radius: var(--arena-radius-sm) 0 0 var(--arena-radius-sm);
+  box-shadow: var(--arena-shadow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition:
+    right 0.28s var(--arena-ease),
+    color 0.15s var(--arena-ease),
+    background-color 0.15s var(--arena-ease);
+}
+
+.panel-drawer-toggle:hover {
+  color: var(--arena-text);
+  background-color: var(--arena-elevated);
+}
+
+.panel-drawer-toggle.is-open {
+  color: var(--arena-accent);
+}
+
+/* Home and Help are full-width reading surfaces, not scene controls.
+   Selector carries two ids to out-specify the base .tab-pane drawer rule. */
+#panelContent #panel-home,
+#panelContent #panel-help {
+  left: 0;
+  width: auto;
+  background-color: var(--bs-body-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-left: 0;
+  box-shadow: none;
+  padding: 1.6rem 2rem;
+}
+
+/* Wide data tables get a roomier drawer. */
+#panel-data {
+  width: min(680px, 96vw);
+}
+
+/* Inside a drawer the old responsive column wrappers would shrink content to a
+   fraction of the (already narrow) drawer — let panel content use full width. */
+#panelContent .tab-pane:not(#panel-home):not(#panel-help) [class*='col-'] {
+  flex: 0 0 100%;
+  max-width: 100%;
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Per-layer selection rows: name on the left, Hide/Labels toggles on the right,
+   never wrapping into an unreadable pile in the narrow drawer. */
+.layer-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.55rem;
+  margin-bottom: 0.3rem;
+  border: 1px solid var(--arena-border);
+  border-radius: var(--arena-radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.15s var(--arena-ease);
+}
+
+.layer-row:hover {
+  border-color: var(--arena-border-strong);
+}
+
+.layer-row__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  margin: 0;
+}
+
+.layer-row__opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex: 0 0 auto;
+  font-size: 0.8rem;
+  color: var(--arena-text-muted);
+  margin: 0;
+  cursor: pointer;
+}
+
+.layer-row__opt .form-check-input {
+  margin: 0;
+}
+
+/* Main View has no panel content: keep it invisible so the canvas shows. */
+#panel-main-view {
+  display: none !important;
+}
+
+#info {
+  position: fixed;
+  top: 70px;
+  left: 10px;
+  z-index: 2;
+  font-size: 12px;
+  color: var(--bs-body-color);
+}
+
+/* Nav control buttons + Scene/Layers/Nodes control table (port of v2
+   arena3d.css canvas-control rules; positions adapted to the fixed
+   navbar). Higher z-index than #info so the toggle/pause buttons are never
+   clipped by the controls panel below them, regardless of exact heights. */
+#navControlButtonsDiv {
+  position: fixed;
+  top: 64px;
+  left: 10px;
+  z-index: 3;
+}
+
+.displayCanvasControls {
+  display: block;
+  margin-top: 8px;
+  padding: 4px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--bs-body-color);
+  background-color: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-radius: 6px;
+  transition: border-color 0.15s ease;
+}
+
+.displayCanvasControls:hover {
+  border-color: var(--arena-accent);
+}
+
+/* Icon + label toggle buttons (render-pause, controls disclosure): the icon
+   swaps per state instead of the label alone carrying the meaning. */
+.nav-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.nav-toggle-icon {
+  color: var(--arena-accent);
+  font-size: 10px;
+  line-height: 1;
+}
+
+/* Paused = an actual stopped state worth calling out, not just a hover tint. */
+.nav-toggle-btn.is-paused {
+  border-color: rgba(var(--arena-accent-rgb), 0.5);
+  background-color: rgba(var(--arena-accent-rgb), 0.1);
+}
+
+.nav-toggle-btn.is-paused .nav-toggle-icon {
+  color: #ffb454;
+}
+
+/* Theme bar (port of v2 #themeDiv/.themeButton): fixed top-right, one button
+   per THEMES preset, each previewing its own scene colors. */
+#themeDiv {
+  position: fixed;
+  top: 64px;
+  right: 10px;
+  z-index: 3;
+  display: flex;
+  gap: 4px;
+}
+
+.themeButton {
+  width: 56px;
+  padding: 3px 0;
+  font-size: 12px;
+  font-weight: bold;
+  border: 1px solid var(--arena-border);
+  border-radius: 6px;
+  transition: border-color 0.15s ease;
+}
+
+.themeButton:hover {
+  border-color: var(--arena-accent);
+}
+
+#lightThemeButton {
+  color: #5c5c5c;
+  background-color: #ffffff;
+}
+
+#darkThemeButton {
+  color: #ffffff;
+  background-color: #000000;
+}
+
+#grayThemeButton {
+  color: #6e2a5a;
+  background-color: #bababa;
+}
+
+#info {
+  width: 258px;
+  top: 150px; /* below the nav control buttons */
+  overflow-y: auto;
+  max-height: calc(100vh - 190px);
+  padding: 10px 12px;
+  background-color: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Before a network is loaded, #info holds only the waiting hint: present it as
+   a centered empty-state card over the canvas instead of a top-left line. */
+#info:not(:has(table)) {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -50%);
+  width: auto;
+  max-width: 340px;
+  max-height: none;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--arena-text-muted);
+  padding: 1.5rem 1.75rem;
+  border-radius: var(--arena-radius);
+}
+
+#info:not(:has(table))::before {
+  content: '◇';
+  display: block;
+  font-size: 1.6rem;
+  color: var(--arena-accent);
+  margin-bottom: 0.5rem;
+}
+
+/* Before a network loads, #info is just passive hint text and must not block
+   canvas interaction. Once it holds the controls table it becomes a real
+   panel — including its own scrollbar — so it needs normal pointer events. */
+#info:not(:has(table)) {
+  pointer-events: none;
+}
+
+/* Node/layer labels are display-only overlays; let the mouse fall through to
+   the canvas (lasso, layer drag). Scoped to the divs, not #labelDiv — the
+   right-click node menu also mounts there and needs clicks. */
+.labels,
+.layer-labels {
+  pointer-events: none;
+}
+
+/* Navigation shortcut cheat-sheet: action left, keys right. */
+#navShortcuts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#navShortcuts li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 3px 0;
+  color: var(--arena-text-muted);
+}
+
+#navShortcuts li span:last-child {
+  white-space: nowrap;
+  text-align: right;
+}
+
+#navShortcuts li + li {
+  border-top: 1px solid var(--arena-border);
+}
+
+#navShortcuts kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--arena-text);
+  background: var(--arena-elevated);
+  border: 1px solid var(--arena-border-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+}
+
+#navShortcuts kbd + kbd {
+  margin-left: 3px;
+}
+
+#canvasControls_table {
+  color: var(--bs-body-color);
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+#canvasControls_table h5 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--arena-text);
+  margin: 0.35rem 0;
+}
+
+#canvasControls_table #recenterButton {
+  width: 100%;
+  margin: 0.25rem 0 0.5rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.82rem;
+  color: var(--arena-text);
+  background: rgba(var(--arena-accent-rgb), 0.14);
+  border: 1px solid rgba(var(--arena-accent-rgb), 0.4);
+  border-radius: var(--arena-radius-sm);
+  transition:
+    background-color 0.15s var(--arena-ease),
+    border-color 0.15s var(--arena-ease);
+}
+
+#canvasControls_table #recenterButton:hover {
+  background: rgba(var(--arena-accent-rgb), 0.24);
+  border-color: var(--arena-accent);
+}
+
+.border_tr {
+  border-top: 1px solid var(--arena-border-strong);
+}
+
+.border_tr td {
+  padding-top: 0.5rem;
+}
+
+.controlsSubLabel {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--arena-text-muted);
+  padding: 0.1rem 0 0.3rem;
+}
+
+.canvasSlider {
+  width: 100%;
+  accent-color: var(--arena-accent);
+  cursor: pointer;
+}
+
+.labelDrop {
+  vertical-align: bottom;
+  color: var(--arena-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.raiseSlider {
+  margin-top: -30px;
+}
+
+.red {
+  font-weight: bold;
+  color: #fb3d2a;
+}
+
+.green {
+  font-weight: bold;
+  color: #46fb2a;
+}
+
+.blue {
+  font-weight: bold;
+  color: #2ac2fb;
+}
+
+.canvasControls {
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  border-radius: var(--arena-radius-sm);
+  transition: background-color 0.15s var(--arena-ease);
+}
+
+.canvasControls:hover {
+  background-color: rgba(var(--arena-accent-rgb), 0.12);
+}
+
+.canvasControls:active {
+  background-color: rgba(var(--arena-accent-rgb), 0.22);
+}
+
+.image_expandLayers,
+.image_collapseLayers,
+.image_nodeExpand,
+.image_nodeCollapse {
+  width: 50%;
+  height: 45px;
+}
+
+/* prettier-ignore */
+.image_minusX { background-image: url(/images/canvas_control/minusX.png); }
+/* prettier-ignore */
+.image_minusX:hover { background-image: url(/images/canvas_control/minusX_hover.png); }
+/* prettier-ignore */
+.image_minusX:active { background-image: url(/images/canvas_control/minusX_active.png); }
+/* prettier-ignore */
+.image_plusX { background-image: url(/images/canvas_control/plusX.png); }
+/* prettier-ignore */
+.image_plusX:hover { background-image: url(/images/canvas_control/plusX_hover.png); }
+/* prettier-ignore */
+.image_plusX:active { background-image: url(/images/canvas_control/plusX_active.png); }
+/* prettier-ignore */
+.image_minusY { background-image: url(/images/canvas_control/minusY.png); }
+/* prettier-ignore */
+.image_minusY:hover { background-image: url(/images/canvas_control/minusY_hover.png); }
+/* prettier-ignore */
+.image_minusY:active { background-image: url(/images/canvas_control/minusY_active.png); }
+/* prettier-ignore */
+.image_plusY { background-image: url(/images/canvas_control/plusY.png); }
+/* prettier-ignore */
+.image_plusY:hover { background-image: url(/images/canvas_control/plusY_hover.png); }
+/* prettier-ignore */
+.image_plusY:active { background-image: url(/images/canvas_control/plusY_active.png); }
+/* prettier-ignore */
+.image_minusZ { background-image: url(/images/canvas_control/minusZ.png); }
+/* prettier-ignore */
+.image_minusZ:hover { background-image: url(/images/canvas_control/minusZ_hover.png); }
+/* prettier-ignore */
+.image_minusZ:active { background-image: url(/images/canvas_control/minusZ_active.png); }
+/* prettier-ignore */
+.image_plusZ { background-image: url(/images/canvas_control/plusZ.png); }
+/* prettier-ignore */
+.image_plusZ:hover { background-image: url(/images/canvas_control/plusZ_hover.png); }
+/* prettier-ignore */
+.image_plusZ:active { background-image: url(/images/canvas_control/plusZ_active.png); }
+/* prettier-ignore */
+.image_minusX_T { background-image: url(/images/canvas_control/minusX_t.png); }
+/* prettier-ignore */
+.image_minusX_T:hover { background-image: url(/images/canvas_control/minusX_hover_t.png); }
+/* prettier-ignore */
+.image_minusX_T:active { background-image: url(/images/canvas_control/minusX_active_t.png); }
+/* prettier-ignore */
+.image_plusX_T { background-image: url(/images/canvas_control/plusX_t.png); }
+/* prettier-ignore */
+.image_plusX_T:hover { background-image: url(/images/canvas_control/plusX_hover_t.png); }
+/* prettier-ignore */
+.image_plusX_T:active { background-image: url(/images/canvas_control/plusX_active_t.png); }
+/* prettier-ignore */
+.image_minusY_T { background-image: url(/images/canvas_control/minusY_t.png); }
+/* prettier-ignore */
+.image_minusY_T:hover { background-image: url(/images/canvas_control/minusY_hover_t.png); }
+/* prettier-ignore */
+.image_minusY_T:active { background-image: url(/images/canvas_control/minusY_active_t.png); }
+/* prettier-ignore */
+.image_plusY_T { background-image: url(/images/canvas_control/plusY_t.png); }
+/* prettier-ignore */
+.image_plusY_T:hover { background-image: url(/images/canvas_control/plusY_hover_t.png); }
+/* prettier-ignore */
+.image_plusY_T:active { background-image: url(/images/canvas_control/plusY_active_t.png); }
+/* prettier-ignore */
+.image_minusZ_T { background-image: url(/images/canvas_control/minusZ_t.png); }
+/* prettier-ignore */
+.image_minusZ_T:hover { background-image: url(/images/canvas_control/minusZ_hover_t.png); }
+/* prettier-ignore */
+.image_minusZ_T:active { background-image: url(/images/canvas_control/minusZ_active_t.png); }
+/* prettier-ignore */
+.image_plusZ_T { background-image: url(/images/canvas_control/plusZ_t.png); }
+/* prettier-ignore */
+.image_plusZ_T:hover { background-image: url(/images/canvas_control/plusZ_hover_t.png); }
+/* prettier-ignore */
+.image_plusZ_T:active { background-image: url(/images/canvas_control/plusZ_active_t.png); }
+/* prettier-ignore */
+.image_expandLayers { background-image: url(/images/canvas_control/expandLayers.png); }
+/* prettier-ignore */
+.image_expandLayers:hover { background-image: url(/images/canvas_control/expandLayers_hover.png); }
+/* prettier-ignore */
+.image_expandLayers:active { background-image: url(/images/canvas_control/expandLayers_active.png); }
+/* prettier-ignore */
+.image_collapseLayers { background-image: url(/images/canvas_control/collapseLayers.png); }
+/* prettier-ignore */
+.image_collapseLayers:hover { background-image: url(/images/canvas_control/collapseLayers_hover.png); }
+/* prettier-ignore */
+.image_collapseLayers:active { background-image: url(/images/canvas_control/collapseLayers_active.png); }
+/* prettier-ignore */
+.image_nodeExpand { background-image: url(/images/canvas_control/expandNodes.png); }
+/* prettier-ignore */
+.image_nodeExpand:hover { background-image: url(/images/canvas_control/expandNodes_hover.png); }
+/* prettier-ignore */
+.image_nodeExpand:active { background-image: url(/images/canvas_control/expandNodes_active.png); }
+/* prettier-ignore */
+.image_nodeCollapse { background-image: url(/images/canvas_control/collapseNodes.png); }
+/* prettier-ignore */
+.image_nodeCollapse:hover { background-image: url(/images/canvas_control/collapseNodes_hover.png); }
+/* prettier-ignore */
+.image_nodeCollapse:active { background-image: url(/images/canvas_control/collapseNodes_active.png); }
+
+/* Loading spinner — slim centered ring (v2's 16px ring at margin hacks). */
+#loader {
+  border: 4px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  border-top: 4px solid var(--arena-accent);
+  width: 56px;
+  height: 56px;
+  animation: spin 0.9s linear infinite;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin: -28px 0 0 -28px;
+  z-index: 6; /* above open panels, which sit at z-index 5 */
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #loader {
+    animation-duration: 2.5s;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Node description panel (port of v2 #descrDiv rules; fixed right instead of
+   v2's float + negative-margin hack). */
+#descrDiv {
+  position: fixed;
+  display: none;
+  top: 160px;
+  right: 10px;
+  z-index: 3;
+  background-color: var(--arena-surface);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  height: 35vh;
+  width: 15%;
+  min-width: 220px;
+  border: 1px solid var(--arena-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  overflow-y: auto;
+}
+
+.descrDiv_paragraph {
+  color: white;
+  padding: 15px;
+  text-align: justify;
+  text-indent: 15px;
+  margin-top: 10px;
+}
+
+#closeButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--arena-text-muted);
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--arena-border);
+  border-radius: var(--arena-radius-sm);
+  transition:
+    color 0.15s var(--arena-ease),
+    background-color 0.15s var(--arena-ease),
+    border-color 0.15s var(--arena-ease);
+}
+
+#closeButton:hover {
+  color: #fff;
+  background-color: rgba(220, 70, 60, 0.85);
+  border-color: rgba(220, 70, 60, 0.9);
+}
+
+#closeButton:active {
+  background-color: rgba(180, 40, 32, 0.9);
+}
+
+/* Footer — quiet translucent bar instead of v2's solid blue banner. */
+footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  padding: 4px 0;
+  background-color: var(--arena-surface);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 1px solid var(--arena-border);
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  z-index: 2;
+}
+
+footer a {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+#logo1 {
+  background-image: url(/images/logo_dark.webp);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 220px;
+  height: 52px;
+}
+
+/* Home panel ---------------------------------------------------------------- */
+.home-wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-bottom: 4rem;
+}
+
+.home-hero {
+  padding: 0.5rem 0 1.75rem;
+  border-bottom: 1px solid var(--arena-border);
+  margin-bottom: 2rem;
+}
+
+.home-tagline {
+  margin: 0.75rem 0 0;
+  font-size: 1.05rem;
+  color: var(--arena-text-muted);
+  letter-spacing: 0.01em;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.home-figure {
+  margin: 0;
+  border: 1px solid var(--arena-border);
+  border-radius: var(--arena-radius);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.home-figure img {
+  display: block;
+  width: 100%;
+}
+
+.home-intro p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--arena-text);
+  max-width: 62ch;
+}
+
+.home-actions {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.home-action {
+  display: block;
+  padding: 0.85rem 1.05rem;
+  border: 1px solid var(--arena-border-strong);
+  border-radius: var(--arena-radius);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.02);
+  transition:
+    transform 0.15s var(--arena-ease),
+    border-color 0.15s var(--arena-ease),
+    background-color 0.15s var(--arena-ease);
+}
+
+.home-action:hover {
+  transform: translateY(-2px);
+  border-color: var(--arena-accent);
+  background: rgba(var(--arena-accent-rgb), 0.08);
+}
+
+.home-action--primary {
+  border-color: rgba(var(--arena-accent-rgb), 0.55);
+  background: rgba(var(--arena-accent-rgb), 0.12);
+}
+
+.home-action__title {
+  display: block;
+  font-weight: 600;
+  color: var(--arena-text);
+}
+
+.home-action__sub {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--arena-text-muted);
+  margin-top: 0.15rem;
+}
+
+.home-cite {
+  margin-top: 2.75rem;
+  padding: 1.5rem 1.6rem;
+  border: 1px solid var(--arena-border);
+  border-radius: var(--arena-radius);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.home-cite__heading {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--arena-text-muted);
+  margin: 0 0 1rem;
+}
+
+.home-cite p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--arena-text-muted);
+  margin-bottom: 1rem;
+}
+
+.home-cite p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  #panel-home {
+    padding: 1.25rem 1rem;
+  }
+  .home-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* Help panel — inner tab bar + content, themed to match the dark chrome. */
+#helpDiv {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+#helpDiv .tab {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  width: 100%;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--arena-border);
+}
+
+#helpDiv .tab button {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--arena-border);
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--arena-text-muted);
+  transition:
+    color 0.15s var(--arena-ease),
+    background-color 0.15s var(--arena-ease),
+    border-color 0.15s var(--arena-ease);
+}
+
+#helpDiv .tab button:hover {
+  color: var(--arena-text);
+  border-color: var(--arena-border-strong);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+#helpDiv .tab button.active {
+  color: #06101f;
+  background-color: var(--arena-accent);
+  border-color: var(--arena-accent);
+}
+
+#helpDiv .tabcontent {
+  display: none;
+  width: 100%;
+  max-width: 78ch;
+  line-height: 1.65;
+  word-break: break-word;
+}
+
+#helpDiv .tabcontent h2,
+#helpDiv .tabcontent h3 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-top: 1.75rem;
+}
+
+#helpDiv .tabcontent img {
+  max-width: 100%;
+  border: 1px solid var(--arena-border);
+  border-radius: var(--arena-radius-sm);
+}
+
+#helpDiv pre {
+  overflow-x: auto;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--arena-border);
+  border-radius: var(--arena-radius-sm);
+  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--arena-text);
+}
+
+#helpDiv .numbering {
+  color: var(--arena-accent);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+#helpDiv .indent {
+  margin-left: 20px;
+}
+
+#helpDiv .last_p {
+  margin-bottom: 100px;
+}
+
+/* 2D navigator (satellite view): fixed bottom-right thumbnail of the network's
+   current projection. Click/drag it to pan the 3D view. */
+#minimap {
+  position: fixed;
+  right: 10px;
+  bottom: 30px;
+  z-index: 3;
+  background-color: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-radius: 8px;
+  padding: 4px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: crosshair;
+  line-height: 0;
+}

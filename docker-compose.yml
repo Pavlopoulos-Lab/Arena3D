@@ -1,0 +1,39 @@
+services:
+  backend:
+    image: ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - backend-venv:/app/.venv
+    command: uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    # Explicit here (matching config.py's defaults) so the resource-limit DoS
+    # fix is deployment-tunable without editing code — see backend/app/config.py.
+    environment:
+      - ARENA_MAX_EDGES=10000
+      - ARENA_MAX_NODES=20000
+    ports:
+      - "8000:8000"
+
+  frontend:
+    image: node:22-slim
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - frontend-modules:/app/node_modules
+    command: sh -c "npm install && npm run dev -- --host"
+    environment:
+      - VITE_PROXY_TARGET=http://backend:8000
+      # Fix for Vite's "Blocked request" host-check error when this dev
+      # server is reverse-proxied under a public domain — see vite.config.ts.
+      - VITE_ALLOWED_HOSTS=pavlopoulos-lab-services.org
+      # Sub-path deployment fix: matches the Apache ProxyPass prefix
+      # (/arena3/) so generated asset URLs resolve through the proxy.
+      - VITE_BASE_PATH=/arena3/
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  backend-venv:
+  frontend-modules:
