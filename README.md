@@ -12,15 +12,15 @@
 
 ## 📖 Table of Contents
 
-1. [Overview](#overview)
-2. [Key Features](#key-features)
-3. [Getting Started](#getting-started)
+1. [Overview](#-overview)
+2. [Key Features](#-key-features)
+3. [Getting Started](#-getting-started)
    * [Online Demo](#online-demo)
    * [Local Installation](#local-installation)
-4. [Example Data](#example-data)
-5. [Usage](#usage)
-6. [Citing Arena3D](#citing-arena3d)
-7. [License](#license)
+4. [Example Data](#-example-data)
+5. [Usage](#-usage)
+6. [Citing Arena3D](#-citing-arena3d)
+7. [License](#-license)
 
 ---
 
