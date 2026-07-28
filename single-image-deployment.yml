@@ -1,0 +1,63 @@
+# Production deployment: single image (nginx + uvicorn) as the main site, no
+# sub-path/sub-domain rewriting — served at the root of its domain. A reverse
+# proxy on the host is expected to forward the whole domain to
+# 127.0.0.1:${HOST_PORT} (this container's nginx, which itself proxies /api/
+# to uvicorn — see Dockerfile and nginx/nginx.conf).
+#
+# Usage:
+#   docker compose -f single-image-deployment.yml up -d --build
+#
+# Set ARENA_PUBLIC_URL below to this deployment's real public URL (used to
+# build absolute links returned by /api/external) before starting — defaults
+# to localhost otherwise.
+
+services:
+  arena3d:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arena3d
+    restart: unless-stopped
+    ports:
+      # Host port that the reverse proxy forwards to. Bound to loopback only
+      # since the reverse proxy (not the internet) is the intended entrypoint;
+      # change to "8080:8080" if this host has no local reverse proxy.
+      - "127.0.0.1:${HOST_PORT:-8080}:8080"
+    environment:
+      # Public URL of this deployment (no sub-path, root of the domain).
+      # Used by /api/external to build absolute handoff links.
+      - ARENA_PUBLIC_URL=${ARENA_PUBLIC_URL:-http://localhost:${HOST_PORT:-8080}}
+      # Resource-limit DoS guards — same defaults as backend/app/config.py,
+      # explicit here so they're tunable per-deployment without a rebuild.
+      - ARENA_MAX_EDGES=${ARENA_MAX_EDGES:-10000}
+      - ARENA_MAX_NODES=${ARENA_MAX_NODES:-20000}
+      - ARENA_MAX_UPLOAD_BYTES=${ARENA_MAX_UPLOAD_BYTES:-20971520}
+    deploy:
+      resources:
+        limits:
+          cpus: "${CPU_LIMIT:-2}"
+          memory: ${MEM_LIMIT:-1g}
+        reservations:
+          cpus: "${CPU_RESERVATION:-0.5}"
+          memory: ${MEM_RESERVATION:-256m}
+    volumes:
+      # Persists external-API session handoffs (app/config.py TMP_PATH,
+      # TTL-swept after 1h) across container restarts/redeploys.
+      - arena3d-tmp:/app/tmp
+    healthcheck:
+      # No wget/curl in this base image (ghcr.io/astral-sh/uv:*-bookworm-slim
+      # only has python3) — use urllib instead.
+      test:
+        [
+          "CMD",
+          "python3",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/health', timeout=3)",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  arena3d-tmp:

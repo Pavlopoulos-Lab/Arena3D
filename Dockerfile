@@ -17,4 +17,8 @@ COPY --from=frontend-build /build/dist /usr/share/nginx/html
 
 EXPOSE 8080
 # ponytail: sh -c instead of a supervisor; two processes, container dies if nginx dies
-CMD ["sh", "-c", "uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 & exec nginx -g 'daemon off;'"]
+# --no-sync: without it, `uv run` re-checks the lockfile's default sync target
+# (which includes the dev group) and re-downloads pytest/mypy/ruff/etc. on
+# every container start, since the build only synced --no-group dev. --no-sync
+# just runs uvicorn in the venv frozen at build time — no runtime network dependency.
+CMD ["sh", "-c", "uv run --no-sync uvicorn app.main:app --host 127.0.0.1 --port 8000 & exec nginx -g 'daemon off;'"]
