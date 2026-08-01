@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.1.0dev] - unreleased
+
+### Fixed
+
+- Node colors rendered washed out/dark in the 3D scene compared to the 2D navigator. The bloom composer was blitting linear color straight to the sRGB canvas (missing `OutputPass`), and the ambient light was left at the pre-r155 intensity that physical lighting divides by PI.
+
 ## [3.0.0] - 2026-07-27
 
 Full rewrite: migrated from R/Shiny to a **FastAPI (Python) backend + Vite / TypeScript / Three.js frontend**. Algorithms (layouts, clustering, topology) ported 1:1 via python-igraph.

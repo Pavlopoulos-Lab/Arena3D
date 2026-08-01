@@ -39,12 +39,24 @@ export class Scene {
   addLights(): void {
     this.add(this.createPointLight(1))
     this.add(this.createPointLight(-1))
-    this.add(new THREE.AmbientLight(0xffffff))
+    // three r155+ lights are physical: the Lambert BRDF divides irradiance by
+    // PI, so intensity 1 renders a node at ~32% of its own color. PI is the
+    // intensity that makes a node read as the color the user picked — same as
+    // the minimap, which draws the raw hex.
+    this.add(new THREE.AmbientLight(0xffffff, Math.PI))
   }
 
   createPointLight(orientation: number): THREE.PointLight {
     const sphereGeom = new THREE.SphereGeometry()
-    const lightObject = new THREE.PointLight(0xffffff, 1, 2 * ctx.yBoundMax)
+    // decay 0: the lights sit a whole viewport away, where inverse-square
+    // falloff leaves nothing. They only add the top/bottom shading that keeps
+    // the spheres reading as 3D on top of the flat ambient.
+    const lightObject = new THREE.PointLight(
+      0xffffff,
+      0.5,
+      2 * ctx.yBoundMax,
+      0
+    )
     lightObject.add(
       new THREE.Mesh(
         sphereGeom,

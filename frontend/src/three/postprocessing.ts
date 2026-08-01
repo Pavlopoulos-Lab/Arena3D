@@ -6,6 +6,7 @@
 //   devices pay zero extra GPU cost with the toggle off.
 import * as THREE from 'three'
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ctx } from './runtime'
@@ -50,6 +51,10 @@ function ensureComposer(): void {
   // (nodes, colored edges) bloom; labels are DOM overlays and unaffected.
   bloomPass = new UnrealBloomPass(size, 0.35, 0.3, 0.8)
   composer.addPass(bloomPass)
+  // Composer buffers are linear; without this the last pass would blit linear
+  // values straight to an sRGB canvas and the whole scene renders dark. Must
+  // stay last.
+  composer.addPass(new OutputPass())
 }
 
 export function resizePostprocessing(width: number, height: number): void {
