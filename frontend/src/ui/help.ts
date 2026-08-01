@@ -30,8 +30,9 @@ const HELP_HTML = `
         SourceLayer and TargetLayer</i></b> and 2 optional columns with the headers <b><i> Weight and Channel</i></b>.
     After the file is uploaded, the weight
     values are
-    mapped in a [0-1] range and relative opacities are assigned to the respective edges. Edge transparency represents
-    the weight. The heavier the weight, the higher the opacity. In the case of unweighted graphs, one can skip the
+    mapped in a [0-1] range and assigned to the respective edges. By default the weight is shown as edge transparency —
+    the heavier the weight, the higher the opacity — and the Edge Actions panel can show it as edge thickness instead,
+    or as both at once. In the case of unweighted graphs, one can skip the
     weight column. The channel column is only used in the case of a multi-edge graphs. The column order in the input
     file is
     irrelevant. <br />In its online version,
@@ -121,7 +122,9 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
     Description<br />
     <b>Edge attributes</b>: Edge, Weight, Opacity, Color, Channel<br />
     <b>Univers Label Color</b>: hex code for the labels<br />
-    <b>Enable Direction</b>: boolean
+    <b>Enable Direction</b>: boolean<br />
+    <b>Weight Encoding</b>: <i>edgeOpacityByWeight</i> and <i>edgeWidthByWeight</i> booleans, independently selecting
+    whether edge weight drives opacity, thickness, both or neither
   </p>
   <pre class="last_p">
 {
@@ -197,7 +200,8 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
     ],
     "universalLabelColor": "#FFFFFF",
     "direction": false,
-    "edgeOpacityByWeight": true
+    "edgeOpacityByWeight": true,
+    "edgeWidthByWeight": false
 }
   </pre>
   <p>
@@ -605,7 +609,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
       style="float:left;width:320px;height:auto;max-width:100%;margin:5px;margin-right:20px;">
     <span class="numbering"> 1. </span> This option highlights the selected edges.<br />
     <span class="numbering"> 2. </span> This option toggles gives priority to the edge color that it is set on file. If
-    it is not checked and the network has multiple edges then the channel menu <span class="numbering">11</span> is
+    it is not checked and the network has multiple edges then the channel menu <span class="numbering">13</span> is
     visible.<br />
     <span class="numbering"> 3. </span> This option toggles the graph direction from the source node to target
     node (first figure). <br />
@@ -613,19 +617,24 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
     (<span class="numbering">3</span>) is enabled.<br />
     <span class="numbering"> 5. </span> This slider change the inter-layer arrow sizes. This is visible only if option
     (<span class="numbering">3</span>) is enabled. <br />
-    <span class="numbering"> 6. </span> This option gives priority on any uploaded/imported values of edge
-    <i>Weights</i>, which are being mapped in the [0-1] range and are assigned on edge opacities. If this option is
-    unchecked, the edge opacity is decided through options (<span class="numbering">7</span>) for intra-layer and (<span
-      class="numbering">8</span>) for inter-layer edges, respectively. <br />
-    <span class="numbering"> 7. </span> If option (<span class="numbering">6</span>) is unchecked, the intra-layer edge
+    <span class="numbering"> 6. </span> These options decide how uploaded/imported edge <i>Weights</i>, which are
+    mapped in the [0-1] range, are shown. <i>Opacity</i> assigns them to edge opacities (the heavier the weight, the
+    more opaque the edge) and <i>Width</i> assigns them to edge thickness (the heavier the weight, the thicker the
+    edge); <i>Both</i> applies them together, and <i>Nothing</i> ignores the weights entirely. Whichever property is
+    not driven by weight is set manually through the sliders below.<br />
+    <span class="numbering"> 7. </span> If weight is not assigned to opacity, the intra-layer edge
     opacity is decided through this slider.<br />
-    <span class="numbering"> 8. </span> If option (<span class="numbering">6</span>) is unchecked, the inter-layer edge
+    <span class="numbering"> 8. </span> If weight is not assigned to opacity, the inter-layer edge
     opacity is decided through this slider.<br />
-    <span class="numbering"> 9. </span> If the graph is multi-edge then this slider is visible and control the
+    <span class="numbering"> 9. </span> If weight is not assigned to width, the intra-layer edge
+    thickness is decided through this slider.<br />
+    <span class="numbering"> 10. </span> If weight is not assigned to width, the inter-layer edge
+    thickness is decided through this slider.<br />
+    <span class="numbering"> 11. </span> If the graph is multi-edge then this slider is visible and control the
     curvature of the intra-layer edges.<br />
-    <span class="numbering"> 10. </span> If the graph is multi-edge then this slider is visible and control the
+    <span class="numbering"> 12. </span> If the graph is multi-edge then this slider is visible and control the
     curvature of the inter-layer edges.<br />
-    <span class="numbering"> 11. </span> If the graph that is uploaded is multi-edge then then the channel menu (a
+    <span class="numbering"> 13. </span> If the graph that is uploaded is multi-edge then then the channel menu (a
     grid
     of <i>n x 3</i>)
     is created, where <i>n</i> is the number of channels and <i>3</i> are the available columns for

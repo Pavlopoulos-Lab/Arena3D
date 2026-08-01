@@ -17,6 +17,15 @@ export const CONE_HEIGHT = 15
 export const PLANE_WIDTHSEGMENTS = 8
 export const PLANE_HEIGHTSEGMENTS = 8
 
+// Edge thickness, in world units. The scene renders through an orthographic
+// camera whose frustum tracks the window, so one world unit is one pixel and
+// EDGE_WIDTH_MIN reproduces the old fixed 1px line.
+export const EDGE_WIDTH_MIN = 1
+export const EDGE_WIDTH_MAX = 6
+// LineMaterial has no alphaTest, so edges this faint are skipped at build time
+// rather than rasterised as invisible quads (v2 relied on alphaTest: 0.05).
+export const EDGE_MIN_VISIBLE_OPACITY = 0.05
+
 // Colors
 export const LAYER_DEFAULT_COLOR = '#777777'
 export const SELECTED_LAYER_DEFAULT_COLOR = '#f7f43e'

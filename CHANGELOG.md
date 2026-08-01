@@ -2,6 +2,10 @@
 
 ## [3.1.0dev] - unreleased
 
+### Added
+
+- Edge weight can now be shown as **edge thickness**, not only opacity. The Edge Actions panel replaces the "Edge Opacity By Weight" checkbox with a "Show Edge Weight As" radio — Nothing / Opacity / Width / Both — plus intra- and inter-layer width sliders for whichever property weight isn't driving. Sessions carry the choice as the independent `edgeOpacityByWeight` and `edgeWidthByWeight` booleans; files written before this default to opacity, so they render unchanged. Thickness needed `Line2` (instanced quads) because WebGL renders every line primitive at exactly 1px regardless of `linewidth`.
+
 ### Fixed
 
 - Node colors rendered washed out/dark in the 3D scene compared to the 2D navigator. The bloom composer was blitting linear color straight to the sRGB canvas (missing `OutputPass`), and the ambient light was left at the pre-r155 intensity that physical lighting divides by PI.

@@ -5,7 +5,7 @@ import {
   renderInterLayerEdges,
   setChannelColor,
   setChannelVisibility,
-  setEdgeWidthByWeight,
+  setEdgeWeightEncoding,
   setInterLayerEdgeOpacity,
   toggleInterLayerEdgesRendering,
 } from './edge'
@@ -70,8 +70,8 @@ describe('renderInterLayerEdges', () => {
     expect(ctx.waitEdgeRenderFlag).toBe(true)
   })
 
-  it('removes edges when opacity is 0 and width-by-weight is off', () => {
-    setEdgeWidthByWeight(false)
+  it('removes edges when opacity is 0 and opacity-by-weight is off', () => {
+    setEdgeWeightEncoding(false, false)
     setInterLayerEdgeOpacity(0)
     renderInterLayerEdges()
     expect(ctx.interEdgesRemoved).toBe(true)
@@ -107,9 +107,11 @@ describe('channels', () => {
     expect(ctx.channelVisibility['ch1']).toBe(false)
   })
 
-  it('toggles the right channel when a sibling channel has no arrow', () => {
-    // ch1 has weight 0 -> opacity 0 -> no arrow drawn; ch2 keeps its arrow.
-    // The old positional children[j+1] lookup corrupted ch1's line here.
+  it('toggles the right channel when a sibling channel is too faint to draw', () => {
+    // ch1 has weight 0, below EDGE_MIN_VISIBLE_OPACITY, so neither its line nor
+    // its arrow is built at all; ch2 gets both. Children are therefore not a
+    // fixed line/arrow interleave, which is why lookups go through
+    // userData.tag — the old positional children[j+1] corrupted ch1 here.
     ctx.isDirectionEnabled = true
     ctx.channelColors = { ch1: '#ff0000', ch2: '#00ff00' }
     ctx.channelVisibility = { ch1: true, ch2: true }
@@ -126,10 +128,10 @@ describe('channels', () => {
     ]
     setChannelVisibility('ch2', false)
     const children = ctx.edgeObjects[0].THREE_Object.children
-    for (const c of children) {
-      if (c.userData.tag === 'ch2') expect(c.visible).toBe(false)
-      if (c.userData.tag === 'ch1') expect(c.visible).toBe(true)
-    }
+    expect(children.filter((c) => c.userData.tag === 'ch1')).toHaveLength(0)
+    const ch2 = children.filter((c) => c.userData.tag === 'ch2')
+    expect(ch2.length).toBeGreaterThan(0)
+    for (const c of ch2) expect(c.visible).toBe(false)
     ctx.isDirectionEnabled = false
   })
 })

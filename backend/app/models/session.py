@@ -16,6 +16,7 @@ class SessionImportResponse(BaseModel):
     universalLabelColor: str
     direction: bool
     edgeOpacityByWeight: bool
+    edgeWidthByWeight: bool
     scramble_nodes: bool
     warnings: list[str] = []
 

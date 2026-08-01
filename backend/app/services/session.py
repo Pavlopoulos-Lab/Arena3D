@@ -168,6 +168,9 @@ def normalize_session(data: dict[str, Any]) -> dict[str, Any]:
         "universalLabelColor": _default(data.get("universalLabelColor"), "#FFFFFF"),
         "direction": _default(data.get("direction"), False),
         "edgeOpacityByWeight": _default(data.get("edgeOpacityByWeight"), True),
+        # Sessions written before edge thickness existed default to off, so
+        # they keep rendering exactly as they did.
+        "edgeWidthByWeight": _default(data.get("edgeWidthByWeight"), False),
         "scramble_nodes": scramble,
         "warnings": warnings,
     }

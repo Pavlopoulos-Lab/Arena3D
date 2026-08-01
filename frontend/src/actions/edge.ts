@@ -50,7 +50,7 @@ export function renderInterLayerEdges(): void {
 function existsConditionToRemoveInterEdges(): boolean {
   return (
     ctx.interLayerEdgesRenderPauseFlag ||
-    (!ctx.edgeWidthByWeight && ctx.interLayerEdgeOpacity === 0)
+    (!ctx.edgeOpacityByWeight && ctx.interLayerEdgeOpacity === 0)
   )
 }
 
@@ -113,8 +113,14 @@ export function setInterDirectionArrowSize(size: number): void {
   ctx.renderInterLayerEdgesFlag = true
 }
 
-export function setEdgeWidthByWeight(flag: boolean): void {
-  ctx.edgeWidthByWeight = flag
+// The Edge Actions radio always picks both flags at once, so take them
+// together and redraw once rather than twice.
+export function setEdgeWeightEncoding(
+  byOpacity: boolean,
+  byWidth: boolean
+): void {
+  ctx.edgeOpacityByWeight = byOpacity
+  ctx.edgeWidthByWeight = byWidth
   ctx.renderInterLayerEdgesFlag = true
   redrawIntraLayerEdges()
 }
@@ -126,6 +132,16 @@ export function setIntraLayerEdgeOpacity(opacity: number): void {
 
 export function setInterLayerEdgeOpacity(opacity: number): void {
   ctx.interLayerEdgeOpacity = opacity
+  ctx.renderInterLayerEdgesFlag = true
+}
+
+export function setIntraLayerEdgeWidth(width: number): void {
+  ctx.intraLayerEdgeWidth = width
+  redrawIntraLayerEdges()
+}
+
+export function setInterLayerEdgeWidth(width: number): void {
+  ctx.interLayerEdgeWidth = width
   ctx.renderInterLayerEdgesFlag = true
 }
 

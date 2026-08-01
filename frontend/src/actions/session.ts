@@ -54,7 +54,8 @@ export function collectSession(): SessionData {
     edges: collectEdges(),
     universalLabelColor: ctx.labelColor,
     direction: ctx.isDirectionEnabled,
-    edgeOpacityByWeight: ctx.edgeWidthByWeight,
+    edgeOpacityByWeight: ctx.edgeOpacityByWeight,
+    edgeWidthByWeight: ctx.edgeWidthByWeight,
     scramble_nodes: false,
   }
 }

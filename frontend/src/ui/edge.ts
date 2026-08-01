@@ -12,9 +12,11 @@ import {
   toggleDirection,
   setIntraDirectionArrowSize,
   setInterDirectionArrowSize,
-  setEdgeWidthByWeight,
+  setEdgeWeightEncoding,
   setIntraLayerEdgeOpacity,
   setInterLayerEdgeOpacity,
+  setIntraLayerEdgeWidth,
+  setInterLayerEdgeWidth,
   setIntraChannelCurvature,
   setInterChannelCurvature,
   setEdgeSelectedColorPriority,
@@ -37,9 +39,24 @@ const EDGE_HTML = `
     <label class="form-label" for="interDirectionArrowSize">Inter-Layer Direction Arrow Size:</label>
     <input type="range" class="form-range" id="interDirectionArrowSize" min="1" max="10" step="1" value="5" />
   </div>
-  <div class="form-check mb-2">
-    <input class="form-check-input" type="checkbox" id="edgeWidthByWeight" checked />
-    <label class="form-check-label" for="edgeWidthByWeight">Edge Opacity By Weight</label>
+  <label class="form-label">Show Edge Weight As:</label>
+  <div class="mb-3">
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="edgeWeightEncodingRadio" id="edgeWeight_none" value="none" />
+      <label class="form-check-label" for="edgeWeight_none">Nothing</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="edgeWeightEncodingRadio" id="edgeWeight_opacity" value="opacity" checked />
+      <label class="form-check-label" for="edgeWeight_opacity">Opacity</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="edgeWeightEncodingRadio" id="edgeWeight_width" value="width" />
+      <label class="form-check-label" for="edgeWeight_width">Width</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="edgeWeightEncodingRadio" id="edgeWeight_both" value="both" />
+      <label class="form-check-label" for="edgeWeight_both">Both</label>
+    </div>
   </div>
   <div class="mb-3 d-none" id="intraLayerEdgeOpacityWrap">
     <label class="form-label" for="intraLayerEdgeOpacity">Intra-Layer Edge Opacity:</label>
@@ -48,6 +65,14 @@ const EDGE_HTML = `
   <div class="mb-3 d-none" id="interLayerEdgeOpacityWrap">
     <label class="form-label" for="interLayerEdgeOpacity">Inter-Layer Edge Opacity:</label>
     <input type="range" class="form-range" id="interLayerEdgeOpacity" min="0" max="1" step="0.1" value="0.4" />
+  </div>
+  <div class="mb-3" id="intraLayerEdgeWidthWrap">
+    <label class="form-label" for="intraLayerEdgeWidth">Intra-Layer Edge Width:</label>
+    <input type="range" class="form-range" id="intraLayerEdgeWidth" min="1" max="10" step="0.5" value="1" />
+  </div>
+  <div class="mb-3" id="interLayerEdgeWidthWrap">
+    <label class="form-label" for="interLayerEdgeWidth">Inter-Layer Edge Width:</label>
+    <input type="range" class="form-range" id="interLayerEdgeWidth" min="1" max="10" step="0.5" value="1" />
   </div>
   <div class="mb-3">
     <label class="form-label" for="intraChannelCurvature">Intra-Layer Channel Curvature:</label>
@@ -71,6 +96,38 @@ const EDGE_HTML = `
 
 function show(id: string, visible: boolean): void {
   document.getElementById(id)?.classList.toggle('d-none', !visible)
+}
+
+// The radio is only a view over ctx.edgeOpacityByWeight/edgeWidthByWeight,
+// which are what the session JSON stores. One row per combination, so any
+// imported pair maps back onto an option.
+const ENCODING_FLAGS: Record<string, [boolean, boolean]> = {
+  none: [false, false],
+  opacity: [true, false],
+  width: [false, true],
+  both: [true, true],
+}
+
+// Point the radio and the slider visibility at whatever ctx currently holds.
+// Called on init and after every network/session load, since importing a
+// session writes ctx directly (actions/network.ts) and never touches the DOM.
+function syncEncodingSliders(): void {
+  const value =
+    Object.keys(ENCODING_FLAGS).find(
+      (k) =>
+        ENCODING_FLAGS[k][0] === ctx.edgeOpacityByWeight &&
+        ENCODING_FLAGS[k][1] === ctx.edgeWidthByWeight
+    ) ?? 'opacity'
+  const radio = document.querySelector<HTMLInputElement>(
+    `input[name="edgeWeightEncodingRadio"][value="${value}"]`
+  )
+  if (radio) radio.checked = true
+
+  // A slider is only useful for the encoding weight isn't already driving.
+  show('intraLayerEdgeOpacityWrap', !ctx.edgeOpacityByWeight)
+  show('interLayerEdgeOpacityWrap', !ctx.edgeOpacityByWeight)
+  show('intraLayerEdgeWidthWrap', !ctx.edgeWidthByWeight)
+  show('interLayerEdgeWidthWrap', !ctx.edgeWidthByWeight)
 }
 
 // v2 attachChannelEditList: per channel a color picker + a Hide checkbox.
@@ -131,17 +188,21 @@ export function initEdgePanel(): void {
   range('intraDirectionArrowSize', setIntraDirectionArrowSize)
   range('interDirectionArrowSize', setInterDirectionArrowSize)
 
-  // Opacity-by-weight hides the manual opacity sliders (edges.R).
-  document
-    .getElementById('edgeWidthByWeight')
-    ?.addEventListener('change', (e) => {
-      const byWeight = (e.target as HTMLInputElement).checked
-      show('intraLayerEdgeOpacityWrap', !byWeight)
-      show('interLayerEdgeOpacityWrap', !byWeight)
-      setEdgeWidthByWeight(byWeight)
+  // Each encoding driven by weight hides its own manual sliders (edges.R did
+  // this for opacity; width follows the same rule).
+  for (const radio of document.querySelectorAll<HTMLInputElement>(
+    'input[name="edgeWeightEncodingRadio"]'
+  )) {
+    radio.addEventListener('change', () => {
+      const [byOpacity, byWidth] = ENCODING_FLAGS[radio.value]
+      setEdgeWeightEncoding(byOpacity, byWidth)
+      syncEncodingSliders()
     })
+  }
   range('intraLayerEdgeOpacity', setIntraLayerEdgeOpacity)
   range('interLayerEdgeOpacity', setInterLayerEdgeOpacity)
+  range('intraLayerEdgeWidth', setIntraLayerEdgeWidth)
+  range('interLayerEdgeWidth', setInterLayerEdgeWidth)
 
   range('intraChannelCurvature', setIntraChannelCurvature)
   range('interChannelCurvature', setInterChannelCurvature)
@@ -157,5 +218,9 @@ export function initEdgePanel(): void {
       setEdgeFileColorPriority((e.target as HTMLInputElement).checked)
     })
 
-  bus.on('network:loaded', buildChannelEditList)
+  syncEncodingSliders()
+  bus.on('network:loaded', () => {
+    buildChannelEditList()
+    syncEncodingSliders() // an imported session may carry either flag
+  })
 }
