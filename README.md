@@ -1,6 +1,6 @@
 <!-- Badges -->
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/pavlopouloslab/arena3dweb.svg)](https://hub.docker.com/r/pavlopouloslab/arena3d)
+[![Docker Pulls](https://img.shields.io/docker/pulls/pavlopouloslab/arena3dweb.svg)](https://hub.docker.com/r/pavlopouloslab/arena3dweb)
 [![Live Demo](https://img.shields.io/badge/demo-online-brightgreen)](https://www.arena3d.org)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-PavlopoulosLab%2FArena3D-blue)](https://github.com/pavlopoulos-lab/arena3d)
 
