@@ -1,6 +1,14 @@
 import * as THREE from 'three'
-import { SELECTED_DEFAULT_COLOR } from './constants'
-import { ctx } from './runtime'
+import { Line2 } from 'three/addons/lines/Line2.js'
+import { LineGeometry } from 'three/addons/lines/LineGeometry.js'
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js'
+import {
+  EDGE_MIN_VISIBLE_OPACITY,
+  EDGE_WIDTH_MAX,
+  EDGE_WIDTH_MIN,
+  SELECTED_DEFAULT_COLOR,
+} from './constants'
+import { ctx, disposeObject3D } from './runtime'
 
 export interface EdgeOptions {
   id?: number
@@ -89,19 +97,49 @@ export class Edge {
   }
 
   createEdge(points: THREE.Vector3[]): void {
-    const geometry = new THREE.BufferGeometry().setFromPoints(points)
     const color = this.decideColor()
     const opacity = this.decideOpacity()
-    const material = new THREE.LineBasicMaterial({
+
+    // Too faint to see: an empty Group keeps every add/remove/traverse call
+    // site working while costing no geometry, material or draw call. v2 got
+    // this from alphaTest, which LineMaterial doesn't implement.
+    if (opacity < EDGE_MIN_VISIBLE_OPACITY) {
+      this.THREE_Object = new THREE.Group()
+      return
+    }
+
+    this.THREE_Object = this.createLine(
+      points,
+      color,
+      opacity,
+      this.decideWidth()
+    )
+
+    if (ctx.isDirectionEnabled) this.createArrow(points, color)
+  }
+
+  // Thick lines: WebGL renders every line primitive at exactly 1px, so real
+  // widths need Line2, which expands each segment into an instanced quad.
+  // worldUnits keeps the width in view space — with this app's window-sized
+  // orthographic frustum that reads as constant on-screen thickness, and it
+  // scales correctly into the higher-resolution PNG export.
+  // ponytail: one material per line, same count as the LineBasicMaterial it
+  // replaces. Quantise into a shared cache if material churn ever shows up.
+  createLine(
+    points: THREE.Vector3[],
+    color: string,
+    opacity: number,
+    width: number
+  ): Line2 {
+    const geometry = new LineGeometry().setFromPoints(points)
+    const material = new LineMaterial({
       color: color,
-      alphaTest: 0.05,
       transparent: true,
       opacity: opacity,
+      linewidth: width,
+      worldUnits: true,
     })
-
-    this.THREE_Object = new THREE.Line(geometry, material)
-
-    if (ctx.isDirectionEnabled && opacity !== 0) this.createArrow(points, color)
+    return new Line2(geometry, material)
   }
 
   decideColor(i = 0, forExport = false): string {
@@ -119,12 +157,23 @@ export class Edge {
 
   decideOpacity(i = 0): number {
     let opacity: number
-    if (ctx.edgeWidthByWeight) opacity = this.weights[i]
+    if (ctx.edgeOpacityByWeight) opacity = this.weights[i]
     else
       opacity = this.interLayer
         ? ctx.interLayerEdgeOpacity
         : ctx.intraLayerEdgeOpacity
     return opacity
+  }
+
+  // Mirrors decideOpacity. Weights arrive scaled to [0-1] by the backend, so
+  // they map onto the width range rather than being used raw — a raw weight
+  // near 0 would be a sub-pixel, invisible line.
+  decideWidth(i = 0): number {
+    if (ctx.edgeWidthByWeight)
+      return (
+        EDGE_WIDTH_MIN + this.weights[i] * (EDGE_WIDTH_MAX - EDGE_WIDTH_MIN)
+      )
+    return this.interLayer ? ctx.interLayerEdgeWidth : ctx.intraLayerEdgeWidth
   }
 
   createArrow(points: THREE.Vector3[], arrowColor: string): void {
@@ -189,7 +238,8 @@ export class Edge {
         verticalPush,
         color,
         this.channels[i],
-        opacity
+        opacity,
+        this.decideWidth(i)
       )
     }
 
@@ -203,7 +253,8 @@ export class Edge {
     verticalPush: number,
     color: string,
     channelName: string,
-    opacity: number
+    opacity: number,
+    width: number
   ): THREE.Group {
     const p3 = p1.clone()
     const p4 = p2.clone()
@@ -223,19 +274,16 @@ export class Edge {
     else curve = new THREE.CubicBezierCurve3(p1, p3, p4, p2)
 
     const curvePoints = curve.getPoints(points)
-    const curveGeometry = new THREE.BufferGeometry().setFromPoints(curvePoints)
-    const curveMaterial = new THREE.LineBasicMaterial({
-      color: color,
-      alphaTest: 0.05,
-      transparent: true,
-      opacity: opacity,
-    })
-    const curveLine = new THREE.Line(curveGeometry, curveMaterial)
+    // Same faintness skip as createEdge — leave the channel out of the group
+    // entirely rather than rasterising an invisible one.
+    if (opacity < EDGE_MIN_VISIBLE_OPACITY) return curveGroup
+
+    const curveLine = this.createLine(curvePoints, color, opacity, width)
     curveLine.userData.tag = channelName
     curveLine.visible = ctx.channelVisibility[channelName]
     curveGroup.add(curveLine)
 
-    if (ctx.isDirectionEnabled && opacity !== 0)
+    if (ctx.isDirectionEnabled)
       curveGroup = this.createCurvedArrow(
         curveGroup,
         curvePoints,
@@ -274,6 +322,16 @@ export class Edge {
   redrawEdge(): void {
     if (this.interLayer) ctx.scene!.remove(this.THREE_Object)
     else ctx.layers[this.sourceLayerIndex].removeEdge(this.THREE_Object)
+
+    // drawEdge() replaces THREE_Object outright, so the old one is
+    // unreachable: undo snapshots hold this same Edge instance (which will
+    // point at the new object), and no command retains a THREE_Object.
+    // Inter-layer edges redraw every frame the scene moves, and Line2's
+    // interleaved instance buffers are far bigger than the old Line's.
+    disposeObject3D(this.THREE_Object)
+    // A hidden inter-layer edge isn't redrawn below, so drop to an empty
+    // placeholder rather than leaving THREE_Object on disposed buffers.
+    this.THREE_Object = new THREE.Group()
 
     if (!this.interLayer || (this.interLayer && this.areLayersNotHidden()))
       this.drawEdge()

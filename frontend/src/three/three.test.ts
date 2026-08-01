@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import * as THREE from 'three'
+import { Line2 } from 'three/addons/lines/Line2.js'
 import { Node, Layer, Scene, Edge, ctx, resetContext } from './index'
+import { EDGE_WIDTH_MAX, EDGE_WIDTH_MIN } from './constants'
 
 beforeEach(() => {
   resetContext()
@@ -132,7 +134,7 @@ describe('Edge', () => {
   it('draws an intra-layer line and attaches it to the source layer', () => {
     seedTwoNodeLayer()
     const e = new Edge({ source: 'A::L', target: 'B::L', weights: [1] })
-    expect(e.THREE_Object).toBeInstanceOf(THREE.Line)
+    expect(e.THREE_Object).toBeInstanceOf(Line2)
     expect(e.sourceLayerIndex).toBe(0)
     expect(ctx.layers[0].plane.children).toContain(e.THREE_Object)
     expect(e.decideColor()).toBe(ctx.edgeDefaultColor)
@@ -164,12 +166,41 @@ describe('Edge', () => {
     expect(e.decideColor(0)).toBe('#123456')
   })
 
-  it('decideOpacity uses weight when edgeWidthByWeight is on', () => {
+  it('decideOpacity uses weight when edgeOpacityByWeight is on', () => {
     seedTwoNodeLayer()
     const e = new Edge({ source: 'A::L', target: 'B::L', weights: [0.7] })
-    ctx.edgeWidthByWeight = true
+    ctx.edgeOpacityByWeight = true
     expect(e.decideOpacity(0)).toBe(0.7)
-    ctx.edgeWidthByWeight = false
+    ctx.edgeOpacityByWeight = false
     expect(e.decideOpacity(0)).toBe(ctx.intraLayerEdgeOpacity)
+  })
+
+  it('decideWidth maps the scaled weight onto the width range', () => {
+    seedTwoNodeLayer()
+    const e = new Edge({ source: 'A::L', target: 'B::L', weights: [0.5] })
+    ctx.edgeWidthByWeight = true
+    expect(e.decideWidth(0)).toBe(
+      EDGE_WIDTH_MIN + 0.5 * (EDGE_WIDTH_MAX - EDGE_WIDTH_MIN)
+    )
+    ctx.edgeWidthByWeight = false
+    expect(e.decideWidth(0)).toBe(ctx.intraLayerEdgeWidth)
+  })
+
+  it('applies the resolved width to the line material', () => {
+    seedTwoNodeLayer()
+    ctx.edgeWidthByWeight = false
+    ctx.intraLayerEdgeWidth = 4
+    const e = new Edge({ source: 'A::L', target: 'B::L', weights: [1] })
+    const material = (e.THREE_Object as Line2).material
+    expect(material.linewidth).toBe(4)
+    expect(material.worldUnits).toBe(true)
+  })
+
+  it('skips edges too faint to see instead of building invisible lines', () => {
+    seedTwoNodeLayer()
+    ctx.edgeOpacityByWeight = true
+    const e = new Edge({ source: 'A::L', target: 'B::L', weights: [0.01] })
+    expect(e.THREE_Object).not.toBeInstanceOf(Line2)
+    expect(e.THREE_Object.children).toHaveLength(0)
   })
 })

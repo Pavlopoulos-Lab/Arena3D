@@ -59,6 +59,7 @@ function session(partial: Partial<SessionData> = {}): SessionData {
     universalLabelColor: '#abcabc',
     direction: true,
     edgeOpacityByWeight: false,
+    edgeWidthByWeight: true,
     scramble_nodes: false,
     ...partial,
   }
@@ -92,7 +93,8 @@ describe('buildFromSession', () => {
     buildFromSession(session())
     expect(ctx.labelColor).toBe('#abcabc')
     expect(ctx.isDirectionEnabled).toBe(true)
-    expect(ctx.edgeWidthByWeight).toBe(false)
+    expect(ctx.edgeOpacityByWeight).toBe(false)
+    expect(ctx.edgeWidthByWeight).toBe(true)
     expect(ctx.edgeFileColorPriority).toBe(true)
   })
 
