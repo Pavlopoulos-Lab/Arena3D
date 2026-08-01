@@ -620,7 +620,7 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
     <span class="numbering"> 6. </span> These options decide how uploaded/imported edge <i>Weights</i>, which are
     mapped in the [0-1] range, are shown. <i>Opacity</i> assigns them to edge opacities (the heavier the weight, the
     more opaque the edge) and <i>Width</i> assigns them to edge thickness (the heavier the weight, the thicker the
-    edge); <i>Both</i> applies them together, and <i>Nothing</i> ignores the weights entirely. Whichever property is
+    edge); <i>Both</i> applies them together, and <i>Neither</i> ignores the weights entirely. Whichever property is
     not driven by weight is set manually through the sliders below.<br />
     <span class="numbering"> 7. </span> If weight is not assigned to opacity, the intra-layer edge
     opacity is decided through this slider.<br />

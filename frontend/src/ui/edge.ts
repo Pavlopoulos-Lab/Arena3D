@@ -42,10 +42,6 @@ const EDGE_HTML = `
   <label class="form-label">Show Edge Weight As:</label>
   <div class="mb-3">
     <div class="form-check form-check-inline">
-      <input class="form-check-input" type="radio" name="edgeWeightEncodingRadio" id="edgeWeight_none" value="none" />
-      <label class="form-check-label" for="edgeWeight_none">Nothing</label>
-    </div>
-    <div class="form-check form-check-inline">
       <input class="form-check-input" type="radio" name="edgeWeightEncodingRadio" id="edgeWeight_opacity" value="opacity" checked />
       <label class="form-check-label" for="edgeWeight_opacity">Opacity</label>
     </div>
@@ -56,6 +52,10 @@ const EDGE_HTML = `
     <div class="form-check form-check-inline">
       <input class="form-check-input" type="radio" name="edgeWeightEncodingRadio" id="edgeWeight_both" value="both" />
       <label class="form-check-label" for="edgeWeight_both">Both</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="edgeWeightEncodingRadio" id="edgeWeight_neither" value="neither" />
+      <label class="form-check-label" for="edgeWeight_neither">Neither</label>
     </div>
   </div>
   <div class="mb-3 d-none" id="intraLayerEdgeOpacityWrap">
@@ -74,11 +74,11 @@ const EDGE_HTML = `
     <label class="form-label" for="interLayerEdgeWidth">Inter-Layer Edge Width:</label>
     <input type="range" class="form-range" id="interLayerEdgeWidth" min="1" max="10" step="0.5" value="1" />
   </div>
-  <div class="mb-3">
+  <div class="mb-3 d-none" id="intraChannelCurvatureWrap">
     <label class="form-label" for="intraChannelCurvature">Intra-Layer Channel Curvature:</label>
     <input type="range" class="form-range" id="intraChannelCurvature" min="10" max="20" step="1" value="15" />
   </div>
-  <div class="mb-3">
+  <div class="mb-3 d-none" id="interChannelCurvatureWrap">
     <label class="form-label" for="interChannelCurvature">Inter-Layer Channel Curvature:</label>
     <input type="range" class="form-range" id="interChannelCurvature" min="1" max="10" step="1" value="5" />
   </div>
@@ -102,10 +102,10 @@ function show(id: string, visible: boolean): void {
 // which are what the session JSON stores. One row per combination, so any
 // imported pair maps back onto an option.
 const ENCODING_FLAGS: Record<string, [boolean, boolean]> = {
-  none: [false, false],
   opacity: [true, false],
   width: [false, true],
   both: [true, true],
+  neither: [false, false],
 }
 
 // Point the radio and the slider visibility at whatever ctx currently holds.
@@ -128,6 +128,15 @@ function syncEncodingSliders(): void {
   show('interLayerEdgeOpacityWrap', !ctx.edgeOpacityByWeight)
   show('intraLayerEdgeWidthWrap', !ctx.edgeWidthByWeight)
   show('interLayerEdgeWidthWrap', !ctx.edgeWidthByWeight)
+}
+
+// Curvature only ever reaches Edge.createChannels, which is skipped entirely
+// for single-edge networks — so on those the sliders move nothing. The help
+// text already described them as multi-edge only; this makes that true.
+function syncChannelControls(): void {
+  const multiEdge = (store.get().network?.channels ?? []).length > 0
+  show('intraChannelCurvatureWrap', multiEdge)
+  show('interChannelCurvatureWrap', multiEdge)
 }
 
 // v2 attachChannelEditList: per channel a color picker + a Hide checkbox.
@@ -219,8 +228,10 @@ export function initEdgePanel(): void {
     })
 
   syncEncodingSliders()
+  syncChannelControls()
   bus.on('network:loaded', () => {
     buildChannelEditList()
     syncEncodingSliders() // an imported session may carry either flag
+    syncChannelControls() // and may or may not be multi-edge
   })
 }

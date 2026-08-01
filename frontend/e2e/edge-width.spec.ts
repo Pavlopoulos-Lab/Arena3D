@@ -11,8 +11,6 @@ import { expect, test } from '@playwright/test'
 // the saturated pixels and are excluded by the hue test. Retries because the
 // render loop is FPS-limited and the headless GPU context can drop and
 // restore, leaving most frames' buffers empty.
-const EDGE_MIN_BRIGHTNESS = 128
-
 async function edgeCoverage(page: import('@playwright/test').Page) {
   for (let i = 0; i < 60; i++) {
     const sample = await page.evaluate(() => {
@@ -87,7 +85,7 @@ test('manual width slider thickens edges when weight drives neither', async ({
   page,
 }) => {
   await loadExample(page)
-  await page.locator('#edgeWeight_none').check()
+  await page.locator('#edgeWeight_neither').check()
   const thin = await edgeCoverage(page)
 
   for (const id of ['#intraLayerEdgeWidth', '#interLayerEdgeWidth']) {
@@ -97,6 +95,39 @@ test('manual width slider thickens edges when weight drives neither', async ({
   const thick = await edgeCoverage(page)
 
   expect(thick.edge).toBeGreaterThan(thin.edge * 1.5)
+})
+
+// Curvature only bends channel curves, which single-edge networks never build.
+test('channel curvature sliders appear only for multi-edge networks', async ({
+  page,
+}) => {
+  await loadExample(page) // figure2A_data.tsv has no Channel column
+  await expect(page.locator('#intraChannelCurvatureWrap')).toBeHidden()
+  await expect(page.locator('#interChannelCurvatureWrap')).toBeHidden()
+
+  await page.getByRole('tab', { name: 'File' }).click()
+  await page.locator('#load_network_file').setInputFiles({
+    name: 'channels.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(
+      JSON.stringify({
+        layers: [{ name: 'L1' }],
+        nodes: [
+          { name: 'A', layer: 'L1' },
+          { name: 'B', layer: 'L1' },
+        ],
+        edges: [
+          { src: 'A_L1', trg: 'B_L1', channel: 'ppi' },
+          { src: 'A_L1', trg: 'B_L1', channel: 'coexpression' },
+        ],
+      })
+    ),
+  })
+  await expect(page.locator('#file_status')).toContainText('Session loaded')
+
+  await page.getByRole('tab', { name: 'Edge Actions' }).click()
+  await expect(page.locator('#intraChannelCurvatureWrap')).toBeVisible()
+  await expect(page.locator('#interChannelCurvatureWrap')).toBeVisible()
 })
 
 // Importing a session writes ctx directly (actions/network.ts) and never
@@ -113,7 +144,7 @@ test('the radio reflects whichever flag combination a session carries', async ({
   for (const [byOpacity, byWidth, expected] of [
     [false, true, 'edgeWeight_width'],
     [true, true, 'edgeWeight_both'],
-    [false, false, 'edgeWeight_none'],
+    [false, false, 'edgeWeight_neither'],
     [true, false, 'edgeWeight_opacity'],
   ] as const) {
     await page.getByRole('tab', { name: 'File' }).click()
