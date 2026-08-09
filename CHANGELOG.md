@@ -18,6 +18,20 @@
 - Curved channel edges rendered as dotted lines with beads at the curve points once thickness landed. `LineMaterial`'s `worldUnits` mode assumes a perspective camera — its fragment shader traces a view ray from the camera origin and discards anything farther than half a width from the segment, which under this app's orthographic camera discards along the whole segment. Widths are now screen-space, sized against a shared resolution uniform kept on the frustum size (so the numbers still mean world units), retargeted on resize and for the PNG export.
 - Node colors rendered washed out/dark in the 3D scene compared to the 2D navigator. The bloom composer was blitting linear color straight to the sRGB canvas (missing `OutputPass`), and the ambient light was left at the pre-r155 intensity that physical lighting divides by PI.
 
+### `Dependencies`
+
+| Tool         | Previous version | New version   |
+| ------------ | ---------------- | ------------- |
+| fastapi      | 0.139.0          | 0.141.1       |
+| pandas       | 3.0.3            | 3.0.5         |
+| uvicorn      | 0.50.0           | 0.52.1        |
+| httpx2       | 2.5.0            | 2.10.0        |
+| mypy         | 2.1.0            | 2.3.0         |
+| pandas-stubs | 3.0.3.260530     | 3.0.5.260730  |
+| ruff         | 0.15.20          | 0.16.2        |
+
+Backend dependencies updated to latest via `uv lock --upgrade`; transitives moved with them (notably starlette 1.3.1 → 1.6.0 and websockets 16.0 → 17.0.1). No known vulnerabilities before or after. `pydantic-core` stays at 2.46.4 — pydantic pins it exactly. All 79 backend tests, `ruff check`, and strict `mypy` pass on the new set.
+
 ## [3.0.0] - 2026-07-27
 
 Full rewrite: migrated from R/Shiny to a **FastAPI (Python) backend + Vite / TypeScript / Three.js frontend**. Algorithms (layouts, clustering, topology) ported 1:1 via python-igraph.
