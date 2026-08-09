@@ -57,9 +57,14 @@ async function loadExample(page: import('@playwright/test').Page) {
   await page.getByRole('tab', { name: 'File' }).click()
   await page.getByRole('button', { name: 'Load Example' }).click()
   await expect(page.locator('#file_status')).toContainText('Loaded network')
-  // Bloom off so pixel counts measure geometry, not glow.
-  await page.getByRole('tab', { name: 'Scene Actions' }).click()
-  await page.locator('#toggleBloom').uncheck()
+  // Bloom off so pixel counts measure geometry, not glow. Driven on the input
+  // itself rather than through its tab: uncheck() waits for visibility, and on
+  // a slow runner the Scene Actions pane isn't shown by the time we get here.
+  await page.locator('#toggleBloom').evaluate((el) => {
+    const box = el as HTMLInputElement
+    box.checked = false
+    box.dispatchEvent(new Event('change'))
+  })
   await page.getByRole('tab', { name: 'Edge Actions' }).click()
 }
 
