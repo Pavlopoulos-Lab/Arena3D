@@ -20,17 +20,24 @@
 
 ### `Dependencies`
 
-| Tool         | Previous version | New version   |
-| ------------ | ---------------- | ------------- |
-| fastapi      | 0.139.0          | 0.141.1       |
-| pandas       | 3.0.3            | 3.0.5         |
-| uvicorn      | 0.50.0           | 0.52.1        |
-| httpx2       | 2.5.0            | 2.10.0        |
-| mypy         | 2.1.0            | 2.3.0         |
-| pandas-stubs | 3.0.3.260530     | 3.0.5.260730  |
-| ruff         | 0.15.20          | 0.16.2        |
+| Tool              | Previous version | New version  |
+| ----------------- | ---------------- | ------------ |
+| fastapi           | 0.139.0          | 0.141.1      |
+| pandas            | 3.0.3            | 3.0.5        |
+| uvicorn           | 0.50.0           | 0.52.1       |
+| httpx2            | 2.5.0            | 2.10.0       |
+| mypy              | 2.1.0            | 2.3.0        |
+| pandas-stubs      | 3.0.3.260530     | 3.0.5.260730 |
+| ruff              | 0.15.20          | 0.16.2       |
+| @playwright/test  | 1.61.1           | 1.62.1       |
+| @types/three      | 0.185.0          | 0.185.4      |
+| eslint            | 10.6.0           | 10.8.1       |
+| prettier          | 3.9.4            | 3.9.6        |
+| typescript-eslint | 8.62.1           | 8.66.0       |
+| vite              | 8.1.3            | 8.2.1        |
+| vitest            | 4.1.9            | 4.1.10       |
 
-Backend dependencies updated to latest via `uv lock --upgrade`; transitives moved with them (notably starlette 1.3.1 → 1.6.0 and websockets 16.0 → 17.0.1). No known vulnerabilities before or after. `pydantic-core` stays at 2.46.4 — pydantic pins it exactly. All 79 backend tests, `ruff check`, and strict `mypy` pass on the new set.
+Backend dependencies updated to latest via `uv lock --upgrade`; transitives moved with them (notably starlette 1.3.1 → 1.6.0 and websockets 16.0 → 17.0.1). No known vulnerabilities on either side. `pydantic-core` stays at 2.46.4 — pydantic pins it exactly. TypeScript stays on 6.0.3: 7.0.2 typechecks fine but typescript-eslint 8.x refuses to load against the TS 7 API, so linting breaks; revisit once typescript-eslint ships TS >=7.1 support. CI now runs `uv sync --frozen` so it installs exactly the locked set the Docker image ships.
 
 ## [3.0.0] - 2026-07-27
 
