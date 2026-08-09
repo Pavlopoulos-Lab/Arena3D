@@ -34,7 +34,8 @@ def _validate(df: pd.DataFrame) -> None:
     if not set(config.MANDATORY_NETWORK_COLUMNS).issubset(df.columns):
         raise NetworkValidationError(
             "Your network file must contain at least these four columns: "
-            "SourceNode, SourceLayer, TargetNode, TargetLayer"
+            "SourceNode, SourceLayer, TargetNode, TargetLayer — or just "
+            "SourceNode and TargetNode for a minimal edgelist (single layer)."
         )
     # Reject rows with an empty/whitespace mandatory cell — a blank becomes NaN
     # and would crash EdgeModel construction with a 500 instead of a clean 400.
@@ -63,6 +64,12 @@ def parse_network_tsv(text: str) -> NetworkModel:
         df = pd.read_csv(StringIO(text), sep="\t", dtype=str)
     except pd.errors.EmptyDataError as e:
         raise NetworkValidationError("The network file is empty or has no columns.") from e
+
+    # minimal 2-column edgelist: no layer columns -> every node in one default layer
+    if "SourceLayer" not in df.columns and "TargetLayer" not in df.columns:
+        df["SourceLayer"] = config.DEFAULT_LAYER_NAME
+        df["TargetLayer"] = config.DEFAULT_LAYER_NAME
+
     _validate(df)
 
     # subset legit columns (mandatory + optional Channel/Weight, in fixed order)

@@ -8,6 +8,8 @@ import os
 # Input validation
 MANDATORY_NETWORK_COLUMNS = ["SourceNode", "SourceLayer", "TargetNode", "TargetLayer"]
 OPTIONAL_NETWORK_COLUMNS = ["Channel", "Weight"]
+# Layer assigned to every node when a minimal 2-column edgelist omits the layer columns
+DEFAULT_LAYER_NAME = "Layer1"
 MANDATORY_JSON_OBJECTS = ["layers", "nodes", "edges"]
 OPTIONAL_JSON_OBJECTS = ["scene", "universalLabelColor", "direction", "edgeOpacityByWeight"]
 MANDATORY_JSON_NODE_COLUMNS = ["name", "layer"]
