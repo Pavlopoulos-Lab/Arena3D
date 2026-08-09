@@ -78,7 +78,14 @@ Hn	        Group2	        In	        Group3	        1       1
 Hn	        Group2	        Kn	        Group4	        1       1
 Kn	        Group4	        Ln	        Group4	        0.1     1
 Kn	        Group4	        Mn	        Group5	        1       1
-An	        Group1	        Nn	        Group5	        1       1</pre>
+An	        Group1	        Nn	        Group5	        1       1
+Kn	        Group4	        On	        Group5	        1       1
+Kn	        Group4	        Pn	        Group5	        12      1
+Kn	        Group4	        Qn	        Group6	        1       1
+Kn	        Group4	        Rn	        Group6	        1       1
+Kn	        Group4	        Sn	        Group7	        1       1
+Kn	        Group4	        Tn	        Group7	        10      1
+</pre><br />
 
   <p>Example of the minimal 2-column edgelist format (all nodes placed in a single default layer).</p>
   <pre>SourceNode	TargetNode
@@ -86,13 +93,7 @@ An	        Bn
 An	        Cn
 Bn	        Cn
 Cn	        Dn
-Kn	        Group4	        On	        Group5	        1       1
-Kn	        Group4	        Pn	        Group5	        12      1
-Kn	        Group4	        Qn	        Group6	        1       1
-Kn	        Group4	        Rn	        Group6	        1       1
-Kn	        Group4	        Sn	        Group7	        1       1
-Kn	        Group4	        Tn	        Group7	        10      1
-  </pre><br />
+</pre><br />
 
   <p>Example of the Arena3D <i>Upload NODE attributes</i> file format. All columns are ommitable except
     from Node and Layer ones. Users do not need to mention every node, just the ones of interest.</p>
