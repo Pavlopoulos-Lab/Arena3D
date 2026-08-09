@@ -12,7 +12,7 @@
 
 ### Fixed
 
-- Edges no longer glow. Thick edges cover a large share of the screen, and bloom on all of them was blinding against dark backgrounds. Bloom is now selective (three's off-screen bloom-composer pattern): edges render on a dedicated layer that the bloom source masks out, so nodes still glow and edges stay crisp.
+- Edges no longer glow. Thick edges cover a large share of the screen, and bloom on all of them was blinding against dark backgrounds. Bloom is now selective (three's off-screen bloom-composer pattern) and reads from node spheres alone, so nodes still glow, edges and layer planes stay crisp, and the extra pass costs a few spheres rather than a second full scene.
 - Curved channel edges rendered as dotted lines with beads at the curve points once thickness landed. `LineMaterial`'s `worldUnits` mode assumes a perspective camera — its fragment shader traces a view ray from the camera origin and discards anything farther than half a width from the segment, which under this app's orthographic camera discards along the whole segment. Widths are now screen-space, sized against a shared resolution uniform kept on the frustum size (so the numbers still mean world units), retargeted on resize and for the PNG export.
 - Node colors rendered washed out/dark in the 3D scene compared to the 2D navigator. The bloom composer was blitting linear color straight to the sRGB canvas (missing `OutputPass`), and the ambient light was left at the pre-r155 intensity that physical lighting divides by PI.
 

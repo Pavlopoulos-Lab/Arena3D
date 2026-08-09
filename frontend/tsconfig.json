@@ -10,7 +10,10 @@
     "sourceMap": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    // playwright.config.ts reads process.env; @types/node is not picked up
+    // automatically here, so name it.
+    "types": ["node"]
   },
-  "include": ["src"]
+  "include": ["src", "playwright.config.ts"]
 }

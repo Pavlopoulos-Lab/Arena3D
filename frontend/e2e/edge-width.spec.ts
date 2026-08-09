@@ -36,7 +36,8 @@ async function edgeCoverage(page: import('@playwright/test').Page) {
             const b = data[p + 2]
             const hi = Math.max(r, gr, b)
             const lo = Math.min(r, gr, b)
-            if (hi - lo >= 30) node++ // saturated: node spheres
+            if (hi - lo >= 30)
+              node++ // saturated: node spheres
             else if (hi >= 128) edge++ // bright near-grey: edges
           }
           resolve({ edge, node })

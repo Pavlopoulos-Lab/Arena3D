@@ -10,12 +10,12 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
-import { NO_BLOOM_LAYER } from './constants'
+import { BLOOM_LAYER } from './constants'
 import { ctx } from './runtime'
 
 // Selective bloom (three's webgl_postprocessing_unreal_bloom_selective
-// pattern): bloomComposer renders the glow off-screen with NO_BLOOM_LAYER
-// masked out, composer draws the full scene and adds that glow on top.
+// pattern): bloomComposer renders the glow off-screen from BLOOM_LAYER alone,
+// composer draws the full scene and adds that glow on top.
 let composer: EffectComposer | null = null
 let bloomComposer: EffectComposer | null = null
 let renderPass: RenderPass | null = null
@@ -110,12 +110,14 @@ export function renderFrame(): void {
       // Scene object is replaced on every network load; re-point per frame.
       renderPass.scene = ctx.scene.THREE_Object
       renderPass.camera = ctx.camera
-      // Edges are drawn normally but must not feed the glow: hide their layer
-      // for the bloom render only. Edge geometry dominates big networks, so
-      // this second pass stays cheap.
-      ctx.camera.layers.disable(NO_BLOOM_LAYER)
+      // Glow source: node spheres only. Masking the camera to BLOOM_LAYER
+      // keeps edges and planes out of it — the point of the exercise — and
+      // makes this second pass a handful of spheres rather than the scene,
+      // which matters where there's no GPU (CI runs on software GL).
+      const mask = ctx.camera.layers.mask
+      ctx.camera.layers.set(BLOOM_LAYER)
       bloomComposer.render()
-      ctx.camera.layers.enable(NO_BLOOM_LAYER)
+      ctx.camera.layers.mask = mask
       composer.render()
       return
     }
