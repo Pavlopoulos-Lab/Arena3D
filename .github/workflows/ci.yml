@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: uv sync
+      - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run mypy app
@@ -41,6 +41,6 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm, cache-dependency-path: frontend/package-lock.json }
-      - run: cd backend && uv sync && (uv run uvicorn app.main:app --port 8000 &)
+      - run: cd backend && uv sync --frozen && (uv run uvicorn app.main:app --port 8000 &)
       - run: cd frontend && npm ci && npx playwright install --with-deps chromium
       - run: cd frontend && npm run test:e2e
