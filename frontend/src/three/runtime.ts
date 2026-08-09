@@ -12,6 +12,7 @@
 
 import type { Scene } from './Scene'
 import type * as THREE from 'three'
+import { Vector2 } from 'three'
 import type { Layer } from './Layer'
 import type { Node } from './Node'
 import type { Edge } from './Edge'
@@ -96,6 +97,14 @@ export interface RuntimeContext {
 
 const winW = typeof window !== 'undefined' ? window.innerWidth : 800
 const winH = typeof window !== 'undefined' ? window.innerHeight : 800
+
+// Shared resolution uniform for every edge LineMaterial. Screen-space fat
+// lines divide linewidth by this, so it must track the camera frustum size in
+// world units: every material references this single Vector2, so resize
+// (screen.ts resetScreen) and PNG export retarget all edges by mutating it —
+// no scene traversal. worldUnits is not an option: its shader assumes a
+// perspective view ray and shreds lines under this app's orthographic camera.
+export const edgeResolution = new Vector2(winW, winH)
 
 export const ctx: RuntimeContext = {
   renderer: null,

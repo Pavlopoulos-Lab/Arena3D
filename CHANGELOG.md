@@ -8,6 +8,7 @@
 
 ### Fixed
 
+- Curved channel edges rendered as dotted lines with beads at the curve points once thickness landed. `LineMaterial`'s `worldUnits` mode assumes a perspective camera — its fragment shader traces a view ray from the camera origin and discards anything farther than half a width from the segment, which under this app's orthographic camera discards along the whole segment. Widths are now screen-space, sized against a shared resolution uniform kept on the frustum size (so the numbers still mean world units), retargeted on resize and for the PNG export.
 - Node colors rendered washed out/dark in the 3D scene compared to the 2D navigator. The bloom composer was blitting linear color straight to the sRGB canvas (missing `OutputPass`), and the ambient light was left at the pre-r155 intensity that physical lighting divides by PI.
 
 ## [3.0.0] - 2026-07-27
