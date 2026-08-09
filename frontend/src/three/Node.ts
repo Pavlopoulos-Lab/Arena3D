@@ -7,6 +7,7 @@ import {
   DIAMOND_RADIUS,
   CONE_RADIUS,
   CONE_HEIGHT,
+  BLOOM_LAYER,
 } from './constants'
 import { ctx } from './runtime'
 
@@ -83,6 +84,9 @@ export class Node {
       transparent: true,
     })
     this.sphere = new THREE.Mesh(geometry, material)
+    // Nodes are the only thing that glows. enable(), not set(): the sphere
+    // stays on layer 0 so the default-masked raycaster still picks it.
+    this.sphere.layers.enable(BLOOM_LAYER)
   }
 
   initTranslate(x: number, y: number, z: number): void {

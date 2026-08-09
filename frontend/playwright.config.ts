@@ -7,6 +7,10 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
   retries: process.env.CI ? 2 : 0,
+  // These drive a WebGL scene, and CI has no GPU — every test renders through
+  // software GL and lands in the 15-30s range, so the 30s default was passing
+  // on retries alone.
+  timeout: 90_000,
   reporter: [['list']],
   use: {
     baseURL: 'http://localhost:5173',

@@ -8,7 +8,7 @@ import {
   EDGE_WIDTH_MIN,
   SELECTED_DEFAULT_COLOR,
 } from './constants'
-import { ctx, disposeObject3D } from './runtime'
+import { ctx, disposeObject3D, edgeResolution } from './runtime'
 
 export interface EdgeOptions {
   id?: number
@@ -120,9 +120,11 @@ export class Edge {
 
   // Thick lines: WebGL renders every line primitive at exactly 1px, so real
   // widths need Line2, which expands each segment into an instanced quad.
-  // worldUnits keeps the width in view space — with this app's window-sized
-  // orthographic frustum that reads as constant on-screen thickness, and it
-  // scales correctly into the higher-resolution PNG export.
+  // Widths are screen-space (LineMaterial's worldUnits shader assumes a
+  // perspective view ray and breaks curved lines into dots under this app's
+  // orthographic camera) — with the frustum-sized resolution uniform below,
+  // linewidth is effectively world units, constant on screen and scaled
+  // correctly into the higher-resolution PNG export.
   // ponytail: one material per line, same count as the LineBasicMaterial it
   // replaces. Quantise into a shared cache if material churn ever shows up.
   createLine(
@@ -137,8 +139,12 @@ export class Edge {
       transparent: true,
       opacity: opacity,
       linewidth: width,
-      worldUnits: true,
     })
+    // Screen-space widths, sized against the shared frustum-tracking
+    // resolution (see runtime.edgeResolution) so linewidth stays in world
+    // units. Assign the uniform's value directly: the `resolution` setter
+    // copies, and we need every edge to share the one mutable Vector2.
+    material.uniforms.resolution.value = edgeResolution
     return new Line2(geometry, material)
   }
 

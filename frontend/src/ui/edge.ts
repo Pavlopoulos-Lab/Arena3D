@@ -76,11 +76,11 @@ const EDGE_HTML = `
   </div>
   <div class="mb-3 d-none" id="intraChannelCurvatureWrap">
     <label class="form-label" for="intraChannelCurvature">Intra-Layer Channel Curvature:</label>
-    <input type="range" class="form-range" id="intraChannelCurvature" min="10" max="20" step="1" value="15" />
+    <input type="range" class="form-range" id="intraChannelCurvature" min="10" max="60" step="1" value="15" />
   </div>
   <div class="mb-3 d-none" id="interChannelCurvatureWrap">
     <label class="form-label" for="interChannelCurvature">Inter-Layer Channel Curvature:</label>
-    <input type="range" class="form-range" id="interChannelCurvature" min="1" max="10" step="1" value="5" />
+    <input type="range" class="form-range" id="interChannelCurvature" min="1" max="30" step="1" value="5" />
   </div>
   <div class="form-check mb-2">
     <input class="form-check-input" type="checkbox" id="edgeSelectedColorPriority" checked />

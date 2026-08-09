@@ -1,7 +1,15 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import * as THREE from 'three'
 import { Line2 } from 'three/addons/lines/Line2.js'
-import { Node, Layer, Scene, Edge, ctx, resetContext } from './index'
+import {
+  Node,
+  Layer,
+  Scene,
+  Edge,
+  ctx,
+  edgeResolution,
+  resetContext,
+} from './index'
 import { EDGE_WIDTH_MAX, EDGE_WIDTH_MIN } from './constants'
 
 beforeEach(() => {
@@ -193,7 +201,10 @@ describe('Edge', () => {
     const e = new Edge({ source: 'A::L', target: 'B::L', weights: [1] })
     const material = (e.THREE_Object as Line2).material
     expect(material.linewidth).toBe(4)
-    expect(material.worldUnits).toBe(true)
+    // Screen-space widths (worldUnits breaks under the orthographic camera),
+    // sized against the shared frustum-tracking resolution uniform.
+    expect(material.worldUnits).toBe(false)
+    expect(material.uniforms.resolution.value).toBe(edgeResolution)
   })
 
   it('skips edges too faint to see instead of building invisible lines', () => {

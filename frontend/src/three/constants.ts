@@ -26,6 +26,12 @@ export const EDGE_WIDTH_MAX = 6
 // rather than rasterised as invisible quads (v2 relied on alphaTest: 0.05).
 export const EDGE_MIN_VISIBLE_OPACITY = 0.05
 
+// Render layer for the things that glow — node spheres, and nothing else.
+// postprocessing.ts renders the bloom source with the camera masked to this
+// layer alone, so edges stay crisp (thick lines glowing all over wash out dark
+// backgrounds) and that second pass costs a few spheres instead of the scene.
+export const BLOOM_LAYER = 1
+
 // Colors
 export const LAYER_DEFAULT_COLOR = '#777777'
 export const SELECTED_LAYER_DEFAULT_COLOR = '#f7f43e'

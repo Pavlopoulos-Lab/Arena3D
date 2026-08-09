@@ -2,7 +2,7 @@
 // Port of v2 www/js/object_actions/screen.js. Shiny sync calls dropped.
 
 import * as THREE from 'three'
-import { ctx } from '../three'
+import { ctx, edgeResolution } from '../three'
 import {
   onBackgroundColor,
   renderFrame,
@@ -40,6 +40,9 @@ export function setWindowBounds(): void {
   ctx.yBoundMax = window.innerHeight / 2
   ctx.zBoundMin = -window.innerHeight / 2.5
   ctx.zBoundMax = window.innerHeight / 2.5
+  // Every edge LineMaterial shares this uniform; keep it on the frustum size
+  // so screen-space linewidths keep reading as world units.
+  edgeResolution.set(window.innerWidth, window.innerHeight)
 }
 
 export function setCamera(): void {
@@ -127,7 +130,12 @@ export function exportSceneImage(): boolean {
   })
   renderer.setSize(Math.round(w * scale), Math.round(h * scale), false)
   renderer.setClearColor(ctx.renderer.getClearColor(new THREE.Color()), 1)
+  // Edge linewidths are screen-space against the shared frustum-sized
+  // resolution; point it at the export frustum for this render so widths
+  // scale with the PNG, then hand it back to the live view.
+  edgeResolution.set(w, h)
   renderer.render(ctx.scene.THREE_Object, camera)
+  edgeResolution.set(2 * ctx.xBoundMax, 2 * ctx.yBoundMax)
 
   // Composite onto a 2D canvas so the DOM-overlay labels can be drawn on top.
   const out = document.createElement('canvas')
