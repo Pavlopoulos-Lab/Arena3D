@@ -28,6 +28,8 @@ const HELP_HTML = `
     <span class="numbering"> 1.</span> The <i> Upload Network </i> option allows the user to upload network data in the
     Arena3D format. This file consists of 4 mandatory columns with headers <b><i>SourceNode, TargetNode,
         SourceLayer and TargetLayer</i></b> and 2 optional columns with the headers <b><i> Weight and Channel</i></b>.
+    Alternatively, a minimal 2-column edgelist with only the <b><i>SourceNode and TargetNode</i></b> headers is
+    accepted — all its nodes are then spread out in a single default layer (the optional columns still apply).
     After the file is uploaded, the weight
     values are
     mapped in a [0-1] range and assigned to the respective edges. By default the weight is shown as edge transparency —
@@ -83,7 +85,15 @@ Kn	        Group4	        Qn	        Group6	        1       1
 Kn	        Group4	        Rn	        Group6	        1       1
 Kn	        Group4	        Sn	        Group7	        1       1
 Kn	        Group4	        Tn	        Group7	        10      1
-  </pre><br />
+</pre><br />
+
+  <p>Example of the minimal 2-column edgelist format (all nodes placed in a single default layer).</p>
+  <pre>SourceNode	TargetNode
+An	        Bn
+An	        Cn
+Bn	        Cn
+Cn	        Dn
+</pre><br />
 
   <p>Example of the Arena3D <i>Upload NODE attributes</i> file format. All columns are ommitable except
     from Node and Layer ones. Users do not need to mention every node, just the ones of interest.</p>
@@ -258,6 +268,11 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
 
   <h2>Example Data</h2>
 
+  <p>
+    <b>Minimal 2-column edgelist (single default layer): </b> <br />
+    A <a href="${import.meta.env.BASE_URL}data/edgelist_2columns.tsv" download>minimal edgelist</a> with only SourceNode and TargetNode columns. <br />
+  </p>
+  <hr>
   <p>
     <b>Random networks with different topologies mapped in 6 layers respectively: </b> <br />
     The <a href="${import.meta.env.BASE_URL}data/figure1_data.tsv" download>example network</a> in the Arena3D format. <br />

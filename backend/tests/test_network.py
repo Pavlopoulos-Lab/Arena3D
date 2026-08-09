@@ -55,6 +55,24 @@ def test_missing_mandatory_column_400() -> None:
     assert "four columns" in resp.json()["detail"]
 
 
+def test_two_column_edgelist_single_default_layer() -> None:
+    body = _post("SourceNode\tTargetNode\nA\tB\nB\tC\n").json()
+    assert body["layers"] == ["Layer1"]
+    assert {n["layer"] for n in body["nodes"]} == {"Layer1"}
+    assert len(body["edges"]) == 2
+
+
+def test_two_column_edgelist_with_optional_columns() -> None:
+    body = _post("SourceNode\tTargetNode\tWeight\tChannel\nA\tB\t2\tch1\nB\tC\t4\tch2\n").json()
+    assert body["layers"] == ["Layer1"]
+    assert body["channels"] == ["ch1", "ch2"]
+
+
+def test_single_layer_column_still_400() -> None:
+    resp = _post("SourceNode\tTargetNode\tTargetLayer\nA\tB\tL1\n")
+    assert resp.status_code == 400
+
+
 def test_non_numeric_weight_400() -> None:
     tsv = f"{HDR}\tWeight\nA\tL1\tB\tL2\theavy\n"
     assert _post(tsv).status_code == 400

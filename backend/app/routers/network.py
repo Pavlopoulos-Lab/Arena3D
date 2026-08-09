@@ -11,6 +11,8 @@ router = APIRouter()
 
 @router.post("/api/network", response_model=NetworkModel)
 async def upload_network(file: UploadFile) -> NetworkModel:
+    """Parse an uploaded network TSV — the 4-column Arena3D format, or a minimal
+    2-column edgelist (SourceNode, TargetNode) whose nodes all land in one default layer."""
     raw_bytes = await file.read()
     # DoS fix: reject oversized uploads before pandas parses the whole file
     # into memory — MAX_EDGES was only checked *after* the parse completed.

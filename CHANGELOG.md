@@ -4,6 +4,8 @@
 
 ### Added
 
+- Network upload accepts a minimal 2-column edgelist (`SourceNode`, `TargetNode` only) — all nodes are spread out in a single default layer named `Layer1`. The optional `Weight` and `Channel` columns still apply. A downloadable example lives in the Help → Examples tab.
+
 - Edge weight can now be shown as **edge thickness**, not only opacity. The Edge Actions panel replaces the "Edge Opacity By Weight" checkbox with a "Show Edge Weight As" radio — Nothing / Opacity / Width / Both — plus intra- and inter-layer width sliders for whichever property weight isn't driving. Sessions carry the choice as the independent `edgeOpacityByWeight` and `edgeWidthByWeight` booleans; files written before this default to opacity, so they render unchanged. Thickness needed `Line2` (instanced quads) because WebGL renders every line primitive at exactly 1px regardless of `linewidth`.
 
 ### Changed
