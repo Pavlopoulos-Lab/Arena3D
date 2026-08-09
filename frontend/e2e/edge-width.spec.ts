@@ -8,9 +8,11 @@ import { expect, test } from '@playwright/test'
 // background, mid-grey layer planes, and bright near-grey edges. Only the
 // bright band counts — the planes' own pixel count *falls* as thicker edges
 // cover them, so any metric including them cancels the effect out. Nodes are
-// the saturated pixels and are excluded by the hue test. Retries because the
-// render loop is FPS-limited and the headless GPU context can drop and
-// restore, leaving most frames' buffers empty.
+// the saturated pixels and are excluded by the hue test. Requires bloom off
+// (loadExample): glow lifts the whole plane into the bright band, which swamps
+// the edges' own pixels. Retries because the render loop is FPS-limited and
+// the headless GPU context can drop and restore, leaving most frames' buffers
+// empty.
 async function edgeCoverage(page: import('@playwright/test').Page) {
   for (let i = 0; i < 60; i++) {
     const sample = await page.evaluate(() => {
@@ -55,6 +57,9 @@ async function loadExample(page: import('@playwright/test').Page) {
   await page.getByRole('tab', { name: 'File' }).click()
   await page.getByRole('button', { name: 'Load Example' }).click()
   await expect(page.locator('#file_status')).toContainText('Loaded network')
+  // Bloom off so pixel counts measure geometry, not glow.
+  await page.getByRole('tab', { name: 'Scene Actions' }).click()
+  await page.locator('#toggleBloom').uncheck()
   await page.getByRole('tab', { name: 'Edge Actions' }).click()
 }
 

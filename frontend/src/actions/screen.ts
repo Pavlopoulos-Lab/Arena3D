@@ -2,7 +2,7 @@
 // Port of v2 www/js/object_actions/screen.js. Shiny sync calls dropped.
 
 import * as THREE from 'three'
-import { ctx, edgeResolution } from '../three'
+import { ctx, edgeResolution, NO_BLOOM_LAYER } from '../three'
 import {
   onBackgroundColor,
   renderFrame,
@@ -57,6 +57,9 @@ export function setCamera(): void {
   )
   ctx.camera.position.set(0, 0, 100)
   ctx.camera.lookAt(0, 0, 0)
+  // Edges sit on NO_BLOOM_LAYER; the normal view still draws them, only the
+  // bloom source turns the layer off (postprocessing.renderFrame).
+  ctx.camera.layers.enable(NO_BLOOM_LAYER)
 }
 
 export function resizeRenderer(): void {

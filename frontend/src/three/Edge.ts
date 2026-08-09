@@ -6,6 +6,7 @@ import {
   EDGE_MIN_VISIBLE_OPACITY,
   EDGE_WIDTH_MAX,
   EDGE_WIDTH_MIN,
+  NO_BLOOM_LAYER,
   SELECTED_DEFAULT_COLOR,
 } from './constants'
 import { ctx, disposeObject3D, edgeResolution } from './runtime'
@@ -76,6 +77,10 @@ export class Edge {
 
     if (this.channels.length === 0) this.createEdge(points)
     else this.createChannels(points)
+
+    // Keep every edge out of the bloom source. traverse(), because channels
+    // and arrows arrive as Groups and layers don't inherit.
+    this.THREE_Object.traverse((obj) => obj.layers.set(NO_BLOOM_LAYER))
 
     if (this.interLayer) ctx.scene!.add(this.THREE_Object)
     else ctx.layers[this.sourceLayerIndex].addEdge(this.THREE_Object)

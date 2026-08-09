@@ -8,12 +8,19 @@ import * as THREE from 'three'
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js'
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
+import { NO_BLOOM_LAYER } from './constants'
 import { ctx } from './runtime'
 
+// Selective bloom (three's webgl_postprocessing_unreal_bloom_selective
+// pattern): bloomComposer renders the glow off-screen with NO_BLOOM_LAYER
+// masked out, composer draws the full scene and adds that glow on top.
 let composer: EffectComposer | null = null
+let bloomComposer: EffectComposer | null = null
 let renderPass: RenderPass | null = null
 let bloomPass: UnrealBloomPass | null = null
+let mixPass: ShaderPass | null = null
 
 const isMobile =
   typeof navigator !== 'undefined' &&
@@ -44,13 +51,43 @@ export function bloomActive(): boolean {
 function ensureComposer(): void {
   if (composer || !ctx.renderer) return
   const size = ctx.renderer.getSize(new THREE.Vector2())
-  composer = new EffectComposer(ctx.renderer)
   renderPass = new RenderPass(new THREE.Scene(), new THREE.Camera())
-  composer.addPass(renderPass)
-  // Subtle accent glow: high threshold so only bright saturated colors
-  // (nodes, colored edges) bloom; labels are DOM overlays and unaffected.
+
+  // Glow only, rendered off-screen. Subtle accent: high threshold so only
+  // bright saturated colors (nodes) bloom; labels are DOM overlays and
+  // unaffected, edges are masked off by layer in renderFrame.
+  bloomComposer = new EffectComposer(ctx.renderer)
+  bloomComposer.renderToScreen = false
+  bloomComposer.addPass(renderPass)
   bloomPass = new UnrealBloomPass(size, 0.35, 0.3, 0.8)
-  composer.addPass(bloomPass)
+  bloomComposer.addPass(bloomPass)
+
+  composer = new EffectComposer(ctx.renderer)
+  composer.addPass(renderPass)
+  mixPass = new ShaderPass(
+    new THREE.ShaderMaterial({
+      uniforms: {
+        baseTexture: { value: null },
+        bloomTexture: { value: bloomComposer.renderTarget2.texture },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+        }`,
+      fragmentShader: `
+        uniform sampler2D baseTexture;
+        uniform sampler2D bloomTexture;
+        varying vec2 vUv;
+        void main() {
+          gl_FragColor = texture2D( baseTexture, vUv ) + texture2D( bloomTexture, vUv );
+        }`,
+    }),
+    'baseTexture'
+  )
+  mixPass.needsSwap = true
+  composer.addPass(mixPass)
   // Composer buffers are linear; without this the last pass would blit linear
   // values straight to an sRGB canvas and the whole scene renders dark. Must
   // stay last.
@@ -59,6 +96,7 @@ function ensureComposer(): void {
 
 export function resizePostprocessing(width: number, height: number): void {
   composer?.setSize(width, height)
+  bloomComposer?.setSize(width, height)
   bloomPass?.resolution.set(width, height)
 }
 
@@ -68,10 +106,16 @@ export function renderFrame(): void {
   if (!ctx.renderer || !ctx.scene || !ctx.camera) return
   if (userEnabled && backgroundDark) {
     ensureComposer()
-    if (composer && renderPass) {
+    if (composer && bloomComposer && renderPass) {
       // Scene object is replaced on every network load; re-point per frame.
       renderPass.scene = ctx.scene.THREE_Object
       renderPass.camera = ctx.camera
+      // Edges are drawn normally but must not feed the glow: hide their layer
+      // for the bloom render only. Edge geometry dominates big networks, so
+      // this second pass stays cheap.
+      ctx.camera.layers.disable(NO_BLOOM_LAYER)
+      bloomComposer.render()
+      ctx.camera.layers.enable(NO_BLOOM_LAYER)
       composer.render()
       return
     }

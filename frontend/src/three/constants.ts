@@ -26,6 +26,11 @@ export const EDGE_WIDTH_MAX = 6
 // rather than rasterised as invisible quads (v2 relied on alphaTest: 0.05).
 export const EDGE_MIN_VISIBLE_OPACITY = 0.05
 
+// Render layer holding everything the bloom pass must not see. Edges live here
+// (postprocessing.ts renders the bloom source with this layer off): thick lines
+// cover much of the screen, and glowing them all washes out dark backgrounds.
+export const NO_BLOOM_LAYER = 1
+
 // Colors
 export const LAYER_DEFAULT_COLOR = '#777777'
 export const SELECTED_LAYER_DEFAULT_COLOR = '#f7f43e'
