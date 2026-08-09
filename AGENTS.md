@@ -80,6 +80,6 @@ Stateless FastAPI — the frontend holds all scene state; the server validates i
 - **Within frontend**: components emit/subscribe on the `EventBus` and read/write the `store`; the render loop reacts to `ctx` flags (`renderInterLayerEdgesFlag`, label flags, etc.).
 
 ### Network Data Model
-- Networks upload as TSV with mandatory columns `SourceNode`, `SourceLayer`, `TargetNode`, `TargetLayer` (optional: `Weight`, `Channel`, edge color columns).
+- Networks upload as TSV with mandatory columns `SourceNode`, `SourceLayer`, `TargetNode`, `TargetLayer` (optional: `Weight`, `Channel`, edge color columns). A minimal 2-column edgelist (`SourceNode`, `TargetNode`) is also accepted — all nodes land in a single default layer.
 - Node/edge attribute files add per-node color/size/url/description and per-edge (optionally per-channel) color.
 - Sessions export/import as JSON with full node/edge/layer/scene state. `POST /api/external` returns a token URL so another app can hand off a session.
