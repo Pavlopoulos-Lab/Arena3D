@@ -6,8 +6,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "lint": "eslint src",
-    "format": "prettier --write src",
+    "lint": "eslint src e2e",
+    "format": "prettier --write src e2e",
     "test": "vitest",
     "test:e2e": "playwright test"
   },
@@ -18,6 +18,7 @@
   "devDependencies": {
     "@playwright/test": "^1.61.1",
     "@types/bootstrap": "^5.2.11",
+    "@types/node": "^26.2.0",
     "@types/three": "^0.185.0",
     "eslint": "^10.6.0",
     "prettier": "^3.9.4",

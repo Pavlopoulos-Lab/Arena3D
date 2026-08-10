@@ -13,7 +13,7 @@ async function selectOption(
   value: string
 ) {
   await page.locator(selector).evaluate((el, v) => {
-    ;(el as HTMLSelectElement).value = v as string
+    ;(el as HTMLSelectElement).value = v
     el.dispatchEvent(new Event('change', { bubbles: true }))
   }, value)
 }
@@ -21,7 +21,8 @@ async function selectOption(
 type NodeSnapshot = { pos: [number, number, number]; cluster: string }
 
 function readNodes() {
-  return async (): Promise<NodeSnapshot[]> => {
+  // Runs inside page.evaluate, which accepts a sync function just as happily.
+  return (): NodeSnapshot[] => {
     const ctx = (
       window as unknown as { __arena: { ctx: { nodeObjects: unknown[] } } }
     ).__arena.ctx
@@ -113,7 +114,9 @@ test('load example → layout → clustered layout → export', async ({ page })
   // --- Export session ------------------------------------------------------
   await page.getByRole('tab', { name: 'File' }).dispatchEvent('click')
   const downloadPromise = page.waitForEvent('download')
-  await page.getByRole('button', { name: 'Save Session' }).dispatchEvent('click')
+  await page
+    .getByRole('button', { name: 'Save Session' })
+    .dispatchEvent('click')
   const download = await downloadPromise
   expect(download.suggestedFilename()).toMatch(/\.json$/)
 })

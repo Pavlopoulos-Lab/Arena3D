@@ -1,0 +1,11 @@
+{
+  // The specs live outside the app's tsconfig (which covers src/ only) and run
+  // in Node, not the browser bundle — hence node types and their own project.
+  // typescript-eslint resolves each file against its nearest tsconfig.json, so
+  // this file is what makes typed linting work in e2e/.
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["."]
+}

@@ -12,6 +12,7 @@
 
 import type { Scene } from './Scene'
 import type * as THREE from 'three'
+import { Vector2 } from 'three'
 import type { Layer } from './Layer'
 import type { Node } from './Node'
 import type { Edge } from './Edge'
@@ -53,9 +54,14 @@ export interface RuntimeContext {
   selectedEdgeColorFlag: boolean
   edgeFileColorPriority: boolean
   isDirectionEnabled: boolean
+  // The two weight encodings are independent; the Edge Actions radio is just a
+  // view over this pair (none / opacity / width / both).
+  edgeOpacityByWeight: boolean
   edgeWidthByWeight: boolean
   interLayerEdgeOpacity: number
   intraLayerEdgeOpacity: number
+  interLayerEdgeWidth: number
+  intraLayerEdgeWidth: number
   interDirectionArrowSize: number
   intraDirectionArrowSize: number
   interChannelCurvature: number
@@ -92,6 +98,14 @@ export interface RuntimeContext {
 const winW = typeof window !== 'undefined' ? window.innerWidth : 800
 const winH = typeof window !== 'undefined' ? window.innerHeight : 800
 
+// Shared resolution uniform for every edge LineMaterial. Screen-space fat
+// lines divide linewidth by this, so it must track the camera frustum size in
+// world units: every material references this single Vector2, so resize
+// (screen.ts resetScreen) and PNG export retarget all edges by mutating it —
+// no scene traversal. worldUnits is not an option: its shader assumes a
+// perspective view ray and shreds lines under this app's orthographic camera.
+export const edgeResolution = new Vector2(winW, winH)
+
 export const ctx: RuntimeContext = {
   renderer: null,
   camera: null,
@@ -121,9 +135,12 @@ export const ctx: RuntimeContext = {
   selectedEdgeColorFlag: true,
   edgeFileColorPriority: false,
   isDirectionEnabled: false,
-  edgeWidthByWeight: true,
+  edgeOpacityByWeight: true,
+  edgeWidthByWeight: false,
   interLayerEdgeOpacity: 0.4,
   intraLayerEdgeOpacity: 1,
+  interLayerEdgeWidth: 1,
+  intraLayerEdgeWidth: 1,
   interDirectionArrowSize: 5,
   intraDirectionArrowSize: 5,
   interChannelCurvature: 5,
@@ -169,9 +186,12 @@ export function resetContext(): void {
   ctx.selectedEdgeColorFlag = true
   ctx.edgeFileColorPriority = false
   ctx.isDirectionEnabled = false
-  ctx.edgeWidthByWeight = true
+  ctx.edgeOpacityByWeight = true
+  ctx.edgeWidthByWeight = false
   ctx.interLayerEdgeOpacity = 0.4
   ctx.intraLayerEdgeOpacity = 1
+  ctx.interLayerEdgeWidth = 1
+  ctx.intraLayerEdgeWidth = 1
   ctx.interDirectionArrowSize = 5
   ctx.intraDirectionArrowSize = 5
   ctx.interChannelCurvature = 5
@@ -229,7 +249,14 @@ export function snapshotRegistries(): RegistrySnapshot {
 export function disposeSnapshot(snapshot: RegistrySnapshot): void {
   const scene = snapshot.scene
   if (!scene || scene === ctx.scene) return
-  scene.THREE_Object.traverse((obj) => {
+  disposeObject3D(scene.THREE_Object)
+}
+
+// Free the GPU buffers of an object and everything under it. Only ever call
+// this on objects that nothing else can still reach — see disposeSnapshot's
+// contract above, and Edge.redrawEdge, which discards the object it replaces.
+export function disposeObject3D(root: THREE.Object3D): void {
+  root.traverse((obj) => {
     const mesh = obj as Partial<THREE.Mesh> & THREE.Object3D
     if (mesh.geometry) mesh.geometry.dispose()
     const materials = Array.isArray(mesh.material)

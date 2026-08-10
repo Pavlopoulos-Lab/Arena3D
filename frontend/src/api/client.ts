@@ -81,6 +81,7 @@ export interface SessionData {
   universalLabelColor: string
   direction: boolean
   edgeOpacityByWeight: boolean
+  edgeWidthByWeight: boolean
   scramble_nodes: boolean
   warnings?: string[]
 }

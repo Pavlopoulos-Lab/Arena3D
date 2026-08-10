@@ -238,7 +238,8 @@ export function buildFromSession(s: SessionData): void {
   // v2 setJSONExtras
   setLabelColor(s.universalLabelColor)
   ctx.isDirectionEnabled = Boolean(s.direction)
-  ctx.edgeWidthByWeight = Boolean(s.edgeOpacityByWeight)
+  ctx.edgeOpacityByWeight = Boolean(s.edgeOpacityByWeight)
+  ctx.edgeWidthByWeight = Boolean(s.edgeWidthByWeight)
   ctx.edgeFileColorPriority = true
 
   store.update({

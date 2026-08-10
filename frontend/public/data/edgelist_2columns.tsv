@@ -1,0 +1,13 @@
+SourceNode	TargetNode
+An	Bn
+An	Cn
+Bn	Cn
+Cn	Dn
+Dn	En
+En	Fn
+Fn	Gn
+Gn	Hn
+Hn	An
+Bn	Fn
+Cn	Gn
+Dn	Hn

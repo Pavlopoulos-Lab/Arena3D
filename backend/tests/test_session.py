@@ -40,6 +40,19 @@ def test_defaults_filled_for_minimal_json() -> None:
     assert s["scramble_nodes"] is True  # no node positions given
     assert s["nodes"][0]["color"]  # palette-assigned
     assert s["layers"][0]["generate_coordinates"] is True
+    # Pre-thickness sessions render exactly as before: weight drives opacity,
+    # not width.
+    assert s["edgeOpacityByWeight"] is True
+    assert s["edgeWidthByWeight"] is False
+
+
+def test_edge_weight_encoding_flags_round_trip() -> None:
+    for by_opacity, by_width in [(False, False), (True, False), (False, True), (True, True)]:
+        s = normalize_session(
+            {**_minimal(), "edgeOpacityByWeight": by_opacity, "edgeWidthByWeight": by_width}
+        )
+        assert s["edgeOpacityByWeight"] is by_opacity
+        assert s["edgeWidthByWeight"] is by_width
 
 
 def test_missing_mandatory_object_raises() -> None:
