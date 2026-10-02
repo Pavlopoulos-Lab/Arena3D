@@ -163,6 +163,11 @@ def test_external_rejects_path_traversal(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr("app.routers.external.config.TMP_PATH", str(tmp_path) + "/")
     resp = client.get("/api/external/..%2f..%2fetc%2fpasswd")
     assert resp.status_code in (400, 404)
+    # tokens reaching the handler must be ASCII urlsafe-base64 only
+    for bad in ("a.b", "..", "x\u00b2", "a" * 65):
+        assert client.get(f"/api/external/{bad}").status_code in (400, 404), bad
+    assert client.get("/api/external/a.b").status_code == 400
+    assert client.get("/api/external/x\u00b2").status_code == 400
 
 
 def test_export_fixture_round_trips_through_import(tmp_path) -> None:

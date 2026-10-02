@@ -2,6 +2,21 @@
 
 ## [3.2.0dev] - unreleased
 
+### Security
+
+- Patched the open Dependabot alerts: `httpx2` (dev-only test client; GHSA high + 2 medium, fixed in 2.12.0) and `vitest` / `@vitest/mocker` (medium, fixed in 4.1.11). `npm audit` also flagged `brace-expansion` (high, DoS; transitive via eslint → minimatch), fixed via `npm audit fix`. Both `npm audit` and `pip-audit` now report no known vulnerabilities.
+- Resolved the open code-scanning alerts. `GET /api/external/{token}` now accepts only ASCII urlsafe-base64 tokens (1–64 chars) — the old check let non-ASCII alphanumerics such as `²` through — and also verifies the resolved path stays inside `tmp/`. Traversal was already blocked; the second check is the form CodeQL's `py/path-injection` recognises. CI's `GITHUB_TOKEN` is now limited to `contents: read`.
+
+### `Dependencies`
+
+| Tool            | Previous version | New version |
+| --------------- | ---------------- | ----------- |
+| httpx2          | 2.10.0           | 2.13.1      |
+| vitest          | 4.1.10           | 4.1.11      |
+| brace-expansion | 5.0.9            | 5.0.12      |
+
+The `httpx2` floor in `pyproject.toml` is now `>=2.12.0` and `vitest` is `^4.1.11`, so a re-lock can't fall back to a vulnerable version. The lockfile was regenerated with npm 11: npm 10.9.8 crashes with `Cannot read properties of null (reading 'edgesOut')` while resolving vitest's optional peer set.
+
 ## [3.1.0] - 2026-08-10
 
 ### Added
