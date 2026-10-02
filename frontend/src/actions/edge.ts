@@ -168,6 +168,16 @@ export function setInterChannelCurvature(curvature: number): void {
   ctx.renderInterLayerEdgesFlag = true
 }
 
+export function setIntraEdgeBundling(strength: number): void {
+  ctx.intraEdgeBundling = strength
+  redrawIntraLayerEdges()
+}
+
+export function setInterEdgeBundling(strength: number): void {
+  ctx.interEdgeBundling = strength
+  ctx.renderInterLayerEdgesFlag = true
+}
+
 // v2 edge.js setEdgeAttributes/setEdgeColorFromAttributes: recolor matching
 // edges from an attribute file (per channel when given, else the first
 // channel), then force loaded-edge-color priority so the colors show.

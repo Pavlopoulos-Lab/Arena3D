@@ -10,7 +10,11 @@ import {
   edgeResolution,
   resetContext,
 } from './index'
-import { EDGE_WIDTH_MAX, EDGE_WIDTH_MIN } from './constants'
+import {
+  EDGE_BUNDLE_SEGMENTS,
+  EDGE_WIDTH_MAX,
+  EDGE_WIDTH_MIN,
+} from './constants'
 
 beforeEach(() => {
   resetContext()
@@ -205,6 +209,45 @@ describe('Edge', () => {
     // sized against the shared frustum-tracking resolution uniform.
     expect(material.worldUnits).toBe(false)
     expect(material.uniforms.resolution.value).toBe(edgeResolution)
+  })
+
+  it('keeps edges straight with bundling off and curves them toward the hub with it on', () => {
+    seedTwoNodeLayer()
+    const segments = (e: Edge) =>
+      (e.THREE_Object as Line2).geometry.attributes.instanceStart
+    const straight = new Edge({ source: 'A::L', target: 'B::L', weights: [1] })
+    expect(segments(straight).count).toBe(1)
+
+    // Intra-layer hub is the layer centre (origin). Midpoint (0,5,5), full
+    // strength: the curve's t=0.5 point sits 3/4 of the way to the hub.
+    ctx.intraEdgeBundling = 1
+    const bundled = new Edge({ source: 'A::L', target: 'B::L', weights: [1] })
+    const start = segments(bundled)
+    expect(start.count).toBe(EDGE_BUNDLE_SEGMENTS)
+    const mid = EDGE_BUNDLE_SEGMENTS / 2
+    expect(start.getX(mid)).toBeCloseTo(0) // stays on the layer plane
+    expect(start.getY(mid)).toBeCloseTo(1.25)
+    expect(start.getZ(mid)).toBeCloseTo(1.25)
+  })
+
+  it('bundles inter-layer edges toward the midpoint between layer centres', () => {
+    seedTwoNodeLayer()
+    const e = new Edge({
+      source: 'A::L',
+      target: 'B::L',
+      weights: [1],
+      interLayer: true,
+    })
+    ctx.interEdgeBundling = 0.5
+    ctx.intraEdgeBundling = 0 // scopes are independent
+    // both endpoints on one layer here, so the hub is that layer's centre
+    const offset = e.bundleOffset([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, 10, 10),
+    ])
+    expect(offset.x).toBeCloseTo(0)
+    expect(offset.y).toBeCloseTo(-2.5)
+    expect(offset.z).toBeCloseTo(-2.5)
   })
 
   it('skips edges too faint to see instead of building invisible lines', () => {

@@ -188,3 +188,50 @@ test('the radio reflects whichever flag combination a session carries', async ({
     })
   }
 })
+
+// Bundling bends straight edges into curves. Read the built geometry through
+// the test hook: segment counts are exact where pixel counts would be noisy.
+test('bundling sliders curve edges and reset on network reload', async ({
+  page,
+}) => {
+  await loadExample(page)
+  const curved = () =>
+    page.evaluate(() => {
+      type Line = {
+        geometry?: { attributes: Record<string, { count: number }> }
+      }
+      const { ctx } = (
+        window as unknown as {
+          __arena: {
+            ctx: {
+              edgeObjects: { interLayer: boolean; THREE_Object: unknown }[]
+            }
+          }
+        }
+      ).__arena
+      const count = (inter: boolean) =>
+        ctx.edgeObjects.filter((e) => {
+          const line = e.THREE_Object as Line
+          return (
+            e.interLayer === inter &&
+            (line.geometry?.attributes.instanceStart.count ?? 0) > 1
+          )
+        }).length
+      return { intra: count(false), inter: count(true) }
+    })
+  expect(await curved()).toEqual({ intra: 0, inter: 0 })
+
+  for (const id of ['#intraEdgeBundling', '#interEdgeBundling']) {
+    await page.locator(id).fill('0.8')
+    await page.locator(id).dispatchEvent('input')
+  }
+  // inter-layer edges redraw on the next animate tick, not synchronously
+  await expect.poll(async () => (await curved()).inter).toBeGreaterThan(0)
+  expect((await curved()).intra).toBeGreaterThan(0)
+
+  // a fresh network resets ctx, and the sliders follow
+  await page.getByRole('tab', { name: 'File' }).click()
+  await page.getByRole('button', { name: 'Load Example' }).click()
+  await expect(page.locator('#intraEdgeBundling')).toHaveValue('0')
+  await expect(page.locator('#interEdgeBundling')).toHaveValue('0')
+})

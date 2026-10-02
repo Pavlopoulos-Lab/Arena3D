@@ -66,6 +66,9 @@ export interface RuntimeContext {
   intraDirectionArrowSize: number
   interChannelCurvature: number
   intraChannelCurvature: number
+  // Centroid bundling strength, 0 (straight) to 1 (tightest bundle)
+  interEdgeBundling: number
+  intraEdgeBundling: number
 
   // Color-priority sources
   layerColorPrioritySource: ColorPrioritySource
@@ -145,6 +148,8 @@ export const ctx: RuntimeContext = {
   intraDirectionArrowSize: 5,
   interChannelCurvature: 5,
   intraChannelCurvature: 15,
+  interEdgeBundling: 0,
+  intraEdgeBundling: 0,
 
   layerColorPrioritySource: 'default',
   nodeColorPrioritySource: 'default',
@@ -196,6 +201,8 @@ export function resetContext(): void {
   ctx.intraDirectionArrowSize = 5
   ctx.interChannelCurvature = 5
   ctx.intraChannelCurvature = 15
+  ctx.interEdgeBundling = 0
+  ctx.intraEdgeBundling = 0
   ctx.layerColorPrioritySource = 'default'
   ctx.nodeColorPrioritySource = 'default'
   ctx.lastHoveredNodeIndex = null
