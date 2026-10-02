@@ -2,6 +2,14 @@
 
 ## [3.2.0dev] - unreleased
 
+### Added
+
+- **Edge bundling.** Two new Edge Actions sliders, Intra-Layer and Inter-Layer Edge Bundling, curve edges toward a shared point so they gather into bundles. Intra-layer edges bend toward the centre of their layer and inter-layer edges toward the midpoint between the two layers they connect. 0 keeps edges straight (the default) and 1 gives the tightest bundles. Channel curves of multi-edge networks bundle too, and direction arrows follow the curve. The setting isn't saved in sessions and resets to 0 when a network loads.
+
+### Fixed
+
+- The "Apply Local Layout Algorithm" choice had no effect. Clustered layouts laid out each cluster's members with the global layout instead, and under "Local Layout for Selected Nodes Per Layer" the local choice replaced the global layout. The local layout now lays out the nodes inside each cluster in every subgraph mode, and the global layout always comes from "Apply Layout Algorithm on Selected Layers". The local layout menu now appears only once a clustering algorithm is selected. If it is left at `-`, clusters reuse the global layout.
+
 ### Security
 
 - Patched the open Dependabot alerts: `httpx2` (dev-only test client; GHSA high + 2 medium, fixed in 2.12.0) and `vitest` / `@vitest/mocker` (medium, fixed in 4.1.11). `npm audit` also flagged `brace-expansion` (high, DoS; transitive via eslint → minimatch), fixed via `npm audit fix`. Both `npm audit` and `pip-audit` now report no known vulnerabilities.
