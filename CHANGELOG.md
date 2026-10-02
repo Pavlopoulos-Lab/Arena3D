@@ -5,6 +5,7 @@
 ### Security
 
 - Patched the open Dependabot alerts: `httpx2` (dev-only test client; GHSA high + 2 medium, fixed in 2.12.0) and `vitest` / `@vitest/mocker` (medium, fixed in 4.1.11). `npm audit` also flagged `brace-expansion` (high, DoS; transitive via eslint → minimatch), fixed via `npm audit fix`. Both `npm audit` and `pip-audit` now report no known vulnerabilities.
+- Resolved the open code-scanning alerts. `GET /api/external/{token}` now accepts only ASCII urlsafe-base64 tokens (1–64 chars) — the old check let non-ASCII alphanumerics such as `²` through — and also verifies the resolved path stays inside `tmp/`. Traversal was already blocked; the second check is the form CodeQL's `py/path-injection` recognises. CI's `GITHUB_TOKEN` is now limited to `contents: read`.
 
 ### `Dependencies`
 

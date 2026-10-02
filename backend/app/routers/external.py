@@ -8,6 +8,7 @@ Token-in-file (not base64-in-URL) because MAX_EDGES=10k sessions blow past URL l
 
 import json
 import os
+import re
 import secrets
 import time
 from typing import Any
@@ -96,10 +97,15 @@ async def create_external(session: dict[str, Any]) -> ExternalCreateResponse:
 
 @router.get("/api/external/{token}", response_model=SessionImportResponse)
 async def resolve_external(token: str) -> SessionImportResponse:
-    # guard against path traversal — tokens are urlsafe base64, never contain / or .
-    if not token.isalnum() and not all(c.isalnum() or c in "-_" for c in token):
+    # guard against path traversal — tokens are ASCII urlsafe base64, never / or .
+    if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", token):
         raise HTTPException(status_code=400, detail="Invalid token.")
-    path = os.path.join(config.TMP_PATH, f"{token}.json")
+    # belt and braces: the resolved path must stay inside tmp/ (also the shape
+    # CodeQL's py/path-injection recognises as a sanitizer)
+    base = os.path.realpath(config.TMP_PATH)
+    path = os.path.realpath(os.path.join(base, f"{token}.json"))
+    if not path.startswith(base + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid token.")
     if not os.path.isfile(path):
         raise HTTPException(status_code=404, detail="Session not found or expired.")
     with open(path) as fh:
