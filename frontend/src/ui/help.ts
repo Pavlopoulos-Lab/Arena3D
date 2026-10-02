@@ -658,6 +658,10 @@ Kn	        Group4	        Tn	        Group7	        #4EFB7D
     3<sup>rd</sup> column allows the user to hide individual channels. (second figure)<br />
     This is visible only if option
     (<span class="numbering">2</span>) is not enabled.<br />
+    <b>Edge Bundling:</b> the <i>Intra-Layer</i> and <i>Inter-Layer Edge Bundling</i> sliders curve edges
+    toward a shared point so they gather into bundles: intra-layer edges toward the centre of their layer,
+    inter-layer edges toward the midpoint between the two layers they connect. 0 keeps edges straight;
+    1 gives the tightest bundles.<br />
     <br />
     <img src="${import.meta.env.BASE_URL}images/help/directed_graph.png" alt="Directed Graph"
       style="float:left;height:45%;max-width:100%;margin:5px;margin-right:20px;">

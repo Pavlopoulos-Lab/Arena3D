@@ -3,6 +3,7 @@ import { Line2 } from 'three/addons/lines/Line2.js'
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js'
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js'
 import {
+  EDGE_BUNDLE_SEGMENTS,
   EDGE_MIN_VISIBLE_OPACITY,
   EDGE_WIDTH_MAX,
   EDGE_WIDTH_MIN,
@@ -108,14 +109,55 @@ export class Edge {
       return
     }
 
+    const linePoints = this.bundlePoints(points)
     this.THREE_Object = this.createLine(
-      points,
+      linePoints,
       color,
       opacity,
       this.decideWidth()
     )
 
-    if (ctx.isDirectionEnabled) this.createArrow(points, color)
+    // last segment: on a bundled curve the arrow follows its final tangent
+    if (ctx.isDirectionEnabled) this.createArrow(linePoints.slice(-2), color)
+  }
+
+  // Centroid edge bundling: every edge of a group pulls its midpoint toward
+  // one shared hub, so the group converges into a bundle there. Intra-layer
+  // edges (layer-local coords, nodes on x=0) share the layer centre; inter-
+  // layer ones (world coords) share the midpoint between the two layer
+  // centres. Zero vector when bundling is off.
+  bundleOffset(points: THREE.Vector3[]): THREE.Vector3 {
+    const strength = this.interLayer
+      ? ctx.interEdgeBundling
+      : ctx.intraEdgeBundling
+    if (strength === 0) return new THREE.Vector3()
+    const hub = new THREE.Vector3()
+    if (this.interLayer)
+      ctx.layers[this.sourceLayerIndex].plane
+        .getWorldPosition(hub)
+        .lerp(
+          ctx.layers[this.targetLayerIndex].plane.getWorldPosition(
+            new THREE.Vector3()
+          ),
+          0.5
+        )
+    return hub
+      .sub(points[0].clone().lerp(points[1], 0.5))
+      .multiplyScalar(strength)
+  }
+
+  // Both Bezier controls on the same pulled-in midpoint: the curve passes
+  // 3/4 of the way to it, tighter than a quadratic's 1/2.
+  bundlePoints(points: THREE.Vector3[]): THREE.Vector3[] {
+    const offset = this.bundleOffset(points)
+    if (offset.lengthSq() === 0) return points
+    const control = points[0].clone().lerp(points[1], 0.5).add(offset)
+    return new THREE.CubicBezierCurve3(
+      points[0],
+      control,
+      control,
+      points[1]
+    ).getPoints(EDGE_BUNDLE_SEGMENTS)
   }
 
   // Thick lines: WebGL renders every line primitive at exactly 1px, so real
@@ -266,8 +308,10 @@ export class Edge {
     const p4 = p2.clone()
     const points = 50
 
-    p3.addScalar(verticalPush)
-    p4.addScalar(verticalPush)
+    // channel fan-out rides on top of the bundle pull
+    const bundle = this.bundleOffset([p1, p2])
+    p3.addScalar(verticalPush).add(bundle)
+    p4.addScalar(verticalPush).add(bundle)
 
     let curve: THREE.CubicBezierCurve3
     if (!this.interLayer)

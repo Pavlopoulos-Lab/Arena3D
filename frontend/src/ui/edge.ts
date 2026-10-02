@@ -19,6 +19,8 @@ import {
   setInterLayerEdgeWidth,
   setIntraChannelCurvature,
   setInterChannelCurvature,
+  setIntraEdgeBundling,
+  setInterEdgeBundling,
   setEdgeSelectedColorPriority,
   setEdgeFileColorPriority,
   setChannelVisibility,
@@ -82,6 +84,14 @@ const EDGE_HTML = `
     <label class="form-label" for="interChannelCurvature">Inter-Layer Channel Curvature:</label>
     <input type="range" class="form-range" id="interChannelCurvature" min="1" max="30" step="1" value="5" />
   </div>
+  <div class="mb-3">
+    <label class="form-label" for="intraEdgeBundling">Intra-Layer Edge Bundling:</label>
+    <input type="range" class="form-range" id="intraEdgeBundling" min="0" max="1" step="0.05" value="0" />
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="interEdgeBundling">Inter-Layer Edge Bundling:</label>
+    <input type="range" class="form-range" id="interEdgeBundling" min="0" max="1" step="0.05" value="0" />
+  </div>
   <div class="form-check mb-2">
     <input class="form-check-input" type="checkbox" id="edgeSelectedColorPriority" checked />
     <label class="form-check-label" for="edgeSelectedColorPriority">Highlight Selected Edges in Color</label>
@@ -137,6 +147,18 @@ function syncChannelControls(): void {
   const multiEdge = (store.get().network?.channels ?? []).length > 0
   show('intraChannelCurvatureWrap', multiEdge)
   show('interChannelCurvatureWrap', multiEdge)
+}
+
+// Bundling isn't stored in sessions, but a network load resets ctx to
+// defaults — pull the sliders back in line with it.
+function syncBundlingSliders(): void {
+  for (const [id, value] of [
+    ['intraEdgeBundling', ctx.intraEdgeBundling],
+    ['interEdgeBundling', ctx.interEdgeBundling],
+  ] as const) {
+    const input = document.getElementById(id) as HTMLInputElement | null
+    if (input) input.value = String(value)
+  }
 }
 
 // v2 attachChannelEditList: per channel a color picker + a Hide checkbox.
@@ -215,6 +237,8 @@ export function initEdgePanel(): void {
 
   range('intraChannelCurvature', setIntraChannelCurvature)
   range('interChannelCurvature', setInterChannelCurvature)
+  range('intraEdgeBundling', setIntraEdgeBundling)
+  range('interEdgeBundling', setInterEdgeBundling)
 
   document
     .getElementById('edgeSelectedColorPriority')
@@ -233,5 +257,6 @@ export function initEdgePanel(): void {
     buildChannelEditList()
     syncEncodingSliders() // an imported session may carry either flag
     syncChannelControls() // and may or may not be multi-edge
+    syncBundlingSliders()
   })
 }
