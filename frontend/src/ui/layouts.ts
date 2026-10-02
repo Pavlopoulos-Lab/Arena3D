@@ -74,7 +74,7 @@ const LAYOUTS_HTML = `
     <label class="form-label" for="clusteringAlgorithmChoice">Apply Clustering on Selected Layers (Optional):</label>
     <select class="form-select" id="clusteringAlgorithmChoice">${options(CLUSTERING_ALGORITHMS)}</select>
   </div>
-  <div class="mb-3">
+  <div class="mb-3 d-none" id="localLayoutWrap">
     <label class="form-label" for="localLayoutAlgorithmChoice">Apply Local Layout Algorithm:</label>
     <select class="form-select" id="localLayoutAlgorithmChoice">${options(LAYOUT_ALGORITHMS)}</select>
   </div>
@@ -173,20 +173,15 @@ async function onRunLayout(): Promise<void> {
     return status('Select at least one layer.', true)
 
   const scope = currentScope()
-  const algorithm =
-    scope === 'nodesPerLayers'
-      ? (
-          document.getElementById(
-            'localLayoutAlgorithmChoice'
-          ) as HTMLSelectElement
-        ).value
-      : (document.getElementById('layoutAlgorithmChoice') as HTMLSelectElement)
-          .value
+  const choice = (id: string) =>
+    (document.getElementById(id) as HTMLSelectElement).value
+  // The global layout drives every scope; the local one only lays out the
+  // members inside each cluster (v2 cluster.R calculateClusteredLayout).
+  const algorithm = choice('layoutAlgorithmChoice')
   if (algorithm === '-') return status('Select a layout algorithm.', true)
 
-  const clusteringAlg = (
-    document.getElementById('clusteringAlgorithmChoice') as HTMLSelectElement
-  ).value
+  const clusteringAlg = choice('clusteringAlgorithmChoice')
+  const localLayout = choice('localLayoutAlgorithmChoice')
   startLoader()
   try {
     await applyLayout({
@@ -199,7 +194,12 @@ async function onRunLayout(): Promise<void> {
       selected_channels: selectedChannels(),
       clustering:
         clusteringAlg !== '-'
-          ? { algorithm: clusteringAlg, local_layout: algorithm }
+          ? {
+              algorithm: clusteringAlg,
+              // ponytail: v2 refused to cluster without a local layout; reusing
+              // the global one is a friendlier default
+              local_layout: localLayout !== '-' ? localLayout : algorithm,
+            }
           : null,
     })
     status('Layout applied.')
@@ -258,6 +258,16 @@ export function initLayoutsPanel(): void {
     ?.addEventListener('change', (e) => {
       selectAllLayers((e.target as HTMLInputElement).checked)
       buildLayerCheckboxes()
+    })
+  // v2 handleClusterAlgorithmSelection: a local layout only means something
+  // once there are clusters to lay out.
+  document
+    .getElementById('clusteringAlgorithmChoice')
+    ?.addEventListener('change', (e) => {
+      const clustering = (e.target as HTMLSelectElement).value !== '-'
+      document
+        .getElementById('localLayoutWrap')
+        ?.classList.toggle('d-none', !clustering)
     })
   document.getElementById('runLayout')?.addEventListener('click', () => {
     void onRunLayout()

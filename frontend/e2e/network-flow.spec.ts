@@ -120,3 +120,43 @@ test('load example → layout → clustered layout → export', async ({ page })
   const download = await downloadPromise
   expect(download.suggestedFilename()).toMatch(/\.json$/)
 })
+
+// The local layout lays out members inside each cluster (v2 cluster.R); the
+// global layout stays in charge of every scope, nodesPerLayers included.
+test('local layout choice reaches the clustered layout request', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await page.waitForFunction(
+    () => '__arena' in (window as unknown as Record<string, unknown>)
+  )
+  await page.getByRole('tab', { name: 'File' }).click()
+  await page.getByRole('button', { name: 'Load Example' }).click()
+  await expect(page.locator('#file_status')).toContainText('Loaded network')
+
+  await page
+    .getByRole('tab', { name: 'Layer Selection & Layouts' })
+    .dispatchEvent('click')
+  // only offered once a clustering algorithm is picked
+  await expect(page.locator('#localLayoutAlgorithmChoice')).toBeHidden()
+  await page.locator('#selectAllLayersCheckbox').dispatchEvent('click')
+  await selectOption(page, '#layoutAlgorithmChoice', 'Fruchterman-Reingold')
+  await selectOption(page, '#clusteringAlgorithmChoice', 'Louvain')
+  await expect(page.locator('#localLayoutAlgorithmChoice')).toBeVisible()
+  await selectOption(page, '#localLayoutAlgorithmChoice', 'Circle')
+
+  for (const scope of ['perLayer', 'allLayers', 'nodesPerLayers']) {
+    await page.locator(`#subgraph_${scope}`).dispatchEvent('click')
+    const request = page.waitForRequest('**/api/layout')
+    await page.locator('#runLayout').dispatchEvent('click')
+    const body = (await request).postDataJSON() as {
+      algorithm: string
+      clustering: unknown
+    }
+    expect(body.algorithm).toBe('Fruchterman-Reingold')
+    expect(body.clustering).toEqual({
+      algorithm: 'Louvain',
+      local_layout: 'Circle',
+    })
+  }
+})
