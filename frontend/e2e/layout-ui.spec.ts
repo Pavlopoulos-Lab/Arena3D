@@ -197,7 +197,20 @@ test('the Layer Arrangement card moves the floors, undoably', async ({
         x: Math.max(...c.nodeObjects.map((n) => Math.abs(n.getPosition('x')))),
       }
     })
+  const nodePlaces = () =>
+    page.evaluate(() =>
+      (
+        window as unknown as {
+          __arena: {
+            ctx: { nodeObjects: { getPosition: (a: string) => number }[] }
+          }
+        }
+      ).__arena.ctx.nodeObjects.map((n) =>
+        ['x', 'y', 'z'].map((a) => Math.round(n.getPosition(a))).join(',')
+      )
+    )
   const fan = await floors() // where Fan put the floors
+  const nodes = await nodePlaces() // and the nodes on them
   await page.locator('#layerArrangement').selectOption('chord')
   await page.locator('#applyArrangement').dispatchEvent('click')
   await expect(page.locator('#layouts_status')).toContainText('Chord')
@@ -208,4 +221,13 @@ test('the Layer Arrangement card moves the floors, undoably', async ({
   // one undo takes the chord diagram and its view fit back: the Fan floors
   await page.locator('#undoButton').dispatchEvent('click')
   await expect.poll(() => floors()).toEqual(fan)
+  await expect.poll(() => nodePlaces()).toEqual(nodes)
+  // another arrangement after the chord diagram puts the nodes back too
+  await page.locator('#layerArrangement').selectOption('chord')
+  await page.locator('#applyArrangement').dispatchEvent('click')
+  await expect(page.locator('#layouts_status')).toContainText('Chord')
+  expect(await nodePlaces()).not.toEqual(nodes)
+  await page.locator('#layerArrangement').selectOption('parallel')
+  await page.locator('#applyArrangement').dispatchEvent('click')
+  await expect.poll(() => nodePlaces()).toEqual(nodes)
 })

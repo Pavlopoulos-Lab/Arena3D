@@ -52,6 +52,9 @@ export interface ImportChoice {
   // lines between copies of a node (same name) in different layers: add the
   // missing ones, remove the ones an importer drew, or keep what came in
   sameNames: 'add' | 'remove' | 'keep'
+  // a new entry in the Networks menu, the current network staying in it;
+  // otherwise the new network takes the current one's place there
+  alongside: boolean
 }
 
 const DIALOG_HTML = `
@@ -77,6 +80,10 @@ const DIALOG_HTML = `
         <label class="form-check-label" for="importAs_replace">Replace the current network</label>
       </div>
       <div class="form-check">
+        <input class="form-check-input" type="radio" name="importAsWhere" id="importAs_alongside" value="alongside" />
+        <label class="form-check-label" for="importAs_alongside">Open as another network — the current one stays in the Networks menu</label>
+      </div>
+      <div class="form-check">
         <input class="form-check-input" type="radio" name="importAsWhere" id="importAs_add" value="add" />
         <label class="form-check-label" for="importAs_add" id="importAs_addLabel"></label>
       </div>
@@ -100,6 +107,7 @@ const DIALOG_HTML = `
 // the popup offers the previous answers again
 let lastShow: NetworkMode = 'multilayer'
 let lastAdd = false
+let lastAlongside = false
 
 const hasNetwork = () => !!store.get().network && !!ctx.scene?.exists()
 
@@ -163,7 +171,15 @@ function ask(
   ).checked = true
   const add = radio('importAs_add')
   add.disabled = !canAdd
-  radio(canAdd && lastAdd ? 'importAs_add' : 'importAs_replace').checked = true
+  const alongside = radio('importAs_alongside')
+  alongside.disabled = !hasNetwork()
+  radio(
+    canAdd && lastAdd
+      ? 'importAs_add'
+      : !alongside.disabled && lastAlongside
+        ? 'importAs_alongside'
+        : 'importAs_replace'
+  ).checked = true
   const note = document.getElementById('importAsAddNote')!
   note.textContent = why
   note.classList.toggle('d-none', canAdd)
@@ -178,6 +194,7 @@ function ask(
         if (d.returnValue !== 'ok') return resolve(null)
         lastShow = radio('importAs_single3d').checked ? 'single' : 'multilayer'
         lastAdd = canAdd && add.checked
+        lastAlongside = !alongside.disabled && alongside.checked
         resolve({
           mode:
             lastShow === 'single'
@@ -193,6 +210,7 @@ function ask(
             : importer
               ? 'remove'
               : 'keep',
+          alongside: lastAlongside,
         })
       },
       { once: true }
@@ -207,10 +225,16 @@ export function askImportAs(
   what: string,
   { importer = false } = {}
 ): Promise<ImportChoice | null> {
-  // automation (e2e tests) may preset the answer; nodes stay where they land
+  // automation (e2e tests) may preset the answer; nodes stay where they land,
+  // and every load is a network of its own in the Networks menu
   const given = preset()
   if (given)
-    return Promise.resolve({ mode: given, layout: false, sameNames: 'keep' })
+    return Promise.resolve({
+      mode: given,
+      layout: false,
+      sameNames: 'keep',
+      alongside: true,
+    })
   return ask(what, hasNetwork(), 'Nothing is loaded yet to add to.', importer)
 }
 
@@ -219,6 +243,7 @@ export function askImportAs(
 export async function askSessionView(
   what: string
 ): Promise<NetworkMode | 'keep' | null> {
+  sessionGoesAlongside = true // automation: a network of its own, as before
   if (preset()) return 'keep'
   const choice = await ask(
     what,
@@ -226,8 +251,14 @@ export async function askSessionView(
     'A saved session replaces the current network.'
   )
   if (!choice) return null
+  sessionGoesAlongside = choice.alongside
   return choice.mode === 'single' ? 'single' : 'multilayer'
 }
+
+// whether the session last asked about opens beside the current network
+// (Networks menu) rather than in its place
+let sessionGoesAlongside = true
+export const sessionReplaces = (): boolean => !sessionGoesAlongside
 
 // After a session loads: the view the user asked for.
 export async function showSessionAs(view: NetworkMode | 'keep'): Promise<void> {
@@ -392,9 +423,9 @@ export async function placeNetwork(
     await showAsSingle3d()
     return `Joined into one graph: ${n}, laid out as one 3D network.`
   }
-  snapshotActive()
+  if (choice.alongside) snapshotActive()
   loadNetwork(data)
-  registerLoad(name, source)
+  registerLoad(name, source, undefined, !choice.alongside)
   // the popup already answered the one-layer question: floor, or 3D
   if (mode === 'single') {
     onStage?.('Laying out in 3D (Fruchterman-Reingold)')

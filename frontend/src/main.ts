@@ -10,7 +10,7 @@ import './style.css'
 import { api } from './api/client'
 import { fetchConfig } from './api/config'
 import { loadSession } from './actions/network'
-import { askSessionView, showSessionAs } from './ui/import_as'
+import { askSessionView, sessionReplaces, showSessionAs } from './ui/import_as'
 import { initMenuAutoClose, showTab } from './ui/tabs'
 import { initHomePanel } from './ui/home'
 import { initDatabasesPanel } from './ui/databases'
@@ -138,7 +138,7 @@ async function loadExternalSession(): Promise<void> {
     const session = await api.resolveExternal(token)
     loadSession(session)
     await showSessionAs(view)
-    registerLoad('Shared session', 'link', session)
+    registerLoad('Shared session', 'link', session, sessionReplaces())
     showTab('#panel-main-view')
   } catch (err) {
     console.error('[arena3d] external session load failed', err)

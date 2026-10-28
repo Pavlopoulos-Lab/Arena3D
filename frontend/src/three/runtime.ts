@@ -108,6 +108,9 @@ export interface RuntimeContext {
   edgeShape: EdgeShape
   // the hive plot arrangement, while it is on (three/hive.ts), else null
   hive: HiveState | null
+  // where the nodes were before the chord arrangement strung them along its
+  // ring, and where it put them (actions/layout.ts), else null
+  chordBefore: { positions: [number, number, number][]; placed: string } | null
 
   // Color-priority sources
   layerColorPrioritySource: ColorPrioritySource
@@ -182,6 +185,7 @@ export const ctx: RuntimeContext = {
   channelVisibility: {},
   edgeShape: DEFAULT_EDGE_SHAPE,
   hive: null,
+  chordBefore: null,
 
   edgeDefaultColor: '#000000',
   containerDefaultColor: '#5b8def',
@@ -264,6 +268,7 @@ export function resetContext(): void {
   ctx.intraEdgeBundling = 0
   ctx.interEdgeBundling = 0
   ctx.hive = null
+  ctx.chordBefore = null
   ctx.layerColorPrioritySource = 'default'
   ctx.nodeColorPrioritySource = 'default'
   ctx.lastHoveredNodeIndex = null

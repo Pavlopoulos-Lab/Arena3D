@@ -186,8 +186,9 @@ const HELP_HTML = `
     Every load — an uploaded network file, an example, a database import, a saved session or a shared link —
     first asks in an <b>Import as</b> popup, always, two things. <b>Show as</b>: a <i>Multilayered network</i>
     (every layer on its own floor) or a <i>Single 3D network</i> (one graph in space, no floors, laid out at once).
-    <b>Into the view</b>: <i>Replace the current network</i>, or <i>Add to the current network</i> (needs a loaded
-    network). Added to a multilayered view, the network comes in as new layers and copies of a node are linked
+    <b>Into the view</b>: <i>Replace the current network</i> (it leaves the Networks menu, and undo cannot bring it
+    back), <i>Open as another network</i> (the current one stays in the Networks menu, to switch back or compare), or
+    <i>Add to the current network</i> (both need a loaded network). Added to a multilayered view, the network comes in as new layers and copies of a node are linked
     across layers; added to a single 3D network it expands the view — the new nodes and edges join the graph (a
     protein already there is the same node, not a copy), the nodes already there keep their places, colours and
     sizes, and the new ones are placed next to the nodes they link to. A saved session or shared link always
@@ -1015,8 +1016,8 @@ const HELP_HTML = `
     (Euclidean or cosine) and <i>Random seed</i> (42; the same options and seed give the same layout, another seed
     another run). With <i>Align Nodes Across Selected Layers</i> every node name is embedded once and its copies
     share the spot (their features averaged); <i>Selected Nodes Only</i> embeds just the selected nodes. UMAP runs
-    without alignment or group layouts, on up to 5,000 nodes per layout; the first UMAP after the server starts
-    takes about 20 seconds while UMAP gets ready. Like every layout it is one undo step, and sessions keep the
+    without alignment or group layouts, on up to 5,000 nodes per layout, and gets ready in the background when the
+    server starts, so a UMAP in the first few seconds after a restart can take longer. Like every layout it is one undo step, and sessions keep the
     positions. Export → Other tools draws the same embedding as a scatter or a table (<i>UMAP view</i>).
   </p>
 

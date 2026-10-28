@@ -593,7 +593,7 @@ async function onRunLayout(): Promise<void> {
       false,
       layoutProgress.upload(
         umap
-          ? 'Computing UMAP on the server (the first run after a server start takes about 20 s)'
+          ? 'Computing UMAP on the server'
           : `Computing ${algorithm} on the server`
       )
     )

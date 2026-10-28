@@ -61,6 +61,8 @@ TAGS = [
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     compute_pool.start()
+    if config.WARM_UMAP:
+        compute_pool.warm_up()
     try:
         yield
     finally:

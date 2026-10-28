@@ -190,6 +190,7 @@ export function applyPredefinedLayout(
 ): void {
   if (ctx.layers.length <= 1) return
   leaveHive()
+  leaveChord()
   resetSceneAndLayerPositions()
 
   // volumes spaced wider than the window: bring them all into view
@@ -478,7 +479,29 @@ function applyCircleLayout(): void {
 // hug the ring and inter-layer edges cross it as chords. The nodes move with
 // the floors (undo brings both back); the ring is wide enough for the floors
 // not to overlap and for the nodes to sit apart.
+// Any other arrangement puts back the nodes the chord diagram strung along
+// its ring (ctx.chordBefore), unless they have been moved since, as for the
+// hive plot. A new network clears it (three/runtime.ts).
+export function leaveChord(): void {
+  const before = ctx.chordBefore
+  ctx.chordBefore = null
+  if (
+    !before ||
+    before.positions.length !== ctx.nodeObjects.length ||
+    placesKey(nodePlaces()) !== before.placed
+  )
+    return
+  ctx.nodeObjects.forEach((node, i) => {
+    const [x, y, z] = before.positions[i]
+    node.setPosition('x', x)
+    node.setPosition('y', y)
+    node.setPosition('z', z)
+  })
+  redrawIntraLayerEdges()
+}
+
 function applyChordLayout(): void {
+  const positions = nodePlaces()
   const n = ctx.layers.length
   const w = largestWidth()
   const base = ctx.layers[0].plane.quaternion.clone() // the reset frame
@@ -537,6 +560,7 @@ function applyChordLayout(): void {
       node.setPosition('z', p.z)
     })
   })
+  ctx.chordBefore = { positions, placed: placesKey(nodePlaces()) }
   redrawIntraLayerEdges()
 }
 

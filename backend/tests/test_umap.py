@@ -222,3 +222,24 @@ def test_endpoint_runs_umap() -> None:
     resp = client.post("/api/layout", json=_karate(metric="cosine").model_dump())
     assert resp.status_code == 200
     assert len(resp.json()["positions"]) == 34
+
+
+def test_warm_up_compiles_without_a_request() -> None:
+    # the server runs it in every layout worker at start (compute_pool.warm_up)
+    from app.services.umap_layout import warm_up
+
+    warm_up()
+
+
+def test_layout_workers_warm_up_at_server_start(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    from app.services import compute_pool
+
+    submitted: list[object] = []
+
+    class Pool:
+        def submit(self, fn: object) -> None:
+            submitted.append(fn)
+
+    monkeypatch.setattr(compute_pool, "_slots", [Pool(), Pool()])
+    compute_pool.warm_up()
+    assert [getattr(f, "__name__", "") for f in submitted] == ["warm_up", "warm_up"]

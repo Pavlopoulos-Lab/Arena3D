@@ -122,6 +122,8 @@ MAX_QUADRATIC_NODES = int(os.environ.get("ARENA_MAX_QUADRATIC_NODES", "2000"))
 # kernels are compiled; the feature cap bounds the request body.
 MAX_UMAP_NODES = int(os.environ.get("ARENA_MAX_UMAP_NODES", "5000"))
 MAX_UMAP_FEATURES = 500
+# compile UMAP in every layout worker when the server starts (main.py lifespan)
+WARM_UMAP = os.environ.get("ARENA_WARM_UMAP", "1") == "1"
 # the whole of a database import, every upstream call together
 DB_TOTAL_SECONDS = float(os.environ.get("ARENA_DB_TOTAL_SECONDS", "150"))
 # database imports running at once; more wait for a free slot

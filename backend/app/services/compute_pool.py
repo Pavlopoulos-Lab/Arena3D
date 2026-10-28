@@ -70,6 +70,16 @@ def start() -> None:
         _free.put_nowait(i)
 
 
+def warm_up() -> None:
+    """Have every worker compile UMAP now, in the background, so the first
+    UMAP layout after a server start is not the slow one (services/umap_layout.py
+    warm_up). A request that comes meanwhile waits in its slot behind it."""
+    from app.services.umap_layout import warm_up as warm_umap
+
+    for pool in _slots:
+        pool.submit(warm_umap)
+
+
 def stop() -> None:
     global _slots, _free
     for pool in _slots:

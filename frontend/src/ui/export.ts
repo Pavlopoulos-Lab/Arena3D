@@ -2,7 +2,7 @@
 // network for Cytoscape (cyREST, CX2, .cyjs, SIF), GraphML, MuxViz and NORMA;
 // and the complete session. Moved out of the File panel.
 
-import { exportSceneImage } from '../actions/screen'
+import { exportSceneImage, finishLoader, startLoader } from '../actions/screen'
 import { exportSession } from '../actions/session'
 import {
   NORMA_DEFAULT_SERVER,
@@ -636,7 +636,13 @@ export function initExportPanel(): void {
     const points = pick('umapxPoints') as UmapPoints
     const colour = pick('umapxColour') as UmapColour
     status('Computing the UMAP view on the server…')
-    const positions = await umapEmbedding(choice, points)
+    startLoader()
+    let positions: Awaited<ReturnType<typeof umapEmbedding>>
+    try {
+      positions = await umapEmbedding(choice, points)
+    } finally {
+      finishLoader()
+    }
     const pts = umapPoints(positions, colour, points)
     return { pts, colour, title: `Arena3D ${umapTitle(choice)}` }
   }

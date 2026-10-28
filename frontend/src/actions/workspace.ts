@@ -85,7 +85,10 @@ export const MAX_NAME = 120
 export function registerLoad(
   origin: string,
   source: SlotSource = 'file',
-  saved?: { name?: string | null; annotationSet?: string | null }
+  saved?: { name?: string | null; annotationSet?: string | null },
+  // Replace in the Import as popup: the new network takes the place of the
+  // one it replaced in the Networks menu, instead of joining the list
+  replace = false
 ): Slot {
   const slot: Slot = {
     id: nextId++,
@@ -111,7 +114,12 @@ export function registerLoad(
     })
     slot.activeSet = 0
   }
-  slots.push(slot)
+  const at = replace ? slots.findIndex((s) => s.id === activeId) : -1
+  if (at >= 0) {
+    slots.splice(at, 1, slot)
+    // as for a deleted network: undo would bring the replaced one back
+    history.clear()
+  } else slots.push(slot)
   activeId = slot.id
   announce()
   return slot

@@ -151,10 +151,24 @@ def embed(
         random_state=seed,  # one thread, same layout every time
         # spectral initialisation needs more nodes than dimensions + 1
         init="spectral" if n > dim + 2 else "random",
-        # the time budget: fewer optimisation rounds on larger graphs
-        n_epochs=500 if n <= 2000 else 200,
+        # 200 optimisation rounds at any size: umap's default of 500 below
+        # 10,000 points more than doubled the time of a layout per layer
+        # (1.3 s against 0.56 s for six layers of 1,600 nodes) for little change
+        n_epochs=200,
     )
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")  # n_jobs vs random_state, disconnected graphs
         coords = reducer.fit_transform(data)
     return {name: tuple(float(v) for v in coords[i]) for i, name in enumerate(names)}
+
+
+def warm_up() -> None:
+    """Compile umap's numba code in this worker before the first request: the
+    first UMAP in a fresh process took about 10 s, the next ones about 1 s.
+    Run once per layout worker when the server starts (compute_pool.warm_up)."""
+    ring = ig.Graph.Ring(40)
+    ring.vs["name"] = [str(i) for i in range(40)]
+    for mode in ("topology", "attributes"):  # sparse and dense inputs compile apart
+        opts = UmapOptions(mode=mode, metrics=["Degree"] if mode == "attributes" else [])
+        for dim in (2, 3):
+            embed(ring, {}, opts, use_weights=False, dim=dim, seed=1)
