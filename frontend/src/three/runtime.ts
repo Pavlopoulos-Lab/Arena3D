@@ -76,6 +76,10 @@ export interface RuntimeContext {
   selectedEdgeColorFlag: boolean
   edgeFileColorPriority: boolean
   isDirectionEnabled: boolean
+  // where Show Direction draws arrowheads: the layers (null = every layer) and
+  // the links between layers, so directed and undirected layers can mix
+  arrowLayers: string[] | null
+  interLayerArrows: boolean
   // The two weight encodings are independent; the Edge Actions radio is just a
   // view over this pair (none / opacity / width / both).
   edgeOpacityByWeight: boolean
@@ -104,6 +108,9 @@ export interface RuntimeContext {
   edgeShape: EdgeShape
   // the hive plot arrangement, while it is on (three/hive.ts), else null
   hive: HiveState | null
+  // where the nodes were before the chord arrangement strung them along its
+  // ring, and where it put them (actions/layout.ts), else null
+  chordBefore: { positions: [number, number, number][]; placed: string } | null
 
   // Color-priority sources
   layerColorPrioritySource: ColorPrioritySource
@@ -178,12 +185,15 @@ export const ctx: RuntimeContext = {
   channelVisibility: {},
   edgeShape: DEFAULT_EDGE_SHAPE,
   hive: null,
+  chordBefore: null,
 
   edgeDefaultColor: '#000000',
   containerDefaultColor: '#5b8def',
   selectedEdgeColorFlag: true,
   edgeFileColorPriority: false,
   isDirectionEnabled: false,
+  arrowLayers: null,
+  interLayerArrows: true,
   edgeOpacityByWeight: true,
   edgeWidthByWeight: false,
   edgeWeightThreshold: 0,
@@ -242,6 +252,8 @@ export function resetContext(): void {
   ctx.selectedEdgeColorFlag = true
   ctx.edgeFileColorPriority = false
   ctx.isDirectionEnabled = false
+  ctx.arrowLayers = null
+  ctx.interLayerArrows = true
   ctx.edgeOpacityByWeight = true
   ctx.edgeWidthByWeight = false
   ctx.interLayerEdgeOpacity = 0.4
@@ -256,6 +268,7 @@ export function resetContext(): void {
   ctx.intraEdgeBundling = 0
   ctx.interEdgeBundling = 0
   ctx.hive = null
+  ctx.chordBefore = null
   ctx.layerColorPrioritySource = 'default'
   ctx.nodeColorPrioritySource = 'default'
   ctx.lastHoveredNodeIndex = null

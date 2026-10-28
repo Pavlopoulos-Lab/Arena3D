@@ -78,7 +78,7 @@ async function stringImport(page: Page, proteins: string): Promise<void> {
 const choose = async (
   page: Page,
   show: 'multilayer' | 'single3d',
-  where: 'replace' | 'add'
+  where: 'replace' | 'add' | 'alongside'
 ) => {
   await expect(dialog(page)).toBeVisible()
   await page.locator(`#importAs_${show}`).check()
@@ -365,4 +365,36 @@ test('a saved session asks the view too, and always replaces', async ({
   await expect(page.locator('#importAs_single3d')).toBeChecked()
   await choose(page, 'multilayer', 'replace')
   await expect.poll(async () => (await read(page)).single).toBe(false)
+})
+
+test("Replace takes the current network's place in the Networks menu; Open as another keeps both", async ({
+  page,
+}) => {
+  await start(page)
+  const names = () =>
+    page.evaluate(async () => {
+      // the dev server's own module, so the same Networks menu as the app's
+      const w = (await import('/src/actions/workspace.ts')) as {
+        listSlots: () => { name: string }[]
+      }
+      return w.listSlots().map((s) => s.name)
+    })
+  const upload = async (file: string, where: 'replace' | 'alongside') => {
+    await page
+      .getByRole('tab', { name: 'File', includeHidden: true, exact: true })
+      .dispatchEvent('click')
+    await page
+      .locator('#input_network_file')
+      .setInputFiles(`public/data/${file}`)
+    await choose(page, 'multilayer', where)
+    await expect(page.locator('#file_status')).toContainText('Loaded network')
+  }
+  await upload('aspirin_3channels.tsv', 'replace')
+  await expect.poll(names).toEqual(['aspirin_3channels.tsv'])
+  await upload('figure2A_data.tsv', 'replace')
+  await expect.poll(names).toEqual(['figure2A_data.tsv'])
+  await upload('aspirin_3channels.tsv', 'alongside')
+  await expect
+    .poll(names)
+    .toEqual(['figure2A_data.tsv', 'aspirin_3channels.tsv'])
 })

@@ -26,6 +26,7 @@ import { loadSession } from '../actions/network'
 import {
   askImportAs,
   askSessionView,
+  sessionReplaces,
   placeNetwork,
   showSessionAs,
 } from './import_as'
@@ -108,6 +109,11 @@ export const EXAMPLES = [
   {
     file: 'GPCRs_spheres.json',
     label: 'GPCR signalling, layers as spheres',
+    category: GEOMETRY,
+  },
+  {
+    file: 'figure2A_spheres.json',
+    label: 'Four layers in glowing spheres (session)',
     category: GEOMETRY,
   },
   {
@@ -379,9 +385,10 @@ async function onLoadSession(
     const session = await api.importSession(file, uploadProgress)
     progress('Building the scene…')
     await nextFrame()
-    snapshotActive()
+    const replace = sessionReplaces()
+    if (!replace) snapshotActive()
     loadSession(session)
-    registerLoad(file.name, source, session)
+    registerLoad(file.name, source, session, replace)
     await showSessionAs(view)
     const warnings = session.warnings ?? []
     status(
